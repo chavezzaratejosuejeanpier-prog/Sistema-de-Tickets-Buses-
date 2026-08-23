@@ -1,29 +1,21 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Navbar from './components/layout/Navbar.jsx'
-import Footer from './components/layout/Footer.jsx'
-import SearchRoutes from './pages/SearchRoutes.jsx'
-import SeatSelection from './pages/SeatSelection.jsx'
-import Checkout from './pages/Checkout.jsx'
-import Login from './pages/Login.jsx'
-import Dashboard from './pages/Dashboard.jsx'
+import React from 'react';
 
-export default function App() {
+function App() {
   return (
-    <BrowserRouter>
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-1">
-          <Routes>
-            <Route path="/" element={<SearchRoutes />} />
-            <Route path="/buscar" element={<SearchRoutes />} />
-            <Route path="/asientos/:routeId" element={<SeatSelection />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-          </Routes>
-        </main>
-        <Footer />
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+      <div className="text-center p-8 bg-white rounded-xl shadow-md border border-gray-100">
+        <h1 className="text-4xl font-extrabold text-blue-900 mb-4">
+          🚌 BUSS ConectPro
+        </h1>
+        <p className="text-gray-600 text-lg font-medium">
+          Sistema de Venta de Pasajes
+        </p>
+        <div className="mt-6 inline-block bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold">
+          Entorno UI configurado correctamente
+        </div>
       </div>
-    </BrowserRouter>
-  )
+    </div>
+  );
 }
+
+export default App;
