@@ -1,3 +1,4 @@
+from backend.app.routers import ventas
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
@@ -33,3 +34,6 @@ def root():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+app.include_router(buses.router)
+app.include_router(ventas.router)
