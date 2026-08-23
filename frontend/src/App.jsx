@@ -5,7 +5,7 @@ function App() {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
       <div className="text-center p-8 bg-white rounded-xl shadow-md border border-gray-100">
         <h1 className="text-4xl font-extrabold text-blue-900 mb-4">
-          🚌 BUSS ConectPro
+          BUSS ConectPro
         </h1>
         <p className="text-gray-600 text-lg font-medium">
           Sistema de Venta de Pasajes
