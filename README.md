@@ -1,54 +1,31 @@
-# BUSS ConectPro - Sistema de Venta de Pasajes
+# BUSS ConectPro - Sistema de Gestión y Venta de Pasajes
 
-Arquitectura desacoplada React + FastAPI creada el 2026-08-22.
+Proyecto académico enfocado en la gestión, reserva y venta de boletos para transporte interprovincial. El sistema implementa una arquitectura moderna cliente-servidor garantizando una experiencia de usuario fluida y un manejo seguro en la selección de asientos.
 
-## Estructura
+## Equipo de Desarrollo
 
-```
-/backend
-  /app
-    main.py              # FastAPI entry + CORS + routers
-    database.py          # SQLAlchemy + get_db
-    core/config.py       # Settings (.env)
-    /models  bus.py, route.py, ticket.py, user.py
-    /schemas bus_schema.py, ticket_schema.py, user_schema.py
-    /routers buses.py, routes.py, sales.py, auth.py
-    /services ticket_service.py
-  requirements.txt
-  .env.example
-/frontend
-  /src
-    App.jsx, main.jsx, index.css
-    /components/common  Button.jsx, Input.jsx
-    /components/layout  Navbar.jsx, Footer.jsx
-    /components/bus     Seat.jsx, BusMap.jsx, FloorTab.jsx
-    /pages SearchRoutes.jsx, SeatSelection.jsx, Checkout.jsx, Login.jsx, Dashboard.jsx
-    /services api.js
-    /context AuthContext.jsx
-  tailwind.config.js (colores corporativos azul marino #0f2a44)
-```
+* **Josue Jeanpier Chavez Zarate**
+* **Jean Franco Flores Peña**
+* **Andres Alfredo Salas Ahen**
 
-## Cómo correr
+##  Stack Tecnológico
 
-Backend:
+* **Frontend:** React, Vite, Tailwind CSS, React Router DOM.
+* **Backend:** Python, FastAPI, SQLAlchemy.
+* **Arquitectura:** Patrón API RESTful desacoplada.
+
+## Organización del Repositorio
+
+El proyecto está dividido en dos módulos principales para mantener el código limpio y escalable:
+
+* `backend/`: Contiene el servidor de FastAPI, la configuración de la base de datos, los modelos ORM y los endpoints.
+* `frontend/`: Contiene la interfaz de usuario, maquetación, componentes reutilizables y la conexión HTTP mediante Axios.
+
+## Instrucciones de Despliegue Local
+
+### 1. Iniciar el Servidor (Backend)
+Abre tu terminal en la raíz del proyecto y ejecuta:
 ```bash
 cd backend
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
-# docs en http://localhost:8000/docs
-```
-
-Frontend:
-```bash
-cd frontend
-npm install
-npm run dev # http://localhost:5173
-```
-
-## Flujo
-1. SearchRoutes -> GET /api/routes/buscar?origen=&destino=
-2. SeatSelection -> GET /api/routes/{id}/asientos + BusMap interactivo
-3. Checkout -> POST /api/sales/checkout (verifica asiento no vendido, genera codigo BC-XXXX)
-
-## Nota
-El proyecto anterior ServiceHub (Spring Boot) queda en /src, pom.xml. Si ya no se necesita, puede archivarse. El nuevo sistema usa FastAPI + React desacoplado.
