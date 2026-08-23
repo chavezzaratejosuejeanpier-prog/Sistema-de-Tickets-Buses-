@@ -11,7 +11,7 @@ Proyecto académico enfocado en la gestión, reserva y venta de boletos para tra
 ##  Stack Tecnológico
 
 * **Frontend:** React, Vite, Tailwind CSS, React Router DOM.
-* **Backend:** Python, FastAPI, SQLAlchemy.
+* **Backend:** Python, FastAPI, Postgresql.
 * **Arquitectura:** Patrón API RESTful desacoplada.
 
 ## Organización del Repositorio
