@@ -10,7 +10,6 @@ router = APIRouter(prefix="/api/buses", tags=["Buses"])
 def ver_disponibilidad(fecha: str, db: Session = Depends(get_db)):
     asientos = db.query(Asiento).filter(Asiento.fecha_viaje == fecha).all()
     
-    # Lógica clave: Si un asiento estaba "reservado" pero pasaron los 5 minutos, lo liberamos
     ahora = datetime.utcnow()
     for asiento in asientos:
         if asiento.estado == "reservado" and asiento.expiracion_reserva and asiento.expiracion_reserva < ahora:
