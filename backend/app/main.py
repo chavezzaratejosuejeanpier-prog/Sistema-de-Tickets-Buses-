@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
 from .routers import buses, routes, sales, auth
 
-# Crear tablas
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -12,7 +11,6 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# CORS para React
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://localhost:3000"],

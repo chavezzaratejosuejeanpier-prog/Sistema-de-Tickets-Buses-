@@ -1,9 +1,21 @@
+# Python / Backend
+.venv/
+venv/
 __pycache__/
 *.pyc
 *.pyo
-venv/
+*.db
+*.sqlite3
 .env
-buss_conectpro.db
+
+# Node / Frontend
 node_modules/
 dist/
-.vite/
+frontend/.vite/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db*.pyo
