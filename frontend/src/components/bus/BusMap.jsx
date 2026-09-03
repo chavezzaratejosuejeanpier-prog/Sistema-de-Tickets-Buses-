@@ -23,30 +23,34 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
   }
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-extrabold text-blue-900">Selecciona tus Asientos</h2>
-        <p className="text-gray-500 text-sm mt-1">Piso {piso} - {piso === 1 ? 'Servicio VIP' : 'Servicio Estándar'}</p>
+    <div className="max-w-md mx-auto p-6 bg-white rounded-2xl shadow-xl border border-gray-100">
+      <div className="text-center mb-5">
+        <h2 className="text-2xl font-extrabold text-primary tracking-tight">Selecciona tus Asientos</h2>
+        <p className="text-gray-500 text-sm mt-1">Piso {piso} - {piso === 1 ? 'Servicio VIP (20 asientos)' : 'Servicio Estándar (40 asientos)'}</p>
       </div>
 
       <FloorTab piso={piso} setPiso={handlePisoChange} />
 
-      <div className="flex justify-center gap-4 my-6 text-xs font-semibold text-gray-600">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3.5 h-3.5 bg-white border-2 border-primary rounded-sm"></div> Libre
+      <div className="flex justify-center gap-4 my-5 text-xs font-semibold">
+        <div className="flex items-center gap-1.5 text-gray-600">
+          <div className="w-3.5 h-3.5 bg-white border-2 border-primary rounded-sm shadow-sm"></div> Libre
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3.5 h-3.5 bg-accent rounded-sm"></div> Selección
+        <div className="flex items-center gap-1.5 text-gray-600">
+          <div className="w-3.5 h-3.5 bg-accent rounded-sm shadow-sm"></div> Selección
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3.5 h-3.5 bg-gray-300 border border-gray-400 rounded-sm"></div> Ocupado
+        <div className="flex items-center gap-1.5 text-gray-600">
+          <div className="w-3.5 h-3.5 bg-gray-200 border border-gray-300 rounded-sm"></div> Ocupado
         </div>
       </div>
 
-      <div className="border-4 border-gray-300 rounded-[2.5rem] p-8 bg-gray-50 relative">
-        <div className="absolute top-4 right-8 w-10 h-10 border-4 border-gray-300 rounded-full flex items-center justify-center opacity-50">
-          <div className="w-4 h-4 bg-gray-300 rounded-full"></div>
+      <div className="border-[3px] border-gray-300 rounded-[2rem] p-6 sm:p-8 bg-gradient-to-b from-gray-50 to-white relative shadow-inner">
+        {/* Volante */}
+        <div className="absolute top-5 right-8 w-11 h-11 border-[3px] border-gray-300 rounded-full flex items-center justify-center bg-white shadow-sm">
+          <div className="w-3.5 h-3.5 bg-gray-400 rounded-full"></div>
+          <div className="absolute w-6 h-[2px] bg-gray-300 rotate-45"></div>
+          <div className="absolute w-6 h-[2px] bg-gray-300 -rotate-45"></div>
         </div>
+        <p className="absolute top-8 left-8 text-[10px] font-bold tracking-widest text-gray-400">FRENTE</p>
 
         <div className="grid grid-cols-5 gap-y-4 mt-10">
           {Array.from({ length: rows }, (_, row) => {
@@ -104,9 +108,12 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
         </div>
       </div>
 
-      <p className="text-xs text-gray-500 mt-4 text-center">
-        Piso {piso} - {seleccionados.length} asiento(s) seleccionado(s)
-      </p>
+      <div className="mt-5 flex items-center justify-between text-xs bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
+        <span className="text-gray-500 font-medium">Piso {piso} • {seleccionados.length} seleccionado(s)</span>
+        <span className="font-bold text-primary">
+          {seleccionados.length > 0 ? `Asientos: ${seleccionados.join(', ')}` : 'Sin selección'}
+        </span>
+      </div>
     </div>
   )
 }
