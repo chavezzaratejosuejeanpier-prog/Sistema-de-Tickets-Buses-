@@ -1,17 +1,36 @@
-import { Link } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext.jsx'
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-export default function Navbar() {
-  const { user, logout } = useAuth()
+const Navbar = () => {
+  const location = useLocation();
+
   return (
-    <nav className="bg-primary text-white px-6 py-4 flex justify-between items-center shadow">
-      <Link to="/" className="text-xl font-bold tracking-wide">BUSS<span className="text-accent"> ConectPro</span></Link>
-      <div className="flex gap-4 items-center">
-        <Link to="/buscar" className="hover:text-accent">Buscar Viajes</Link>
-        <Link to="/dashboard" className="hover:text-accent">Dashboard</Link>
-        {user ? <button onClick={logout} className="bg-accent px-4 py-1 rounded hover:bg-accent-hover">Salir</button>
-              : <Link to="/login" className="bg-white text-primary px-4 py-1 rounded font-semibold">Login</Link>}
+    <nav className="bg-blue-900 text-white shadow-md sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logotipo y Nombre */}
+          <div className="flex-shrink-0 flex items-center gap-2">
+            <span className="text-2xl"></span>
+            <Link to="/" className="font-extrabold text-xl tracking-tight hover:text-blue-200 transition-colors">
+              BUSS ConectPro
+            </Link>
+          </div>
+
+          {/* Botón de retroceso dinámico (solo se muestra si no está en el inicio) */}
+          <div className="flex items-center">
+            {location.pathname !== '/' && (
+              <Link 
+                to="/" 
+                className="text-sm font-semibold bg-blue-800 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors border border-blue-700"
+              >
+                ← Volver al inicio
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
     </nav>
-  )
-}
+  );
+};
+
+export default Navbar;
