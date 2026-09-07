@@ -14,11 +14,14 @@ api.interceptors.request.use(cfg => {
 // Rutas/Viajes
 export const searchRoutes = (origen, destino) => api.get(`/routes/buscar?origen=${origen}&destino=${destino}`)
 export const getRouteSeats = (routeId) => api.get(`/routes/${routeId}/asientos`)
+export const getRoutes = () => api.get('/routes/')
 export const getBuses = () => api.get('/buses/')
 export const getBusSeats = (busId) => api.get(`/buses/${busId}/asientos`)
 
 // Ventas
 export const checkout = (data) => api.post('/sales/checkout', data)
+export const getSalesSummary = () => api.get('/sales/')
+export const getTicketByCode = (codigo) => api.get(`/sales/tickets/${codigo}`)
 
 // Auth
 export const login = (data) => api.post('/auth/login', data)
