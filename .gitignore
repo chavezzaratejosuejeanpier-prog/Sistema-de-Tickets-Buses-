@@ -1,9 +1,26 @@
+# Python / Backend
+.venv/
+venv/
 __pycache__/
 *.pyc
 *.pyo
-venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+*.db
+*.sqlite3
 .env
-buss_conectpro.db
+
+# Node / Frontend
 node_modules/
 dist/
-.vite/
+frontend/.vite/
+.env.local
+.env.*.local
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
