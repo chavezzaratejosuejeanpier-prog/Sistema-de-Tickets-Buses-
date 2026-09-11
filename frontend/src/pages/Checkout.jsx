@@ -69,9 +69,9 @@ const Checkout = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="bg-blue-900 text-white p-6 flex justify-between items-center">
+        <div className="bg-primary text-white p-6 flex justify-between items-center">
           <h2 className="text-2xl font-bold">Completa tu compra</h2>
-          <div className="flex items-center gap-2 bg-blue-800 px-4 py-2 rounded-lg font-mono text-xl">
+          <div className="flex items-center gap-2 bg-primary-light px-4 py-2 rounded-lg font-mono text-xl">
             <span>⏱️</span> {formatTime(timeLeft)}
           </div>
         </div>
@@ -80,7 +80,7 @@ const Checkout = () => {
           <div className="space-y-6">
             {pasajeros.map((pasajero, index) => (
               <div key={index} className="p-6 bg-gray-50 border border-gray-200 rounded-xl relative">
-                <span className="absolute -top-3 left-4 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-sm">
+                <span className="badge bg-orange-500 text-white absolute -top-3 left-4 shadow-sm">
                   Asiento {pasajero.numero}
                 </span>
                 
@@ -90,7 +90,7 @@ const Checkout = () => {
                     <input
                       type="text"
                       maxLength="8"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none transition-all"
+                      className="input"
                       placeholder="Ej. 76543210"
                       value={pasajero.dni}
                       onChange={(e) => handleInputChange(index, 'dni', e.target.value)}
@@ -100,7 +100,7 @@ const Checkout = () => {
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Nombres Completos</label>
                     <input
                       type="text"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none transition-all"
+                      className="input"
                       placeholder="Ej. Juan Pérez"
                       value={pasajero.nombres}
                       onChange={(e) => handleInputChange(index, 'nombres', e.target.value)}
@@ -113,11 +113,11 @@ const Checkout = () => {
 
           <div className="mt-8 border-t border-gray-200 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-gray-700 text-lg">
-              Total a pagar: <span className="text-2xl font-black text-blue-900">S/ {(pasajeros.length * precioPorAsiento).toFixed(2)}</span>
+              Total a pagar: <span className="text-2xl font-black text-primary">S/ {(pasajeros.length * precioPorAsiento).toFixed(2)}</span>
             </div>
             <button
               type="submit"
-              className="w-full md:w-auto bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors"
+              className="btn-accent w-full md:w-auto"
             >
               Confirmar y Pagar
             </button>
