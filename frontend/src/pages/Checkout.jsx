@@ -67,7 +67,7 @@ const Checkout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
+    <div className="min-h-screen bg-slate-50 py-10 px-4">
       <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
         <div className="bg-primary text-white p-6 flex justify-between items-center">
           <h2 className="text-2xl font-bold">Completa tu compra</h2>
@@ -79,14 +79,14 @@ const Checkout = () => {
         <form onSubmit={procesarPago} className="p-8">
           <div className="space-y-6">
             {pasajeros.map((pasajero, index) => (
-              <div key={index} className="p-6 bg-gray-50 border border-gray-200 rounded-xl relative">
+              <div key={index} className="p-6 bg-slate-50 border border-slate-200 rounded-xl relative">
                 <span className="badge bg-orange-500 text-white absolute -top-3 left-4 shadow-sm">
                   Asiento {pasajero.numero}
                 </span>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">DNI</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">DNI</label>
                     <input
                       type="text"
                       maxLength="8"
@@ -97,7 +97,7 @@ const Checkout = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Nombres Completos</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Nombres Completos</label>
                     <input
                       type="text"
                       className="input"
@@ -111,8 +111,8 @@ const Checkout = () => {
             ))}
           </div>
 
-          <div className="mt-8 border-t border-gray-200 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-gray-700 text-lg">
+          <div className="mt-8 border-t border-slate-200 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-slate-700 text-lg">
               Total a pagar: <span className="text-2xl font-black text-primary">S/ {(pasajeros.length * precioPorAsiento).toFixed(2)}</span>
             </div>
             <button

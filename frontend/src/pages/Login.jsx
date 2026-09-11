@@ -18,7 +18,7 @@ export default function Login() {
     } catch { alert('Credenciales inválidas o backend no activo') }
   }
   return (
-    <div className="max-w-sm mx-auto p-6 mt-10 bg-white rounded shadow">
+    <div className="max-w-sm mx-auto p-6 mt-10 card">
       <h1 className="text-xl font-bold text-primary mb-4">Acceso BUSS ConectPro</h1>
       <form onSubmit={handle} className="flex flex-col gap-4">
         <Input label="Email" value={email} onChange={e=>setEmail(e.target.value)} />

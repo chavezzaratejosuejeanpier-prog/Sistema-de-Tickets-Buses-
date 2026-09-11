@@ -4,23 +4,28 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import BusMap from './components/bus/BusMap';
 import Checkout from './pages/Checkout';
+import Login from './pages/Login';
+import SearchRoutes from './pages/SearchRoutes';
+import SeatSelection from './pages/SeatSelection';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
     <Router>
-      {/* El Navbar va arriba de todo */}
       <Navbar />
-      
-      {/* Contenedor principal para empujar el footer hacia abajo */}
-      <div className="min-h-screen bg-gray-100 flex flex-col">
+
+      <div className="min-h-screen bg-slate-100 flex flex-col">
         <main className="flex-grow py-8">
           <Routes>
             <Route path="/" element={<BusMap />} />
+            <Route path="/buscar" element={<SearchRoutes />} />
+            <Route path="/asientos/:routeId" element={<SeatSelection />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
           </Routes>
         </main>
-        
-        {/* El Footer va al final */}
+
         <Footer />
       </div>
     </Router>
