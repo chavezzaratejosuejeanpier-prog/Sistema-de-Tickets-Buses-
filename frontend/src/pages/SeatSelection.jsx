@@ -19,7 +19,11 @@ export default function SeatSelection() {
     navigate('/checkout')
   }
 
-  if(!data) return <p className="p-6">Cargando mapa...</p>
+  if(!data) return (
+    <div className="max-w-3xl mx-auto p-6 flex items-center justify-center gap-3 text-slate-500">
+      <span className="spinner" aria-hidden="true" /> Cargando mapa...
+    </div>
+  )
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-bold text-primary mb-4">Selección de Asientos - Ruta #{routeId}</h1>

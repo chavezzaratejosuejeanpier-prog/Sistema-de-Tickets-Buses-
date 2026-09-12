@@ -19,7 +19,7 @@ export default function BusMap({ totalPiso1=20, totalPiso2=40, ocupados=[], onSe
           <Seat key={n} numero={n} estado={ocupados.includes(n)?'ocupado':'libre'} selected={seleccionados.includes(n)} onClick={()=>toggle(n)} />
         ))}
       </div>
-      <p className="text-xs text-slate-500 mt-3 text-center">Piso {piso} - {seleccionados.length} asiento(s) seleccionado(s)</p>
+      <p aria-live="polite" className="text-xs text-slate-500 mt-3 text-center">Piso {piso} - {seleccionados.length} asiento(s) seleccionado(s)</p>
     </div>
   )
 }

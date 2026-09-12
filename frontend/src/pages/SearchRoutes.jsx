@@ -8,14 +8,23 @@ export default function SearchRoutes() {
   const [origen, setOrigen] = useState('Lima')
   const [destino, setDestino] = useState('Cusco')
   const [resultados, setResultados] = useState([])
+  const [buscando, setBuscando] = useState(false)
+  const [buscado, setBuscado] = useState(false)
   const navigate = useNavigate()
 
   const buscar = async (e) => {
     e.preventDefault()
+    setBuscando(true)
+    setBuscado(false)
     try {
       const { data } = await searchRoutes(origen, destino)
       setResultados(data)
-    } catch { setResultados([]) }
+    } catch {
+      setResultados([])
+    } finally {
+      setBuscando(false)
+      setBuscado(true)
+    }
   }
 
   return (
@@ -24,11 +33,19 @@ export default function SearchRoutes() {
       <form onSubmit={buscar} className="card p-6 flex flex-col md:flex-row gap-4 md:items-end">
         <div className="flex-1"><Input label="Origen" value={origen} onChange={e=>setOrigen(e.target.value)} placeholder="Lima" /></div>
         <div className="flex-1"><Input label="Destino" value={destino} onChange={e=>setDestino(e.target.value)} placeholder="Arequipa" /></div>
-        <Button type="submit">Buscar</Button>
+        <Button type="submit" disabled={buscando}>
+          {buscando ? (<><span className="spinner" aria-hidden="true" /> Buscando...</>) : 'Buscar'}
+        </Button>
       </form>
 
-      <div className="mt-6 grid gap-4">
-        {resultados.length===0 && <p className="text-slate-500">Ingresa origen/destino y presiona Buscar. Asegúrate que el backend esté corriendo.</p>}
+      <div className="mt-6 grid gap-4" aria-live="polite">
+        {buscando && <p className="text-slate-500">Consultando viajes disponibles...</p>}
+        {!buscando && !buscado && (
+          <p className="text-slate-500">Ingresa origen/destino y presiona Buscar. Asegúrate que el backend esté corriendo.</p>
+        )}
+        {!buscando && buscado && resultados.length === 0 && (
+          <div className="empty-state">No se encontraron viajes para esa ruta.</div>
+        )}
         {resultados.map(r=>(
           <div key={r.id} className="card p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>

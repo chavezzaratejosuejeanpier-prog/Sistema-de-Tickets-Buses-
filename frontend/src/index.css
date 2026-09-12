@@ -96,4 +96,12 @@
   .badge {
     @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold;
   }
+
+  .spinner {
+    @apply inline-block h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-accent;
+  }
+
+  .empty-state {
+    @apply rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500;
+  }
 }

@@ -71,8 +71,8 @@ const Checkout = () => {
       <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
         <div className="bg-primary text-white p-6 flex justify-between items-center">
           <h2 className="text-2xl font-bold">Completa tu compra</h2>
-          <div className="flex items-center gap-2 bg-primary-light px-4 py-2 rounded-lg font-mono text-xl">
-            <span>⏱️</span> {formatTime(timeLeft)}
+          <div className="flex items-center gap-2 bg-primary-light px-4 py-2 rounded-lg font-mono text-xl" aria-live="off">
+            <span aria-hidden="true">⏱️</span> <span aria-label="Tiempo restante">{formatTime(timeLeft)}</span>
           </div>
         </div>
 
@@ -86,8 +86,9 @@ const Checkout = () => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">DNI</label>
+                    <label htmlFor={`dni-${index}`} className="block text-sm font-semibold text-slate-700 mb-1">DNI</label>
                     <input
+                      id={`dni-${index}`}
                       type="text"
                       maxLength="8"
                       className="input"
@@ -97,8 +98,9 @@ const Checkout = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">Nombres Completos</label>
+                    <label htmlFor={`nombres-${index}`} className="block text-sm font-semibold text-slate-700 mb-1">Nombres Completos</label>
                     <input
+                      id={`nombres-${index}`}
                       type="text"
                       className="input"
                       placeholder="Ej. Juan Pérez"
