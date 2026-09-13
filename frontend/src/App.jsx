@@ -1,18 +1,22 @@
 import React, { useState } from 'react'
 import BusMap from './components/bus/BusMap.jsx'
+import ThemeToggle from './components/common/ThemeToggle.jsx'
 
 function App() {
   const [demoKey, setDemoKey] = useState(0)
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-primary text-white px-6 py-4 flex justify-between items-center shadow sticky top-0 z-20 backdrop-blur">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#070d1a] flex flex-col">
+      <header className="bg-primary dark:bg-primary-dark text-white px-6 py-4 flex justify-between items-center shadow sticky top-0 z-20 backdrop-blur">
         <span className="text-xl font-bold tracking-wide">BUSS<span className="text-accent"> ConectPro</span></span>
-        <span className="bg-white text-primary px-4 py-1.5 rounded-full text-xs font-bold shadow-sm">v1.1 Interfaz</span>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <span className="bg-white dark:bg-white/10 dark:text-white dark:border dark:border-white/20 text-primary px-4 py-1.5 rounded-full text-xs font-bold shadow-sm">v1.1 Interfaz</span>
+        </div>
       </header>
 
-      <main className="flex-1">
-        <section className="bg-primary px-6 py-16 relative overflow-hidden">
+      <main className="flex-1 bg-gray-50 dark:bg-[#070d1a]">
+        <section className="bg-primary dark:bg-[#0a1e30] px-6 py-16 relative overflow-hidden">
           {/* decorativo */}
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
           <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
@@ -46,10 +50,10 @@ function App() {
             </div>
 
             {/* Preview interactivo real */}
-            <div id="demo" className="bg-white rounded-2xl shadow-2xl p-6 border border-gray-100">
+            <div id="demo" className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-100 dark:border-gray-700">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-xs font-bold tracking-widest text-gray-400">VISTA PREVIA INTERACTIVA</span>
-                <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Demo en vivo</span>
+                <span className="text-xs font-bold tracking-widest text-gray-400 dark:text-gray-500">VISTA PREVIA INTERACTIVA</span>
+                <span className="bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-300 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Demo en vivo</span>
               </div>
               <BusMap
                 key={demoKey}
@@ -59,38 +63,38 @@ function App() {
                 onSelect={() => {}}
               />
               <div className="mt-4 flex gap-2">
-                <button onClick={() => setDemoKey((k) => k + 1)} className="flex-1 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold text-sm text-gray-700 transition-colors">
+                <button onClick={() => setDemoKey((k) => k + 1)} className="flex-1 h-10 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl font-semibold text-sm text-gray-700 transition-colors">
                   Reiniciar demo
                 </button>
                 <div className="flex-1 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-sm shadow hover:bg-primary-light transition-colors cursor-pointer">
                   Continuar con la reserva
                 </div>
               </div>
-              <p className="text-[11px] text-gray-400 text-center mt-3">Prueba seleccionar asientos • Piso 1: VIP • Piso 2: Estándar</p>
+              <p className="text-[11px] text-gray-400 dark:text-gray-500 text-center mt-3">Prueba seleccionar asientos • Piso 1: VIP • Piso 2: Estándar</p>
             </div>
           </div>
         </section>
 
         <section className="max-w-6xl mx-auto px-6 py-14 grid md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-accent font-bold shadow-sm">01</div>
-            <h3 className="font-bold text-primary mt-4">Búsqueda de Rutas</h3>
-            <p className="text-sm text-gray-500 mt-2 leading-relaxed">Filtra por origen, destino y fecha con resultados en tiempo real.</p>
+            <h3 className="font-bold text-primary dark:text-white mt-4">Búsqueda de Rutas</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">Filtra por origen, destino y fecha con resultados en tiempo real.</p>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
             <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white font-bold shadow-sm">02</div>
-            <h3 className="font-bold text-primary mt-4">Selección Visual</h3>
-            <p className="text-sm text-gray-500 mt-2 leading-relaxed">Mapa interactivo 2 pisos con estados libre, ocupado y selección.</p>
+            <h3 className="font-bold text-primary dark:text-white mt-4">Selección Visual</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">Mapa interactivo 2 pisos con estados libre, ocupado y selección.</p>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
             <div className="w-10 h-10 bg-primary-dark rounded-xl flex items-center justify-center text-white font-bold shadow-sm">03</div>
-            <h3 className="font-bold text-primary mt-4">Pago Seguro</h3>
-            <p className="text-sm text-gray-500 mt-2 leading-relaxed">Checkout integrado y confirmación instantánea de pasajes.</p>
+            <h3 className="font-bold text-primary dark:text-white mt-4">Pago Seguro</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">Checkout integrado y confirmación instantánea de pasajes.</p>
           </div>
         </section>
       </main>
 
-      <footer className="bg-primary-dark text-white text-center py-4 text-sm">© 2026 BUSS ConectPro - Sistema de Venta de Pasajes</footer>
+      <footer className="bg-primary-dark dark:bg-black text-white text-center py-4 text-sm">© 2026 BUSS ConectPro - Sistema de Venta de Pasajes</footer>
     </div>
   )
 }
