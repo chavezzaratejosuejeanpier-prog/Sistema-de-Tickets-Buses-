@@ -8,7 +8,7 @@ import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 
-export default function App() {
+function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen flex flex-col">
@@ -29,3 +29,5 @@ export default function App() {
     </BrowserRouter>
   )
 }
+
+export default App
