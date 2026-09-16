@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { login } from '../services/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import Input from '../components/common/Input.jsx'
@@ -25,6 +26,9 @@ export default function Login() {
         <Input label="Password" type="password" value={password} onChange={e=>setPassword(e.target.value)} />
         <Button type="submit">Ingresar</Button>
       </form>
+      <p className="text-sm text-gray-600 text-center mt-4">
+        ¿No tienes cuenta? <Link to="/registro" className="text-accent hover:underline">Regístrate</Link>
+      </p>
     </div>
   )
 }

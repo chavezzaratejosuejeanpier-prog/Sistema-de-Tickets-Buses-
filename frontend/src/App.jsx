@@ -5,6 +5,7 @@ import SearchRoutes from './pages/SearchRoutes.jsx'
 import SeatSelection from './pages/SeatSelection.jsx'
 import Checkout from './pages/Checkout.jsx'
 import Login from './pages/Login.jsx'
+import Register from './pages/Register.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
             <Route path="/asientos/:routeId" element={<SeatSelection />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/registro" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </main>

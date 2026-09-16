@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import uuid
+from datetime import datetime
 from ..database import get_db
 from ..models.ticket import Ticket, EstadoTicket
 from ..models.route import Route
@@ -8,6 +9,18 @@ from ..schemas.ticket_schema import CheckoutRequest
 from ..services.ticket_service import verificar_disponibilidad
 
 router = APIRouter()
+
+@router.get("/")
+def resumen_ventas(db: Session = Depends(get_db)):
+    ventas = db.query(Ticket).filter(Ticket.estado == EstadoTicket.VENDIDO).all()
+    hoy = datetime.utcnow().date()
+    ventas_hoy = [v for v in ventas if v.creado_en.date() == hoy]
+    return {
+        "total_ventas": len(ventas),
+        "ventas_hoy": len(ventas_hoy),
+        "recaudacion_total": round(sum(v.precio_pagado or 0 for v in ventas), 2),
+        "recaudacion_hoy": round(sum(v.precio_pagado or 0 for v in ventas_hoy), 2),
+    }
 
 @router.post("/checkout")
 def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):

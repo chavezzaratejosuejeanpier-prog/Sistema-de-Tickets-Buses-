@@ -10,7 +10,10 @@ export default function Navbar() {
         <Link to="/buscar" className="hover:text-accent">Buscar Viajes</Link>
         <Link to="/dashboard" className="hover:text-accent">Dashboard</Link>
         {user ? <button onClick={logout} className="bg-accent px-4 py-1 rounded hover:bg-accent-hover">Salir</button>
-              : <Link to="/login" className="bg-white text-primary px-4 py-1 rounded font-semibold">Login</Link>}
+              : <div className="flex gap-2 items-center">
+                  <Link to="/login" className="bg-white text-primary px-4 py-1 rounded font-semibold">Login</Link>
+                  <Link to="/registro" className="bg-accent text-white px-4 py-1 rounded font-semibold hover:bg-accent-hover">Registro</Link>
+                </div>}
       </div>
     </nav>
   )
