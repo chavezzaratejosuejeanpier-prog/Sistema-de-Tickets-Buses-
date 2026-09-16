@@ -37,7 +37,7 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
-      <p className="text-sm text-slate-500 mt-4">Los datos se cargan desde /api/buses y /api/routes. Si el backend no está activo, verás "--".</p>
+      <p className="text-sm text-slate-500 mt-4">Los datos se cargan desde /api/buses y /api/routes. Si el backend no está activo, verás &quot;--&quot;.</p>
     </div>
   )
 }

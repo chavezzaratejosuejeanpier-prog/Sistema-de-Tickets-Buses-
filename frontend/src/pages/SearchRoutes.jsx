@@ -55,7 +55,7 @@ export default function SearchRoutes() {
             </div>
             <div className="text-right w-full sm:w-auto">
               <p className="text-xl font-bold text-accent">S/ {r.precio_base}</p>
-              <Button onClick={()=>navigate(`/asientos/${r.id}`)}>Ver Asientos</Button>
+              <Button onClick={()=>navigate(`/asientos/${r.id}`, { state: { precio: r.precio_base } })}>Ver Asientos</Button>
             </div>
           </div>
         ))}

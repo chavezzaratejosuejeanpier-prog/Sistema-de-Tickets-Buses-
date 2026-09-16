@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Swal from 'sweetalert2'
 import { login } from '../services/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import Input from '../components/common/Input.jsx'
@@ -16,9 +17,9 @@ export default function Login() {
     try {
       const { data } = await login({ email, password })
       ctxLogin({ email }, data.access_token)
-      alert('Login OK - token guardado')
+      Swal.fire({ title: '¡Bienvenido!', text: 'Sesión iniciada correctamente.', icon: 'success', confirmButtonColor: '#10b981' })
     } catch {
-      alert('Credenciales inválidas o backend no activo')
+      Swal.fire({ title: 'Error', text: 'Credenciales inválidas o backend no activo.', icon: 'error', confirmButtonColor: '#0f2a44' })
     } finally {
       setEnviando(false)
     }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
@@ -7,7 +7,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   
   const asientosSeleccionados = location.state?.asientos || [{ id: 1, number: 14 }];
-  const precioPorAsiento = 45.0;
+  const precioPorAsiento = location.state?.precio ?? 45.0;
 
   const [pasajeros, setPasajeros] = useState(
     asientosSeleccionados.map(a => ({ asiento_id: a.id, numero: a.number, dni: '', nombres: '' }))

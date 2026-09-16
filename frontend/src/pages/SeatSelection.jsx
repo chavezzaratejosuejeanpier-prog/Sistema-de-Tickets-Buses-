@@ -1,22 +1,26 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { getRouteSeats } from '../services/api.js'
 import BusMap from '../components/bus/BusMap.jsx'
 import Button from '../components/common/Button.jsx'
 
 export default function SeatSelection() {
   const { routeId } = useParams()
+  const location = useLocation()
   const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [seleccionados, setSeleccionados] = useState([])
+
+  const precioBase = location.state?.precio ?? 45
 
   useEffect(()=>{
     getRouteSeats(routeId).then(r=>setData(r.data)).catch(()=>setData({ocupados:[], total_piso1:20, total_piso2:40}))
   },[routeId])
 
   const continuar = () => {
-    localStorage.setItem('reserva', JSON.stringify({ routeId, asientos: seleccionados }))
-    navigate('/checkout')
+    const asientos = seleccionados.map(n => ({ id: n, number: n }))
+    localStorage.setItem('reserva', JSON.stringify({ routeId, asientos }))
+    navigate('/checkout', { state: { asientos, precio: precioBase } })
   }
 
   if(!data) return (
