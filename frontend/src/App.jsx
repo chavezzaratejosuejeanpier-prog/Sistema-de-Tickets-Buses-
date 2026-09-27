@@ -1,19 +1,21 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Navbar from './components/layout/Navbar.jsx'
-import Footer from './components/layout/Footer.jsx'
-import SearchRoutes from './pages/SearchRoutes.jsx'
-import SeatSelection from './pages/SeatSelection.jsx'
-import Checkout from './pages/Checkout.jsx'
-import Login from './pages/Login.jsx'
-import Register from './pages/Register.jsx'
-import Dashboard from './pages/Dashboard.jsx'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
+import Checkout from './pages/Checkout';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import SearchRoutes from './pages/SearchRoutes';
+import SeatSelection from './pages/SeatSelection';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-1">
+    <Router>
+      <Navbar />
+
+      <div className="min-h-screen bg-slate-100 flex flex-col">
+        <main className="flex-grow py-8">
           <Routes>
             <Route path="/" element={<SearchRoutes />} />
             <Route path="/buscar" element={<SearchRoutes />} />
@@ -24,10 +26,11 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </main>
+
         <Footer />
       </div>
-    </BrowserRouter>
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;

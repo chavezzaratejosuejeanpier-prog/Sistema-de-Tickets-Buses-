@@ -1,8 +1,9 @@
-export default function Input({ label, ...props }) {
+export default function Input({ label, id, ...props }) {
+  const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined)
   return (
-    <div className="flex flex-col gap-1">
-      {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
-      <input className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" {...props} />
+    <div className="flex flex-col gap-1.5">
+      {label && <label htmlFor={inputId} className="text-sm font-medium text-slate-700">{label}</label>}
+      <input id={inputId} className="input" {...props} />
     </div>
   )
 }

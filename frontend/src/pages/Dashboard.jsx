@@ -22,7 +22,7 @@ export default function Dashboard() {
   const busById = Object.fromEntries(buses.map(b => [b.id, b]))
   const moneda = n => `S/ ${Number(n || 0).toFixed(2)}`
 
-  if (loading) return <p className="p-6">Cargando dashboard...</p>
+  if (loading) return <p className="p-6 text-slate-500">Cargando dashboard...</p>
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -30,26 +30,26 @@ export default function Dashboard() {
       {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
 
       <div className="grid grid-cols-3 gap-4 mt-6">
-        <div className="bg-white p-6 rounded shadow">
-          <p className="text-gray-500">Ventas Hoy</p>
-          <p className="text-2xl font-bold">{ventas?.ventas_hoy ?? '--'}</p>
+        <div className="card p-6">
+          <p className="text-sm font-medium text-slate-500">Ventas Hoy</p>
+          <p className="text-2xl font-bold text-slate-800">{ventas?.ventas_hoy ?? '--'}</p>
           <p className="text-sm text-green-600">{moneda(ventas?.recaudacion_hoy)}</p>
         </div>
-        <div className="bg-white p-6 rounded shadow">
-          <p className="text-gray-500">Buses</p>
-          <p className="text-2xl font-bold">{buses.length}</p>
+        <div className="card p-6">
+          <p className="text-sm font-medium text-slate-500">Buses</p>
+          <p className="text-2xl font-bold text-slate-800">{buses.length}</p>
         </div>
-        <div className="bg-white p-6 rounded shadow">
-          <p className="text-gray-500">Rutas</p>
-          <p className="text-2xl font-bold">{rutas.length}</p>
+        <div className="card p-6">
+          <p className="text-sm font-medium text-slate-500">Rutas</p>
+          <p className="text-2xl font-bold text-slate-800">{rutas.length}</p>
         </div>
       </div>
 
       <div className="mt-6 grid gap-6">
-        <div className="bg-white rounded shadow overflow-hidden">
+        <div className="card overflow-hidden">
           <h2 className="text-lg font-bold text-primary px-4 py-3 border-b">Buses ({buses.length})</h2>
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-left text-gray-500">
+            <thead className="bg-slate-50 text-left text-slate-500">
               <tr>
                 <th className="px-4 py-2">Placa</th>
                 <th className="px-4 py-2">Modelo</th>
@@ -58,7 +58,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {buses.length === 0 && <tr><td colSpan="4" className="px-4 py-3 text-gray-400">Sin buses registrados</td></tr>}
+              {buses.length === 0 && <tr><td colSpan="4" className="px-4 py-3 text-slate-400">Sin buses registrados</td></tr>}
               {buses.map(b => (
                 <tr key={b.id} className="border-t">
                   <td className="px-4 py-2 font-semibold">{b.placa}</td>
@@ -71,10 +71,10 @@ export default function Dashboard() {
           </table>
         </div>
 
-        <div className="bg-white rounded shadow overflow-hidden">
+        <div className="card overflow-hidden">
           <h2 className="text-lg font-bold text-primary px-4 py-3 border-b">Rutas ({rutas.length})</h2>
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-left text-gray-500">
+            <thead className="bg-slate-50 text-left text-slate-500">
               <tr>
                 <th className="px-4 py-2">Ruta</th>
                 <th className="px-4 py-2">Salida</th>
@@ -83,7 +83,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {rutas.length === 0 && <tr><td colSpan="4" className="px-4 py-3 text-gray-400">Sin rutas registradas</td></tr>}
+              {rutas.length === 0 && <tr><td colSpan="4" className="px-4 py-3 text-slate-400">Sin rutas registradas</td></tr>}
               {rutas.map(r => (
                 <tr key={r.id} className="border-t">
                   <td className="px-4 py-2 font-semibold">{r.origen} → {r.destino}</td>
