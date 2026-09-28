@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import SearchRoutes from './pages/SearchRoutes';
 import SeatSelection from './pages/SeatSelection';
 import Dashboard from './pages/Dashboard';
+import NotFound from './pages/NotFound';
 
 // Al navegar (incluso a la misma ruta) vuelve arriba: sin esto la página conserva el scroll anterior
 function ScrollToTop() {
@@ -35,6 +36,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
 
