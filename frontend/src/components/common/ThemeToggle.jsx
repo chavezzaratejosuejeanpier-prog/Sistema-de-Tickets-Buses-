@@ -8,10 +8,10 @@ export default function ThemeToggle({ className = '' }) {
       onClick={toggle}
       aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
       title={isDark ? 'Modo claro' : 'Modo oscuro'}
-      className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:focus-visible:ring-offset-primary-dark ${
+      className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:focus-visible:ring-offset-navy-dark ${
         isDark
-          ? 'bg-white/10 border-white/20 text-white hover:bg-white hover:text-primary'
-          : 'bg-white border-gray-200 text-primary hover:bg-gray-50 shadow-sm'
+          ? 'bg-white/10 border-white/20 text-white hover:bg-white hover:text-navy'
+          : 'bg-white border-black/10 text-navy hover:bg-gray-50 shadow-sm'
       } ${className}`}
     >
       {isDark ? (

@@ -25,14 +25,14 @@ export default function Register() {
 
   return (
     <div className="max-w-sm mx-auto p-6 mt-10 bg-white rounded shadow">
-      <h1 className="text-xl font-bold text-primary mb-4">Crear cuenta BUSS ConectPro</h1>
+      <h1 className="text-xl font-bold text-navy mb-4">Crear cuenta BUSS ConnectPro</h1>
       <form onSubmit={handle} className="flex flex-col gap-4">
         <Input label="Nombre completo" value={form.nombre} onChange={e=>setForm({...form, nombre:e.target.value})} required />
-        <Input label="Email" type="email" value={form.email} onChange={e=>setForm({...form, email:e.target.value})} required />
-        <Input label="Password" type="password" value={form.password} onChange={e=>setForm({...form, password:e.target.value})} required />
-        <Input label="Confirmar password" type="password" value={form.confirmar} onChange={e=>setForm({...form, confirmar:e.target.value})} required />
+        <Input label="Correo electrónico" type="email" value={form.email} onChange={e=>setForm({...form, email:e.target.value})} required />
+        <Input label="Contraseña" type="password" value={form.password} onChange={e=>setForm({...form, password:e.target.value})} required />
+        <Input label="Confirmar contraseña" type="password" value={form.confirmar} onChange={e=>setForm({...form, confirmar:e.target.value})} required />
         <Button type="submit">Registrarme</Button>
-        <p className="text-sm text-gray-600 text-center">
+        <p className="text-sm text-stone-600 text-center">
           ¿Ya tienes cuenta? <Link to="/login" className="text-accent hover:underline">Inicia sesión</Link>
         </p>
       </form>

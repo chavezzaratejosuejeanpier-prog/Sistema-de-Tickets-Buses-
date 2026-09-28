@@ -1,10 +1,10 @@
 import React, { memo } from 'react'
 
 const ESTADOS = {
-  ocupado: 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed',
-  reservado: 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed',
-  seleccionado: 'bg-accent text-white border-accent shadow-md hover:bg-accent-hover cursor-pointer',
-  libre: 'bg-white text-primary border-primary/25 hover:bg-primary hover:text-white hover:shadow-md active:scale-[0.97] cursor-pointer',
+  ocupado: 'bg-gray-100 text-stone-400 border-black/5 cursor-not-allowed',
+  reservado: 'bg-gray-100 text-stone-400 border-black/5 cursor-not-allowed',
+  seleccionado: 'bg-accent text-white border-accent shadow-sm hover:bg-accent-hover cursor-pointer',
+  libre: 'bg-white text-navy border-black/10 hover:bg-navy hover:text-white hover:border-navy cursor-pointer',
 }
 
 const Seat = memo(function Seat({ numero, estado = 'libre', selected = false, onClick }) {

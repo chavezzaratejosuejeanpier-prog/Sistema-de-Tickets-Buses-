@@ -22,34 +22,34 @@ export default function Dashboard() {
   const busById = Object.fromEntries(buses.map(b => [b.id, b]))
   const moneda = n => `S/ ${Number(n || 0).toFixed(2)}`
 
-  if (loading) return <p className="p-6 text-slate-500">Cargando dashboard...</p>
+  if (loading) return <p className="p-6 text-stone-500">Cargando panel...</p>
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-primary">Dashboard Administrativo</h1>
+      <h1 className="text-2xl font-bold text-navy">Panel Administrativo</h1>
       {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
 
       <div className="grid grid-cols-3 gap-4 mt-6">
         <div className="card p-6">
-          <p className="text-sm font-medium text-slate-500">Ventas Hoy</p>
-          <p className="text-2xl font-bold text-slate-800">{ventas?.ventas_hoy ?? '--'}</p>
+          <p className="text-sm font-medium text-stone-500">Ventas Hoy</p>
+          <p className="text-2xl font-bold text-stone-800">{ventas?.ventas_hoy ?? '--'}</p>
           <p className="text-sm text-green-600">{moneda(ventas?.recaudacion_hoy)}</p>
         </div>
         <div className="card p-6">
-          <p className="text-sm font-medium text-slate-500">Buses</p>
-          <p className="text-2xl font-bold text-slate-800">{buses.length}</p>
+          <p className="text-sm font-medium text-stone-500">Buses</p>
+          <p className="text-2xl font-bold text-stone-800">{buses.length}</p>
         </div>
         <div className="card p-6">
-          <p className="text-sm font-medium text-slate-500">Rutas</p>
-          <p className="text-2xl font-bold text-slate-800">{rutas.length}</p>
+          <p className="text-sm font-medium text-stone-500">Rutas</p>
+          <p className="text-2xl font-bold text-stone-800">{rutas.length}</p>
         </div>
       </div>
 
       <div className="mt-6 grid gap-6">
         <div className="card overflow-hidden">
-          <h2 className="text-lg font-bold text-primary px-4 py-3 border-b">Buses ({buses.length})</h2>
+          <h2 className="text-lg font-bold text-navy px-4 py-3 border-b">Buses ({buses.length})</h2>
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left text-slate-500">
+            <thead className="bg-gray-50 text-left text-stone-500">
               <tr>
                 <th className="px-4 py-2">Placa</th>
                 <th className="px-4 py-2">Modelo</th>
@@ -58,7 +58,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {buses.length === 0 && <tr><td colSpan="4" className="px-4 py-3 text-slate-400">Sin buses registrados</td></tr>}
+              {buses.length === 0 && <tr><td colSpan="4" className="px-4 py-3 text-stone-400">Sin buses registrados</td></tr>}
               {buses.map(b => (
                 <tr key={b.id} className="border-t">
                   <td className="px-4 py-2 font-semibold">{b.placa}</td>
@@ -72,9 +72,9 @@ export default function Dashboard() {
         </div>
 
         <div className="card overflow-hidden">
-          <h2 className="text-lg font-bold text-primary px-4 py-3 border-b">Rutas ({rutas.length})</h2>
+          <h2 className="text-lg font-bold text-navy px-4 py-3 border-b">Rutas ({rutas.length})</h2>
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left text-slate-500">
+            <thead className="bg-gray-50 text-left text-stone-500">
               <tr>
                 <th className="px-4 py-2">Ruta</th>
                 <th className="px-4 py-2">Salida</th>
@@ -83,7 +83,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {rutas.length === 0 && <tr><td colSpan="4" className="px-4 py-3 text-slate-400">Sin rutas registradas</td></tr>}
+              {rutas.length === 0 && <tr><td colSpan="4" className="px-4 py-3 text-stone-400">Sin rutas registradas</td></tr>}
               {rutas.map(r => (
                 <tr key={r.id} className="border-t">
                   <td className="px-4 py-2 font-semibold">{r.origen} → {r.destino}</td>

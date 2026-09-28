@@ -10,7 +10,7 @@ from fastapi import Depends
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="BUSS ConectPro API",
+    title="BUSS ConnectPro API",
     description="Sistema de venta de pasajes - API REST desacoplada",
     version="1.0.0",
 )
@@ -30,7 +30,7 @@ app.include_router(sales.router, prefix="/api/sales", tags=["Ventas"])
 
 @app.get("/")
 def root():
-    return {"mensaje": "BUSS ConectPro API activa", "docs": "/docs"}
+    return {"mensaje": "BUSS ConnectPro API activa", "docs": "/docs"}
 
 @app.get("/health")
 def health(db: Session = Depends(get_db)):
