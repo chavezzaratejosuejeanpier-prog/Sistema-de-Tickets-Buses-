@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import SearchHero from '../components/SearchHero.jsx'
+import PopularRoutes from '../components/PopularRoutes.jsx'
+import Benefits from '../components/Benefits.jsx'
 import { CIUDADES } from '../components/common/CityField.jsx'
 
 const SERVICIOS = [
@@ -51,6 +53,14 @@ export default function About() {
     navigate('/buscar', { state: { origen: origen.trim(), destino: destino.trim(), fecha: fechaIda } })
   }
 
+  // Al elegir una ruta popular se rellena el buscador del Hero con la misma lógica de búsqueda
+  const elegirRuta = ({ origen, destino }) => {
+    setOrigen(origen)
+    setDestino(destino)
+    setError('')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
     <div className="mx-auto max-w-6xl">
       <SearchHero
@@ -68,6 +78,15 @@ export default function About() {
         onSubmit={buscar}
         error={error}
       />
+
+      <section className="mb-[60px] mt-10 grid grid-cols-1 gap-[30px] lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <PopularRoutes onSelect={elegirRuta} />
+        </div>
+        <div>
+          <Benefits />
+        </div>
+      </section>
 
       <section className="px-6 pt-20 pb-16 text-center">
         <span className="badge bg-accent/10 text-accent">BUSS ConnectPro</span>
