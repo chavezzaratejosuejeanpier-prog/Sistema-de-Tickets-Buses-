@@ -181,7 +181,7 @@ export default function SearchRoutes() {
                   </div>
                   <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 sm:text-right shrink-0">
                     <p className="text-2xl font-extrabold text-navy dark:text-white">S/ {Number(r.precio_base).toFixed(2)}</p>
-                    <Button onClick={() => navigate(`/asientos/${r.id}`)} disabled={r.asientos_disponibles === 0} className="disabled:opacity-40">
+                    <Button onClick={() => navigate(`/asientos/${r.id}`, { state: { precio: r.precio_base, origen: r.origen, destino: r.destino, fecha_salida: r.fecha_salida, hora_salida: r.hora_salida } })} disabled={r.asientos_disponibles === 0} className="disabled:opacity-40">
                       Ver Asientos
                     </Button>
                   </div>
