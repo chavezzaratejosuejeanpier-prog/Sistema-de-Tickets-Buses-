@@ -1,8 +1,20 @@
+import Button from '../common/Button.jsx'
+
 export default function FloorTab({ piso, setPiso }) {
   return (
     <div className="flex gap-2 justify-center">
-      {[1,2].map(p=>(
-        <button key={p} onClick={()=>setPiso(p)} className={`px-4 py-1 rounded ${piso===p?'bg-primary text-white':'bg-gray-200'}`}>Piso {p}</button>
+      {[1, 2].map(p => (
+        <Button
+          key={p}
+          variant={piso === p ? 'primary' : 'ghost'}
+          aria-pressed={piso === p}
+          onClick={() => setPiso(p)}
+        >
+          Piso {p}
+          <span className="hidden sm:inline font-normal ml-1.5 opacity-70">
+            {p === 1 ? '• VIP' : '• Estándar'}
+          </span>
+        </Button>
       ))}
     </div>
   )
