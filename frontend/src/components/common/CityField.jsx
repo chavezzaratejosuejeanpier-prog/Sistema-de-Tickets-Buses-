@@ -1,11 +1,6 @@
 import { useId, useState, useMemo } from 'react'
 import { MapPin, ChevronDown } from 'lucide-react'
-
-export const CIUDADES = [
-  'Lima', 'Arequipa', 'Cusco', 'Trujillo', 'Chiclayo', 'Piura', 'Huancayo',
-  'Iquitos', 'Puno', 'Tacna', 'Ayacucho', 'Cajamarca', 'Huaraz', 'Ica',
-  'Chimbote', 'Tarapoto', 'Pucallpa', 'Tumbes', 'Moquegua', 'Abancay',
-]
+import { CIUDADES } from './ciudades.js'
 
 function getFiltered(query, exclude) {
   const q = query.trim().toLowerCase()

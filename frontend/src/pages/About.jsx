@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import SearchHero from '../components/SearchHero.jsx'
 import PopularRoutes from '../components/PopularRoutes.jsx'
 import Benefits from '../components/Benefits.jsx'
-import { CIUDADES } from '../components/common/CityField.jsx'
+import { CIUDADES } from '../components/common/ciudades.js'
 
 const SERVICIOS = [
   {

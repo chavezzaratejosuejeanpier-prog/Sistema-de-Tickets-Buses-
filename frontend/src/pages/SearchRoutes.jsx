@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { searchRoutes } from '../services/api.js'
 import Button from '../components/common/Button.jsx'
-import CityField, { CIUDADES } from '../components/common/CityField.jsx'
+import CityField from '../components/common/CityField.jsx'
+import { CIUDADES } from '../components/common/ciudades.js'
 
 export default function SearchRoutes() {
   const [origen, setOrigen] = useState('Lima')

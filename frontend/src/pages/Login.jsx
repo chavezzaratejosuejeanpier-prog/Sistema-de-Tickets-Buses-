@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { login } from '../services/api.js'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from '../context/useAuth.js'
 import Input from '../components/common/Input.jsx'
 import Button from '../components/common/Button.jsx'
 
