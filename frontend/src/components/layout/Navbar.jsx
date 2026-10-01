@@ -4,7 +4,7 @@ import { Menu, X } from 'lucide-react'
 import ThemeToggle from '../common/ThemeToggle'
 
 const ENLACES = [
-  { texto: 'Mis Pasajes', to: null },
+  { texto: 'Mis Pasajes', to: '/mis-pasajes' },
   { texto: 'Acceso Admin', to: '/dashboard' },
 ]
 

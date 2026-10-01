@@ -70,12 +70,21 @@ def obtener_ticket(codigo: str, db: Session = Depends(get_db)):
     tickets = db.query(Ticket).filter(Ticket.codigo_reserva == codigo).all()
     if not tickets:
         raise HTTPException(404, "Reserva no encontrada")
-    return [{
-        "id": t.id,
-        "route_id": t.route_id,
-        "numero_asiento": t.numero_asiento,
-        "piso": t.piso,
-        "estado": t.estado.value,
-        "pasajero_nombre": t.pasajero_nombre,
-        "precio_pagado": t.precio_pagado,
-    } for t in tickets]
+    respuesta = []
+    for t in tickets:
+        ruta = t.route
+        respuesta.append({
+            "id": t.id,
+            "route_id": t.route_id,
+            "numero_asiento": t.numero_asiento,
+            "piso": t.piso,
+            "estado": t.estado.value,
+            "pasajero_nombre": t.pasajero_nombre,
+            "precio_pagado": t.precio_pagado,
+            "origen": ruta.origen if ruta else None,
+            "destino": ruta.destino if ruta else None,
+            "fecha_salida": ruta.fecha_salida if ruta else None,
+            "hora_salida": ruta.hora_salida if ruta else None,
+            "bus_placa": ruta.bus.placa if ruta and ruta.bus else None,
+        })
+    return respuesta

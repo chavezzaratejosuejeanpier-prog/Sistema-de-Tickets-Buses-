@@ -8,6 +8,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import SearchRoutes from './pages/SearchRoutes'
 import SeatSelection from './pages/SeatSelection'
+import MisPasajes from './pages/MisPasajes'
 import Dashboard from './pages/Dashboard'
 import NotFound from './pages/NotFound'
 
@@ -25,6 +26,7 @@ function App() {
             <Route path="/buscar" element={<SearchRoutes />} />
             <Route path="/asientos/:routeId" element={<SeatSelection />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/mis-pasajes" element={<MisPasajes />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
