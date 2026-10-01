@@ -20,8 +20,8 @@ const Checkout = () => {
         title: 'Tiempo agotado',
         text: 'Tu reserva ha expirado. Vuelve a seleccionar tus asientos.',
         icon: 'warning',
-        confirmButtonColor: '#0f2a44'
-      }).then(() => navigate('/'));
+        confirmButtonColor: '#1e3a8a'
+      }).then(() => navigate('/buscar'));
       return;
     }
     const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
@@ -57,7 +57,7 @@ const Checkout = () => {
       text: 'Tus pasajes han sido generados correctamente.',
       icon: 'success',
       confirmButtonColor: '#10b981'
-    }).then(() => navigate('/'));
+    }).then(() => navigate('/buscar'));
   };
 
   const formatTime = (seconds) => {
@@ -67,11 +67,11 @@ const Checkout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4">
+    <div className="min-h-screen bg-canvas py-10 px-4">
       <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="bg-primary text-white p-6 flex justify-between items-center">
+        <div className="bg-navy text-white p-6 flex justify-between items-center">
           <h2 className="text-2xl font-bold">Completa tu compra</h2>
-          <div className="flex items-center gap-2 bg-primary-light px-4 py-2 rounded-lg font-mono text-xl" aria-live="off">
+          <div className="flex items-center gap-2 bg-navy-light px-4 py-2 rounded-lg font-mono text-xl" aria-live="off">
             <span aria-hidden="true">⏱️</span> <span aria-label="Tiempo restante">{formatTime(timeLeft)}</span>
           </div>
         </div>
@@ -79,14 +79,14 @@ const Checkout = () => {
         <form onSubmit={procesarPago} className="p-8">
           <div className="space-y-6">
             {pasajeros.map((pasajero, index) => (
-              <div key={index} className="p-6 bg-slate-50 border border-slate-200 rounded-xl relative">
-                <span className="badge bg-orange-500 text-white absolute -top-3 left-4 shadow-sm">
+              <div key={index} className="card p-6 rounded-xl relative">
+                <span className="badge bg-navy text-white absolute -top-3 left-4 shadow-sm">
                   Asiento {pasajero.numero}
                 </span>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                   <div>
-                    <label htmlFor={`dni-${index}`} className="block text-sm font-semibold text-slate-700 mb-1">DNI</label>
+                    <label htmlFor={`dni-${index}`} className="block text-sm font-semibold text-stone-700 mb-1">DNI</label>
                     <input
                       id={`dni-${index}`}
                       type="text"
@@ -98,7 +98,7 @@ const Checkout = () => {
                     />
                   </div>
                   <div>
-                    <label htmlFor={`nombres-${index}`} className="block text-sm font-semibold text-slate-700 mb-1">Nombres Completos</label>
+                    <label htmlFor={`nombres-${index}`} className="block text-sm font-semibold text-stone-700 mb-1">Nombres Completos</label>
                     <input
                       id={`nombres-${index}`}
                       type="text"
@@ -113,9 +113,9 @@ const Checkout = () => {
             ))}
           </div>
 
-          <div className="mt-8 border-t border-slate-200 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-slate-700 text-lg">
-              Total a pagar: <span className="text-2xl font-black text-primary">S/ {(pasajeros.length * precioPorAsiento).toFixed(2)}</span>
+          <div className="mt-8 border-t border-black/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-stone-700 text-lg">
+              Total a pagar: <span className="text-2xl font-black text-navy">S/ {(pasajeros.length * precioPorAsiento).toFixed(2)}</span>
             </div>
             <button
               type="submit"

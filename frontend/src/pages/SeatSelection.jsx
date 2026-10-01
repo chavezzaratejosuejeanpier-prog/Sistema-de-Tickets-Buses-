@@ -24,13 +24,13 @@ export default function SeatSelection() {
   }
 
   if(!data) return (
-    <div className="max-w-3xl mx-auto p-6 flex items-center justify-center gap-3 text-slate-500">
+    <div className="max-w-3xl mx-auto p-6 flex items-center justify-center gap-3 text-stone-500">
       <span className="spinner" aria-hidden="true" /> Cargando mapa...
     </div>
   )
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-primary mb-4">Selección de Asientos - Ruta #{routeId}</h1>
+      <h1 className="text-2xl font-bold text-navy mb-4">Selección de Asientos - Ruta #{routeId}</h1>
       <BusMap totalPiso1={data.total_piso1} totalPiso2={data.total_piso2} ocupados={data.ocupados} onSelect={setSeleccionados} />
       <div className="mt-6 flex justify-between items-center">
         <p>Seleccionados: <span className="font-bold">{seleccionados.join(', ') || 'ninguno'}</span></p>

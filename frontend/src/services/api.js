@@ -11,17 +11,21 @@ api.interceptors.request.use(cfg => {
   return cfg
 })
 
-// Rutas/Viajes
-export const searchRoutes = (origen, destino) => api.get(`/routes/buscar?origen=${origen}&destino=${destino}`)
-export const getRoutes = () => api.get('/routes/')
+export const searchRoutes = (origen, destino, fecha) => {
+  const params = new URLSearchParams({ origen, destino })
+  if (fecha) params.append('fecha', fecha)
+  return api.get(`/routes/buscar?${params.toString()}`)
+}
+
 export const getRouteSeats = (routeId) => api.get(`/routes/${routeId}/asientos`)
+export const getRoutes = () => api.get('/routes/')
 export const getBuses = () => api.get('/buses/')
 export const getBusSeats = (busId) => api.get(`/buses/${busId}/asientos`)
 
-// Ventas
 export const checkout = (data) => api.post('/sales/checkout', data)
+export const getSalesSummary = () => api.get('/sales/')
+export const getTicketByCode = (codigo) => api.get(`/sales/tickets/${codigo}`)
 
-// Auth
 export const login = (data) => api.post('/auth/login', data)
 export const register = (data) => api.post('/auth/register', data)
 

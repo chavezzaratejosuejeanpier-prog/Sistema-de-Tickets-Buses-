@@ -1,77 +1,87 @@
-import { useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { Link, NavLink } from 'react-router-dom'
+import { Menu, X } from 'lucide-react'
 
-const links = [
-  { to: '/', label: 'Inicio' },
-  { to: '/buscar', label: 'Buscar Viaje' },
-  { to: '/login', label: 'Acceso' },
-];
+const ENLACES = [
+  { texto: 'Mis Pasajes', to: null },
+  { texto: 'Acceso Admin', to: '/dashboard' },
+]
+
+const enlaceClass = 'text-[18px] font-medium text-navy-light hover:text-primary transition-colors'
 
 const Navbar = () => {
-  const location = useLocation();
-  const [open, setOpen] = useState(false);
+  const [abierto, setAbierto] = useState(false)
 
-  const linkClass = ({ isActive }) =>
-    `px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-      isActive ? 'bg-white/15 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'
-    }`;
+  useEffect(() => {
+    const alCambiarTamano = () => window.innerWidth >= 768 && setAbierto(false)
+    window.addEventListener('resize', alCambiarTamano)
+    return () => window.removeEventListener('resize', alCambiarTamano)
+  }, [])
 
   return (
-    <nav className="bg-primary text-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-            <span className="text-2xl" aria-hidden="true">🚌</span>
-            <span className="font-extrabold text-xl tracking-tight">BUSS ConectPro</span>
-          </Link>
+    <nav className="sticky top-0 z-50 h-20 bg-white border-b border-line">
+      <div className="max-w-shell mx-auto px-4 sm:px-[30px] h-full flex items-center justify-between">
+        <Link to="/" className="text-[36px] font-bold text-navy leading-none shrink-0" aria-label="BUSS ConnectPro - Inicio">
+          BUSS ConnectPro
+        </Link>
 
-          <div className="hidden md:flex items-center gap-1">
-            {links.map(l => (
-              <NavLink key={l.to} to={l.to} end={l.to === '/'} className={linkClass}>
-                {l.label}
+        <div className="hidden md:flex items-center gap-8">
+          {ENLACES.map(({ texto, to }) =>
+            to ? (
+              <NavLink key={texto} to={to} className={enlaceClass}>
+                {texto}
               </NavLink>
-            ))}
-            {location.pathname !== '/' && (
-              <Link
-                to="/"
-                className="ml-2 text-sm font-semibold bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-colors border border-white/15"
-              >
-                ← Volver
-              </Link>
-            )}
-          </div>
+            ) : (
+              <a key={texto} href="#" className={enlaceClass} onClick={(e) => e.preventDefault()}>
+                {texto}
+              </a>
+            )
+          )}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            className="hidden md:inline-flex rounded-lg bg-slate-100 px-[18px] py-2.5 text-[15px] font-semibold text-navy transition-colors hover:bg-slate-200"
+            aria-label="Moneda: soles peruanos"
+          >
+            PEN (S/.)
+          </button>
 
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
-            aria-label="Abrir menú"
-            aria-expanded={open}
-            onClick={() => setOpen(v => !v)}
+            type="button"
+            onClick={() => setAbierto(o => !o)}
+            aria-expanded={abierto}
+            aria-label={abierto ? 'Cerrar menú' : 'Abrir menú'}
+            className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-line text-navy"
           >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              {open
-                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}
-            </svg>
+            {abierto ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </div>
 
-      {open && (
-        <div className="md:hidden bg-primary border-t border-white/10 px-4 pb-4 pt-2 flex flex-col gap-1">
-          {links.map(l => (
-            <NavLink key={l.to} to={l.to} end={l.to === '/'} className={linkClass} onClick={() => setOpen(false)}>
-              {l.label}
-            </NavLink>
-          ))}
-          {location.pathname !== '/' && (
-            <Link to="/" className="px-3 py-2 rounded-lg text-sm font-semibold text-white/80 hover:bg-white/10" onClick={() => setOpen(false)}>
-              ← Volver al inicio
-            </Link>
-          )}
+      {abierto && (
+        <div className="md:hidden bg-white border-b border-line">
+          <div className="max-w-shell mx-auto px-4 py-4 flex flex-col gap-4">
+            {ENLACES.map(({ texto, to }) =>
+              to ? (
+                <NavLink key={texto} to={to} onClick={() => setAbierto(false)} className={enlaceClass}>
+                  {texto}
+                </NavLink>
+              ) : (
+                <a key={texto} href="#" onClick={(e) => e.preventDefault()} className={enlaceClass}>
+                  {texto}
+                </a>
+              )
+            )}
+            <span className="self-start rounded-lg bg-slate-100 px-[18px] py-2.5 text-[15px] font-semibold text-navy">
+              PEN (S/.)
+            </span>
+          </div>
         </div>
       )}
     </nav>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar
