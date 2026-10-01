@@ -8,8 +8,8 @@ const BENEFICIOS = [
 
 export default function Benefits() {
   return (
-    <div>
-      <h2 className="mb-6 text-[30px] font-extrabold text-navy sm:text-[40px]">Nuestros Beneficios</h2>
+    <section aria-labelledby="beneficios-titulo">
+      <h2 id="beneficios-titulo" className="mb-6 text-[30px] font-extrabold text-navy sm:text-[40px]">Nuestros Beneficios</h2>
 
       {/* flex-1: las 3 tarjetas reparten la altura de la columna y quedan a la par de las de rutas */}
       <div className="flex h-full flex-col gap-5">
@@ -25,6 +25,6 @@ export default function Benefits() {
           </div>
         ))}
       </div>
-    </div>
+    </section>
   )
 }
