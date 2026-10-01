@@ -20,7 +20,8 @@ class Ticket(Base):
     pasajero_dni = Column(String, nullable=True)
     precio_pagado = Column(Float, nullable=True)
     estado = Column(Enum(EstadoTicket), default=EstadoTicket.DISPONIBLE)
-    codigo_reserva = Column(String, unique=True, nullable=True)
+    # Sin unique: una compra genera N tickets que comparten el mismo codigo_reserva
+    codigo_reserva = Column(String, nullable=True, index=True)
     creado_en = Column(DateTime, default=datetime.utcnow)
 
     route = relationship("Route", back_populates="tickets")

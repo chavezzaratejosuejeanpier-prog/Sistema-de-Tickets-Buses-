@@ -21,11 +21,14 @@ class TicketResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class PasajeroCheckout(BaseModel):
+    numero_asiento: int
+    dni: str
+    nombre: str
+
 class CheckoutRequest(BaseModel):
     route_id: int
-    asientos: List[int]
-    pasajero_nombre: str
-    pasajero_dni: str
+    pasajeros: List[PasajeroCheckout]
     email: str
 
 class RouteCreate(BaseModel):

@@ -1,4 +1,3 @@
-import bcrypt
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from jose import jwt
@@ -7,14 +6,9 @@ from ..database import get_db
 from ..models.user import User
 from ..schemas.user_schema import UserCreate, UserLogin, Token
 from ..core.config import settings
+from ..core.security import hashear_password, verificar_password
 
 router = APIRouter()
-
-def hashear_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-
-def verificar_password(password: str, hashed: str) -> bool:
-    return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
 
 def crear_token(data: dict):
     to_encode = data.copy()

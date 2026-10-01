@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from datetime import datetime
@@ -42,12 +42,14 @@ def buscar_viajes(origen: str, destino: str, fecha: Optional[str] = None, db: Se
 
 @router.get("/{route_id}/asientos")
 def asientos_por_ruta(route_id: int, db: Session = Depends(get_db)):
-    tickets = db.query(Ticket).filter(Ticket.route_id == route_id, Ticket.estado == Ticket.estado.VENDIDO).all() if False else db.query(Ticket).filter(Ticket.route_id == route_id, Ticket.estado != EstadoTicket.DISPONIBLE).all()
-    # alternativa simple: lista de asientos ocupados
-    ocupados = [t.numero_asiento for t in tickets]
     ruta = db.query(Route).filter(Route.id == route_id).first()
     if not ruta:
-        from fastapi import HTTPException
         raise HTTPException(404, "Ruta no encontrada")
+    # un asiento esta ocupado si su ticket no esta DISPONIBLE
+    ocupados = [
+        t.numero_asiento for t in db.query(Ticket).filter(
+            Ticket.route_id == route_id, Ticket.estado != EstadoTicket.DISPONIBLE
+        ).all()
+    ]
     bus = ruta.bus
     return {"route_id": route_id, "ocupados": ocupados, "total_piso1": bus.capacidad_piso1, "total_piso2": bus.capacidad_piso2}

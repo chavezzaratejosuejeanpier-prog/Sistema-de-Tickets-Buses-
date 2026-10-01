@@ -2,19 +2,26 @@ import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import Button from '../components/common/Button.jsx'
+import { checkout } from '../services/api.js'
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 const Checkout = () => {
   const location = useLocation()
   const navigate = useNavigate()
 
+  const rutaId = Number(location.state?.rutaId)
   const asientosSeleccionados = location.state?.asientos || [{ id: 1, number: 14 }]
   const precioPorAsiento = Number(location.state?.precio ?? 45)
 
   const [pasajeros, setPasajeros] = useState(
     asientosSeleccionados.map(a => ({ asiento_id: a.id, numero: a.number, dni: '', nombres: '' }))
   )
+  const [email, setEmail] = useState('')
   const [timeLeft, setTimeLeft] = useState(300)
   const [enviando, setEnviando] = useState(false)
+
+  const total = pasajeros.length * precioPorAsiento
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -39,6 +46,15 @@ const Checkout = () => {
   const procesarPago = async (e) => {
     e.preventDefault()
 
+    if (!rutaId) {
+      Swal.fire('Sesión expirada', 'Vuelve a buscar tu viaje para continuar.', 'error')
+      return
+    }
+    if (!EMAIL_RE.test(email.trim())) {
+      Swal.fire('Email inválido', 'Ingresa un correo válido para enviarte los pasajes.', 'error')
+      return
+    }
+
     for (let p of pasajeros) {
       if (!p.dni || !p.nombres) {
         Swal.fire('Error', 'Todos los campos son obligatorios.', 'error')
@@ -56,13 +72,38 @@ const Checkout = () => {
 
     setEnviando(true)
     try {
+      const { data } = await checkout({
+        route_id: rutaId,
+        email: email.trim(),
+        pasajeros: pasajeros.map(p => ({
+          numero_asiento: p.numero,
+          dni: p.dni.trim(),
+          nombre: p.nombres.trim()
+        }))
+      })
+
+      localStorage.removeItem('reserva')
       await Swal.fire({
         title: '¡Pago Exitoso!',
-        text: 'Tus pasajes han sido generados correctamente.',
+        html: `
+          <p>Tu código de reserva es:</p>
+          <p style="font-size:1.6rem;font-weight:800;letter-spacing:.12em;color:#FF6B00;margin:.5rem 0">${data.codigo_reserva}</p>
+          <p style="font-size:.9rem">Enviamos el detalle a ${data.email}</p>
+        `,
         icon: 'success',
-        confirmButtonColor: '#10b981',
+        confirmButtonColor: '#10b981'
       })
       navigate('/buscar')
+    } catch (error) {
+      const detalle = error.response?.data?.detail
+      const status = error.response?.status
+      if (status === 409) {
+        Swal.fire('Asiento no disponible', detalle || 'Alguien compró tu asiento. Elige otros.', 'error')
+      } else if (status === 404) {
+        Swal.fire('Viaje no encontrado', detalle || 'Este viaje ya no existe.', 'error')
+      } else {
+        Swal.fire('Error de conexión', detalle || 'No pudimos registrar tu compra. Intenta de nuevo.', 'error')
+      }
     } finally {
       setEnviando(false)
     }
@@ -136,11 +177,25 @@ const Checkout = () => {
             ))}
           </div>
 
+          <div className="mt-6">
+            <label htmlFor="email" className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
+              Correo para enviar tus pasajes
+            </label>
+            <input
+              id="email"
+              type="email"
+              className="input dark:bg-stone-800 dark:text-white"
+              placeholder="tu@correo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
           <div className="mt-8 border-t border-line dark:border-stone-700 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-stone-700 dark:text-stone-300 text-lg text-center md:text-left">
               Total a pagar:{' '}
               <span className="text-2xl font-extrabold text-navy dark:text-white">
-                S/ {(pasajeros.length * precioPorAsiento).toFixed(2)}
+                S/ {total.toFixed(2)}
               </span>
             </div>
             <Button type="submit" disabled={enviando} className="w-full md:w-auto">

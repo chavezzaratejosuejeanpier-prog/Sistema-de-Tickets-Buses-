@@ -23,7 +23,7 @@ export default function SeatSelection() {
   const continuar = () => {
     const asientos = seleccionados.map(n => ({ id: n, number: n }))
     localStorage.setItem('reserva', JSON.stringify({ routeId, asientos }))
-    navigate('/checkout', { state: { asientos, precio: precioBase } })
+    navigate('/checkout', { state: { rutaId: Number(routeId), asientos, precio: precioBase } })
   }
 
   if (!data) return (
