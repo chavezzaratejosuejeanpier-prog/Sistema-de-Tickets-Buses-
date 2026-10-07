@@ -7,11 +7,13 @@ from ..models.ticket import Ticket, EstadoTicket
 from ..models.route import Route
 from ..schemas.ticket_schema import CheckoutRequest
 from ..services.ticket_service import verificar_disponibilidad, calcularPrecioTotal
+from ..core.deps import require_admin
+from ..models.user import User
 
 router = APIRouter()
 
 @router.get("/")
-def resumen_ventas(db: Session = Depends(get_db)):
+def resumen_ventas(db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
     ventas = db.query(Ticket).filter(Ticket.estado == EstadoTicket.VENDIDO).all()
     hoy = datetime.utcnow().date()
     ventas_hoy = [v for v in ventas if v.creado_en.date() == hoy]

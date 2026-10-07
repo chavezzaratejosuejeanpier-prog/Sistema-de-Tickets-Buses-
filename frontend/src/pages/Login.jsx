@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { login } from '../services/api.js'
 import { useAuth } from '../context/useAuth.js'
@@ -11,6 +11,9 @@ export default function Login() {
   const [password, setPassword] = useState('123456')
   const [enviando, setEnviando] = useState(false)
   const { login: ctxLogin } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const destino = location.state?.from || '/dashboard'
 
   const handle = async (e) => {
     e.preventDefault()
@@ -23,7 +26,7 @@ export default function Login() {
         text: 'Bienvenido a BUSS ConnectPro.',
         icon: 'success',
         confirmButtonColor: '#FF6B00',
-      })
+      }).then(() => navigate(destino, { replace: true }))
     } catch {
       Swal.fire({
         title: 'No pudimos iniciar sesión',
@@ -36,8 +39,8 @@ export default function Login() {
     }
   }
   return (
-    <div className="max-w-sm mx-auto p-6 mt-10 card">
-      <h1 className="text-xl font-bold text-navy mb-4">Acceso BUSS ConnectPro</h1>
+    <div className="max-w-sm mx-auto mt-10 card p-6">
+      <h1 className="text-xl font-bold text-navy dark:text-white mb-4">Acceso BUSS ConnectPro</h1>
       <form onSubmit={handle} className="flex flex-col gap-4">
         <Input label="Correo electrónico" type="email" value={email} onChange={e=>setEmail(e.target.value)} />
         <Input label="Contraseña" type="password" value={password} onChange={e=>setPassword(e.target.value)} />
@@ -45,7 +48,7 @@ export default function Login() {
           {enviando ? (<><span className="spinner" aria-hidden="true" /> Ingresando...</>) : 'Ingresar'}
         </Button>
       </form>
-      <p className="text-sm text-stone-600 text-center mt-4">
+      <p className="text-sm text-muted dark:text-stone-400 text-center mt-4">
         ¿No tienes cuenta? <Link to="/registro" className="text-accent hover:underline">Regístrate</Link>
       </p>
     </div>

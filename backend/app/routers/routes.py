@@ -7,6 +7,8 @@ from ..models.route import Route
 from ..models.bus import Bus
 from ..models.ticket import Ticket, EstadoTicket
 from ..schemas.ticket_schema import RouteCreate, RouteResponse
+from ..core.deps import require_admin
+from ..models.user import User
 from typing import List, Optional
 
 router = APIRouter()
@@ -16,7 +18,7 @@ def listar_rutas(db: Session = Depends(get_db)):
     return db.query(Route).all()
 
 @router.post("/", response_model=RouteResponse, status_code=201)
-def crear_ruta(data: RouteCreate, db: Session = Depends(get_db)):
+def crear_ruta(data: RouteCreate, db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
     ruta = Route(**data.model_dump())
     db.add(ruta); db.commit(); db.refresh(ruta)
     return ruta

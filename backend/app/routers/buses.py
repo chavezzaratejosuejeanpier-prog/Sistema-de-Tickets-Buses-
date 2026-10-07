@@ -6,6 +6,8 @@ from ..models.bus import Bus
 from ..models.route import Route
 from ..models.ticket import Ticket, EstadoTicket
 from ..schemas.bus_schema import BusCreate, BusResponse
+from ..core.deps import require_admin
+from ..models.user import User
 
 router = APIRouter()
 
@@ -14,7 +16,7 @@ def listar_buses(db: Session = Depends(get_db)):
     return db.query(Bus).all()
 
 @router.post("/", response_model=BusResponse, status_code=201)
-def crear_bus(data: BusCreate, db: Session = Depends(get_db)):
+def crear_bus(data: BusCreate, db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
     if db.query(Bus).filter(Bus.placa == data.placa).first():
         raise HTTPException(400, "Placa ya registrada")
     bus = Bus(**data.model_dump(), total_asientos=data.capacidad_piso1 + data.capacidad_piso2)

@@ -15,7 +15,13 @@ export default function Dashboard() {
         setRutas(r.data)
         setVentas(v.data)
       })
-      .catch(() => setError('No se pudieron cargar los datos. Verifica que el backend esté activo.'))
+      .catch((err) => setError(
+        err.response?.status === 403
+          ? 'Necesitas una cuenta de administrador para ver el panel.'
+          : err.response?.status === 401
+            ? 'Tu sesión expiró. Vuelve a iniciar sesión.'
+            : 'No se pudieron cargar los datos. Verifica que el backend esté activo.'
+      ))
       .finally(() => setLoading(false))
   }, [])
 
