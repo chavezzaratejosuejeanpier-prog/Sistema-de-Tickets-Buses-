@@ -56,3 +56,16 @@ class RouteSearchResponse(BaseModel):
     asientos_disponibles: int
     bus_placa: str
     bus_tipo: str
+
+class CheckoutResponse(BaseModel):
+    mensaje: str
+    codigo_reserva: str
+    email: EmailStr
+    asientos: List[int]
+    total: float
+
+class VentaResumen(BaseModel):
+    total_ventas: int
+    ventas_hoy: int
+    recaudacion_total: float
+    recaudacion_hoy: float

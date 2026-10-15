@@ -29,17 +29,8 @@ export default function SearchRoutes() {
     setLoading(true); setError(''); setHasSearched(true)
     try {
       const { data } = await searchRoutes(o.trim(), d.trim(), f || undefined)
-      // fallback filtro fecha en frontend si backend aún no filtra
-      let filtered = data
-      if (f && Array.isArray(data)) {
-        filtered = data.filter(r => {
-          if (!r.fecha_salida) return true
-          const d2 = new Date(r.fecha_salida).toISOString().split('T')[0]
-          return d2 === f
-        })
-      }
-      setResultados(filtered)
-      if (filtered.length === 0) setError('No se encontraron viajes para esa combinación. Prueba otra fecha o ciudades cercanas.')
+      setResultados(data)
+      if (data.length === 0) setError('No se encontraron viajes para esa combinación. Prueba otra fecha o ciudades cercanas.')
     } catch (err) {
       setError(err.response?.data?.detail || 'No se pudo conectar con el backend. Verifica que esté corriendo en :8000')
       setResultados([])
