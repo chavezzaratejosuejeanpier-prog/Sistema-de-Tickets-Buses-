@@ -30,4 +30,4 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
     if not user or not verificar_password(data.password, user.hashed_password):
         raise HTTPException(401, "Credenciales inválidas")
     token = crear_token({"sub": user.email, "rol": user.rol.value})
-    return {"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "token_type": "bearer", "rol": user.rol.value, "nombre": user.nombre}

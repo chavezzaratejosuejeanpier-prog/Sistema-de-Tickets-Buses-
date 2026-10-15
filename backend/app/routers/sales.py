@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 import uuid
 from datetime import datetime
 from ..database import get_db
@@ -58,7 +59,13 @@ def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):
             estado=EstadoTicket.VENDIDO,
             codigo_reserva=codigo
         ))
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # Alguien compro el mismo asiento entre la validacion y el commit
+        db.rollback()
+        raise HTTPException(409, "Uno de los asientos ya fue vendido por otra persona")
+
     return {
         "mensaje": "Compra exitosa",
         "codigo_reserva": codigo,

@@ -7,8 +7,8 @@ import Input from '../components/common/Input.jsx'
 import Button from '../components/common/Button.jsx'
 
 export default function Login() {
-  const [email, setEmail] = useState('admin@buss.com')
-  const [password, setPassword] = useState('123456')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [enviando, setEnviando] = useState(false)
   const { login: ctxLogin } = useAuth()
   const navigate = useNavigate()
@@ -20,17 +20,20 @@ export default function Login() {
     setEnviando(true)
     try {
       const { data } = await login({ email, password })
-      ctxLogin({ email }, data.access_token)
+      ctxLogin({ email, rol: data.rol, nombre: data.nombre }, data.access_token)
       Swal.fire({
         title: '¡Sesión iniciada!',
         text: 'Bienvenido a BUSS ConnectPro.',
         icon: 'success',
         confirmButtonColor: '#FF6B00',
       }).then(() => navigate(destino, { replace: true }))
-    } catch {
+    } catch (err) {
+      const credencialesMalas = err.response?.status === 401
       Swal.fire({
-        title: 'No pudimos iniciar sesión',
-        text: 'Credenciales inválidas o backend no activo.',
+        title: credencialesMalas ? 'Credenciales inválidas' : 'Sin conexión',
+        text: credencialesMalas
+          ? 'Revisa tu correo y contraseña.'
+          : 'No pudimos conectar con el servidor. Verifica que el backend esté activo.',
         icon: 'error',
         confirmButtonColor: '#0F172A',
       })

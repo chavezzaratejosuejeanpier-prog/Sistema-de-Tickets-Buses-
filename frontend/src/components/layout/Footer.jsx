@@ -1,4 +1,5 @@
 const ENLACES = ['Términos del Servicio', 'Política de Privacidad', 'Política de Equipaje', 'Contactar Soporte']
+const ANIO = new Date().getFullYear()
 
 const Footer = () => (
   <footer className="w-full bg-footer py-10">
@@ -7,18 +8,17 @@ const Footer = () => (
 
       <nav className="flex flex-wrap justify-center gap-6" aria-label="Enlaces del pie de página">
         {ENLACES.map(texto => (
-          <a
+          <span
             key={texto}
-            href="#"
-            onClick={(e) => e.preventDefault()}
-            className="text-[15px] font-medium text-footerLink hover:text-white transition-colors"
+            title="Disponible próximamente"
+            className="text-[15px] font-medium text-footerLink"
           >
             {texto}
-          </a>
+          </span>
         ))}
       </nav>
 
-      <p className="text-sm text-slate-300">&copy; 2024 BUSS ConnectPro S.A. Todos los derechos reservados.</p>
+      <p className="text-sm text-slate-300">&copy; {ANIO} BUSS ConnectPro S.A. Todos los derechos reservados.</p>
     </div>
   </footer>
 )

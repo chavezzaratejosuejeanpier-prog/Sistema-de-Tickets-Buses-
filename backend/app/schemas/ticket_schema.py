@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional, List
 
@@ -29,7 +29,7 @@ class PasajeroCheckout(BaseModel):
 class CheckoutRequest(BaseModel):
     route_id: int
     pasajeros: List[PasajeroCheckout]
-    email: str
+    email: EmailStr
 
 class RouteCreate(BaseModel):
     origen: str

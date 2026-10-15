@@ -18,10 +18,9 @@ const Navbar = () => {
     return () => window.removeEventListener('resize', alCambiarTamano)
   }, [])
 
-  const enlaces = [
-    { texto: 'Mis Pasajes', to: '/mis-pasajes' },
-    user ? { texto: 'Panel', to: '/dashboard' } : { texto: 'Iniciar sesión', to: '/login' },
-  ]
+  const enlaces = [{ texto: 'Mis Pasajes', to: '/mis-pasajes' }]
+  if (user?.rol === 'ADMIN') enlaces.push({ texto: 'Panel', to: '/dashboard' })
+  if (!user) enlaces.push({ texto: 'Iniciar sesión', to: '/login' })
 
   const cerrarSesion = () => {
     logout()
