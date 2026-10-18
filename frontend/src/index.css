@@ -9,7 +9,7 @@
   }
 
   html.dark { color-scheme: dark; }
-  *, *::before, *::after { @apply transition-colors duration-200; }
+  body, a, button, input, select, textarea, [role="button"], summary { @apply transition-colors duration-200; }
 
   body {
     @apply font-sans bg-surface text-navy antialiased;
@@ -30,6 +30,8 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
   ::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+  html.dark ::-webkit-scrollbar-thumb { background: #334155; }
+  html.dark ::-webkit-scrollbar-thumb:hover { background-color: #475569; }
 
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
@@ -37,6 +39,13 @@
     -webkit-box-shadow: 0 0 0 1000px #fff inset;
     -webkit-text-fill-color: #0F172A;
     transition: background-color 9999s ease-in-out 0s;
+  }
+
+  html.dark input:-webkit-autofill,
+  html.dark input:-webkit-autofill:hover,
+  html.dark input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #1e293b inset;
+    -webkit-text-fill-color: #ffffff;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -50,23 +59,19 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-[15px] font-semibold text-white transition-colors duration-200 hover:bg-primary-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40;
-  }
-
-  .btn-accent {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-[15px] font-semibold text-white transition-colors duration-200 hover:bg-primary-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-primary-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40;
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-line bg-white px-6 py-3 text-[15px] font-semibold text-navy transition-colors duration-200 hover:border-primary hover:text-primary active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-line bg-white px-6 py-3 text-sm font-semibold text-navy transition-colors duration-200 hover:border-primary hover:text-primary active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 dark:border-stone-700 dark:bg-stone-800 dark:text-white;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-[15px] font-medium text-muted transition-colors duration-200 hover:bg-slate-100 hover:text-navy;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-muted transition-colors duration-200 hover:bg-slate-100 hover:text-navy dark:hover:bg-stone-800 dark:hover:text-white;
   }
 
   .input {
-    @apply w-full rounded-lg border border-line bg-white px-4 py-3 text-[15px] text-navy placeholder-slate-400 transition-colors duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15 dark:border-stone-700 dark:bg-stone-800 dark:text-white dark:placeholder-stone-500;
+    @apply w-full rounded-lg border border-line bg-white px-4 py-3 text-sm text-navy placeholder-slate-400 transition-colors duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15 dark:border-stone-700 dark:bg-stone-800 dark:text-white dark:placeholder-stone-500;
   }
 
   .badge {

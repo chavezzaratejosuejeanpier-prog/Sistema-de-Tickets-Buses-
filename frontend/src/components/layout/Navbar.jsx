@@ -5,7 +5,7 @@ import ThemeToggle from '../common/ThemeToggle'
 import { useAuth } from '../../context/useAuth.js'
 
 const enlaceClass =
-  'text-[18px] font-medium text-navy-light dark:text-neutral-200 hover:text-primary transition-colors'
+  'text-lg font-medium text-navy-light dark:text-neutral-200 hover:text-primary transition-colors'
 
 const Navbar = () => {
   const [abierto, setAbierto] = useState(false)
@@ -35,7 +35,7 @@ const Navbar = () => {
       <div className="max-w-shell mx-auto px-4 sm:px-[30px] h-full flex items-center justify-between">
         <Link
           to="/"
-          className="text-[36px] font-bold text-navy dark:text-white leading-none shrink-0"
+          className="text-4xl font-bold text-navy dark:text-white leading-none shrink-0"
           aria-label="BUSS ConnectPro - Inicio"
         >
           BUSS ConnectPro
@@ -52,7 +52,7 @@ const Navbar = () => {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            className="hidden md:inline-flex rounded-lg bg-slate-100 dark:bg-stone-800 px-[18px] py-2.5 text-[15px] font-semibold text-navy dark:text-neutral-100 transition-colors hover:bg-slate-200 dark:hover:bg-stone-700"
+            className="hidden md:inline-flex rounded-lg bg-slate-100 dark:bg-stone-800 px-[18px] py-2.5 text-sm font-semibold text-navy dark:text-neutral-100 transition-colors hover:bg-slate-200 dark:hover:bg-stone-700"
             aria-label="Moneda: soles peruanos"
           >
             PEN (S/.)
@@ -65,7 +65,7 @@ const Navbar = () => {
               type="button"
               onClick={cerrarSesion}
               title={`Cerrar sesión de ${nombre}`}
-              className="hidden md:inline-flex items-center gap-2 rounded-lg border border-line dark:border-stone-700 px-3 py-2 text-[15px] font-medium text-navy dark:text-neutral-100 hover:border-primary hover:text-primary transition-colors"
+              className="hidden md:inline-flex items-center gap-2 rounded-lg border border-line dark:border-stone-700 px-3 py-2 text-sm font-medium text-navy dark:text-neutral-100 hover:border-primary hover:text-primary transition-colors"
             >
               <UserRound size={16} aria-hidden="true" />
               <span className="max-w-[110px] truncate">{nombre}</span>
@@ -78,7 +78,7 @@ const Navbar = () => {
             onClick={() => setAbierto(o => !o)}
             aria-expanded={abierto}
             aria-label={abierto ? 'Cerrar menú' : 'Abrir menú'}
-            className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-line dark:border-stone-700 text-navy dark:text-white"
+            className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-line dark:border-stone-700 text-navy dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
           >
             {abierto ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -101,7 +101,7 @@ const Navbar = () => {
             )}
 
             <div className="flex items-center gap-3">
-              <span className="rounded-lg bg-slate-100 dark:bg-stone-800 px-[18px] py-2.5 text-[15px] font-semibold text-navy dark:text-neutral-100">
+              <span className="rounded-lg bg-slate-100 dark:bg-stone-800 px-[18px] py-2.5 text-sm font-semibold text-navy dark:text-neutral-100">
                 PEN (S/.)
               </span>
               <ThemeToggle />

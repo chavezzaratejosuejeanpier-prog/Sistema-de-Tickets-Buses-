@@ -99,7 +99,7 @@ export default function About() {
           interno en un solo lugar.
         </p>
         <div className="mt-8 flex flex-wrap gap-3 justify-center">
-          <Link to="/buscar" className="btn-accent">Buscar viajes</Link>
+          <Link to="/buscar" className="btn-primary">Buscar viajes</Link>
           <a href="#como-funciona" className="btn-outline">Cómo funciona</a>
         </div>
       </section>
@@ -174,7 +174,7 @@ export default function About() {
         <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">¿Listo para viajar?</h2>
         <p className="mt-4 text-lg text-stone-600 dark:text-stone-300">Consulta los viajes disponibles y elige tu asiento en el mapa del bus.</p>
         <div className="mt-8">
-          <Link to="/buscar" className="btn-accent">Buscar viajes</Link>
+          <Link to="/buscar" className="btn-primary">Buscar viajes</Link>
         </div>
       </section>
     </div>

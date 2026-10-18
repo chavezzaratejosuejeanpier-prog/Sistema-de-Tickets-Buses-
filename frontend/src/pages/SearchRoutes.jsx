@@ -79,7 +79,7 @@ export default function SearchRoutes() {
             onClick={swap}
             aria-label="Intercambiar origen y destino"
             title="Intercambiar"
-            className="self-center md:self-end shrink-0 w-10 h-10 rounded-full bg-white dark:bg-stone-700 border border-black/10 dark:border-stone-600 shadow-sm flex items-center justify-center text-navy dark:text-white hover:bg-navy hover:text-white hover:border-navy transition-colors"
+            className="self-center md:self-end shrink-0 w-10 h-10 rounded-full bg-white dark:bg-stone-700 border border-black/10 dark:border-stone-600 shadow-sm flex items-center justify-center text-navy dark:text-white hover:bg-navy hover:text-white hover:border-navy transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12M17 20l4-4M17 20l-4-4"/></svg>
           </button>
@@ -98,7 +98,7 @@ export default function SearchRoutes() {
                 className="w-full pl-4 pr-4 py-3 bg-gray-50 dark:bg-stone-800 border border-black/10 dark:border-stone-600 rounded-xl text-sm font-medium text-navy dark:text-white focus:outline-none focus:bg-white dark:focus:bg-stone-900 focus:border-navy focus:ring-2 focus:ring-navy/10 transition [color-scheme:light] dark:[color-scheme:dark]"
               />
             </div>
-            <p className="text-[11px] text-stone-400 dark:text-stone-500 mt-1.5">Opcional — filtra por día</p>
+            <p className="text-xs text-stone-400 dark:text-stone-500 mt-1.5">Opcional — filtra por día</p>
           </div>
         </div>
 
@@ -115,18 +115,18 @@ export default function SearchRoutes() {
               </>
             )}
           </Button>
-          <button type="button" onClick={limpiar} className="px-6 py-2.5 rounded-xl font-semibold text-sm border border-black/10 dark:border-stone-600 text-stone-600 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-stone-700 transition-colors">
+          <button type="button" onClick={limpiar} className="px-6 py-2.5 rounded-xl font-semibold text-sm border border-black/10 dark:border-stone-600 text-stone-600 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-stone-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900">
             Limpiar
           </button>
           {!canSearch && origen && destino && (
-            <span className="self-center text-xs font-semibold text-accent bg-gray-50 border border-black/5 px-3 py-1.5 rounded-full">Origen ≠ Destino</span>
+            <span className="self-center text-xs font-semibold text-accent bg-gray-50 dark:bg-stone-800 border border-black/5 dark:border-stone-700 px-3 py-1.5 rounded-full">Origen ≠ Destino</span>
           )}
         </div>
       </form>
 
       {/* Estados */}
       {error && (
-        <div className={`mt-5 rounded-xl px-4 py-3 text-sm font-medium border ${resultados.length > 0 ? 'bg-gray-50 border-black/5 text-stone-600' : 'bg-red-50 border-red-200 text-red-700'}`}>
+        <div className={`mt-5 rounded-xl px-4 py-3 text-sm font-medium border ${resultados.length > 0 ? 'bg-gray-50 dark:bg-stone-800 border-black/5 dark:border-stone-700 text-stone-600 dark:text-stone-300' : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900 text-red-700 dark:text-red-300'}`}>
           {error}
         </div>
       )}
@@ -163,10 +163,10 @@ export default function SearchRoutes() {
                       {r.origen} <span className="text-accent">→</span> {r.destino}
                     </p>
                     <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">
-                      {r.fecha_salida ? new Date(r.fecha_salida).toLocaleDateString('es-PE', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) : 'Fecha por confirmar'} • {r.hora_salida} • Bus {r.bus_placa} <span className="inline-block bg-gray-50 border border-black/10 px-2 py-0.5 rounded-full text-xs font-bold ml-1">{r.bus_tipo}</span>
+                      {r.fecha_salida ? new Date(r.fecha_salida).toLocaleDateString('es-PE', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) : 'Fecha por confirmar'} • {r.hora_salida} • Bus {r.bus_placa} <span className="inline-block bg-gray-50 dark:bg-stone-700 border border-black/10 dark:border-stone-600 dark:text-stone-200 px-2 py-0.5 rounded-full text-xs font-bold ml-1">{r.bus_tipo}</span>
                     </p>
                     <p className="text-sm mt-2">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${r.asientos_disponibles > 10 ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : r.asientos_disponibles > 0 ? 'bg-gray-50 border-black/5 text-stone-600' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${r.asientos_disponibles > 10 ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-300' : r.asientos_disponibles > 0 ? 'bg-gray-50 dark:bg-stone-800 border-black/5 dark:border-stone-700 text-stone-600 dark:text-stone-300' : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900 text-red-700 dark:text-red-300'}`}>
                         <span className={`w-2 h-2 rounded-full ${r.asientos_disponibles > 10 ? 'bg-emerald-500' : r.asientos_disponibles > 0 ? 'bg-accent' : 'bg-red-500'}`} />
                         {r.asientos_disponibles} asientos libres
                       </span>
@@ -189,7 +189,7 @@ export default function SearchRoutes() {
         ) : null}
       </div>
 
-      <p className="text-[11px] text-stone-400 mt-6 text-center">Ciudades sugeridas: {CIUDADES.slice(0,8).join(' • ')} • Escribe para filtrar</p>
+      <p className="text-xs text-stone-400 dark:text-stone-500 mt-6 text-center">Ciudades sugeridas: {CIUDADES.slice(0,8).join(' • ')} • Escribe para filtrar</p>
     </div>
   )
 }

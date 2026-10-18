@@ -64,7 +64,7 @@ export default function SearchHero({
               onClick={onSwap}
               aria-label="Intercambiar origen y destino"
               title="Intercambiar"
-              className="col-span-2 mx-auto flex size-12 shrink-0 rotate-90 items-center justify-center self-end rounded-full border border-line bg-white text-navy shadow-soft hover:border-primary hover:text-primary dark:border-stone-700 dark:bg-stone-800 dark:text-white lg:rotate-0"
+              className="col-span-2 mx-auto flex size-12 shrink-0 rotate-90 items-center justify-center self-end rounded-full border border-line bg-white text-navy shadow-soft hover:border-primary hover:text-primary dark:border-stone-700 dark:bg-stone-800 dark:text-white lg:rotate-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               <ArrowLeftRight size={20} />
             </button>
@@ -103,7 +103,7 @@ export default function SearchHero({
           <button
             type="submit"
             disabled={!valido}
-            className="mt-5 h-[60px] w-full rounded-lg bg-primary text-[20px] font-bold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-40"
+            className="mt-5 h-[60px] w-full rounded-lg bg-primary text-xl font-bold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-40"
           >
             Buscar Pasajes Disponibles
           </button>
