@@ -4,14 +4,14 @@ const ANIO = new Date().getFullYear()
 const Footer = () => (
   <footer className="w-full bg-footer py-10">
     <div className="max-w-shell mx-auto px-4 sm:px-[30px] flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-      <span className="text-[28px] font-bold text-white">BUSS ConnectPro</span>
+      <span className="text-3xl font-bold text-white">BUSS ConnectPro</span>
 
       <nav className="flex flex-wrap justify-center gap-6" aria-label="Enlaces del pie de página">
         {ENLACES.map(texto => (
           <span
             key={texto}
             title="Disponible próximamente"
-            className="text-[15px] font-medium text-footerLink"
+            className="text-sm font-medium text-footerLink"
           >
             {texto}
           </span>

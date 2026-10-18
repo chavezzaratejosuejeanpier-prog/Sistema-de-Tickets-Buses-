@@ -73,7 +73,7 @@ export default function MisPasajes() {
             value={codigo}
             onChange={(e) => setCodigo(e.target.value.toUpperCase())}
             placeholder="BC-XXXXXXXX"
-            className="input font-mono tracking-widest dark:bg-stone-800 dark:text-white"
+            className="input font-mono tracking-widest"
             autoComplete="off"
           />
           <Button type="submit" disabled={cargando} className="w-full sm:w-auto shrink-0">

@@ -157,7 +157,7 @@ const Checkout = () => {
                       type="text"
                       inputMode="numeric"
                       maxLength="8"
-                      className="input dark:bg-stone-800 dark:text-white"
+                      className="input"
                       placeholder="Ej. 76543210"
                       value={pasajero.dni}
                       onChange={(e) => handleInputChange(index, 'dni', e.target.value)}
@@ -170,7 +170,7 @@ const Checkout = () => {
                     <input
                       id={`nombres-${index}`}
                       type="text"
-                      className="input dark:bg-stone-800 dark:text-white"
+                      className="input"
                       placeholder="Ej. Juan Pérez"
                       value={pasajero.nombres}
                       onChange={(e) => handleInputChange(index, 'nombres', e.target.value)}
@@ -188,7 +188,7 @@ const Checkout = () => {
             <input
               id="email"
               type="email"
-              className="input dark:bg-stone-800 dark:text-white"
+              className="input"
               placeholder="tu@correo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

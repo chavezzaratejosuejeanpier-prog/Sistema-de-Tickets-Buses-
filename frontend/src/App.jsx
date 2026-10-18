@@ -20,7 +20,7 @@ function App() {
     <Router>
       <ScrollToTop />
 
-      <div className="min-h-screen bg-surface flex flex-col">
+      <div className="min-h-screen bg-surface dark:bg-stone-950 flex flex-col">
         <Navbar />
 
         <main className="flex-grow py-8 w-full max-w-shell mx-auto px-4 sm:px-[30px]">

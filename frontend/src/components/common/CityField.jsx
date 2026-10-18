@@ -15,7 +15,7 @@ export default function CityField({ label, value, onChange, placeholder, exclude
 
   return (
     <div className="relative">
-      <label htmlFor={id} className="mb-2 block text-[15px] font-semibold text-navy-light">{label}</label>
+      <label htmlFor={id} className="mb-2 block text-sm font-semibold text-navy-light dark:text-stone-300">{label}</label>
 
       <div className="relative">
         <MapPin size={20} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
@@ -45,13 +45,13 @@ export default function CityField({ label, value, onChange, placeholder, exclude
       </div>
 
       {showList && (
-        <ul id={`${id}-lista`} role="listbox" className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border border-line bg-white py-1 shadow-xl">
+        <ul id={`${id}-lista`} role="listbox" className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border border-line dark:border-stone-700 bg-white dark:bg-stone-800 py-1 shadow-xl">
           {filtered.map(c => (
             <li key={c} role="option" aria-selected={c === value}>
               <button
                 type="button"
                 onMouseDown={() => onChange(c)}
-                className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[15px] text-navy hover:bg-primary hover:text-white"
+                className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-navy dark:text-stone-100 hover:bg-primary hover:text-white"
               >
                 <span className="size-1.5 shrink-0 rounded-full bg-primary" />
                 {c}
