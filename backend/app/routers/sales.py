@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 import uuid
-from datetime import datetime, time
+from datetime import datetime, time, timedelta, timezone
 from ..database import get_db
 from ..models.ticket import Ticket, EstadoTicket
 from ..models.route import Route
@@ -17,7 +17,9 @@ router = APIRouter()
 @router.get("/", response_model=VentaResumen)
 def resumen_ventas(db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
     vendido = Ticket.estado == EstadoTicket.VENDIDO
-    inicio_hoy = datetime.combine(datetime.utcnow().date(), time.min)
+    # "Hoy" en hora de Peru (UTC-5). creado_en se guarda en UTC naive.
+    hoy_peru = (datetime.now(timezone.utc) - timedelta(hours=5)).date()
+    inicio_hoy = datetime.combine(hoy_peru, time.min) + timedelta(hours=5)
     total_ventas = db.query(func.count(Ticket.id)).filter(vendido).scalar() or 0
     recaudacion_total = db.query(func.coalesce(func.sum(Ticket.precio_pagado), 0.0)).filter(vendido).scalar() or 0.0
     ventas_hoy = db.query(func.count(Ticket.id)).filter(vendido, Ticket.creado_en >= inicio_hoy).scalar() or 0
@@ -80,7 +82,12 @@ def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):
 
 @router.get("/tickets/{codigo}")
 def obtener_ticket(codigo: str, db: Session = Depends(get_db)):
-    tickets = db.query(Ticket).filter(Ticket.codigo_reserva == codigo).all()
+    tickets = (
+        db.query(Ticket)
+        .options(joinedload(Ticket.route).joinedload(Route.bus))
+        .filter(Ticket.codigo_reserva == codigo)
+        .all()
+    )
     if not tickets:
         raise HTTPException(404, "Reserva no encontrada")
     respuesta = []

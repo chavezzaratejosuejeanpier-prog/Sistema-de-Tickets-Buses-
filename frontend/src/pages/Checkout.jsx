@@ -24,6 +24,10 @@ const Checkout = () => {
   const total = pasajeros.length * precioPorAsiento
 
   useEffect(() => {
+    if (!rutaId) navigate('/buscar', { replace: true })
+  }, [rutaId, navigate])
+
+  useEffect(() => {
     if (timeLeft <= 0) {
       Swal.fire({
         title: 'Tiempo agotado',

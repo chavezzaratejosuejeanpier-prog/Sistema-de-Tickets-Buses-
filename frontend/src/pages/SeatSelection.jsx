@@ -9,15 +9,21 @@ export default function SeatSelection() {
   const location = useLocation()
   const navigate = useNavigate()
   const [data, setData] = useState(null)
+  const [error, setError] = useState('')
   const [seleccionados, setSeleccionados] = useState([])
 
   const precioBase = Number(location.state?.precio ?? 45)
   const total = seleccionados.length * precioBase
 
   useEffect(() => {
+    setError('')
     getRouteSeats(routeId)
       .then(r => setData(r.data))
-      .catch(() => setData({ ocupados: [], total_piso1: 20, total_piso2: 40 }))
+      .catch(err => setError(
+        err.response?.status === 404
+          ? 'Este viaje ya no está disponible.'
+          : 'No pudimos cargar los asientos. Revisa tu conexión e inténtalo de nuevo.'
+      ))
   }, [routeId])
 
   const continuar = () => {
@@ -25,6 +31,13 @@ export default function SeatSelection() {
     localStorage.setItem('reserva', JSON.stringify({ routeId, asientos }))
     navigate('/checkout', { state: { rutaId: Number(routeId), asientos, precio: precioBase } })
   }
+
+  if (error) return (
+    <div className="max-w-3xl mx-auto p-10 text-center">
+      <p className="text-red-600 dark:text-red-400">{error}</p>
+      <Button onClick={() => navigate('/buscar')} className="mt-4">Volver a buscar</Button>
+    </div>
+  )
 
   if (!data) return (
     <div className="max-w-3xl mx-auto p-10 flex items-center justify-center gap-3 text-stone-500">
