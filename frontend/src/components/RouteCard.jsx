@@ -14,7 +14,15 @@ export default function RouteCard({ origen, destino, precio, duracion, asiento, 
       className="flex min-h-[340px] w-full flex-col overflow-hidden rounded-xl border border-line bg-white text-left shadow-soft transition-shadow duration-200 hover:shadow-md dark:border-stone-800 dark:bg-stone-900"
     >
       {src ? (
-        <img src={src} alt={`Viaje ${origen} - ${destino}`} loading="lazy" className="h-40 w-full object-cover" />
+        <img
+          src={src}
+          alt={`Viaje ${origen} - ${destino}`}
+          loading="lazy"
+          decoding="async"
+          width={400}
+          height={160}
+          className="h-40 w-full object-cover dark:opacity-90"
+        />
       ) : (
         <div aria-hidden className="h-40 w-full bg-slate-300 dark:bg-stone-800" />
       )}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { ArrowLeftRight, Search } from 'lucide-react'
 import { searchRoutes } from '../services/api.js'
 import Button from '../components/common/Button.jsx'
 import CityField from '../components/common/CityField.jsx'
@@ -81,7 +82,7 @@ export default function SearchRoutes() {
             title="Intercambiar"
             className="self-center md:self-end shrink-0 w-10 h-10 rounded-full bg-white dark:bg-stone-700 border border-black/10 dark:border-stone-600 shadow-sm flex items-center justify-center text-navy dark:text-white hover:bg-navy hover:text-white hover:border-navy transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12M17 20l4-4M17 20l-4-4"/></svg>
+            <ArrowLeftRight size={18} aria-hidden="true" />
           </button>
 
           <CityField label="Destino" value={destino} onChange={setDestino} placeholder="Ej. Cusco" exclude={origen} />
@@ -110,14 +111,14 @@ export default function SearchRoutes() {
               </>
             ) : (
               <>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="M20 20L15 15"/></svg>
+                <Search size={16} aria-hidden="true" />
                 Buscar viajes
               </>
             )}
           </Button>
-          <button type="button" onClick={limpiar} className="px-6 py-2.5 rounded-xl font-semibold text-sm border border-black/10 dark:border-stone-600 text-stone-600 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-stone-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900">
+          <Button type="button" variant="outline" onClick={limpiar}>
             Limpiar
-          </button>
+          </Button>
           {!canSearch && origen && destino && (
             <span className="self-center text-xs font-semibold text-accent bg-gray-50 dark:bg-stone-800 border border-black/5 dark:border-stone-700 px-3 py-1.5 rounded-full">Origen ≠ Destino</span>
           )}
@@ -175,7 +176,7 @@ export default function SearchRoutes() {
                   <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 sm:text-right shrink-0">
                     <p className="text-2xl font-extrabold text-navy dark:text-white">S/ {Number(r.precio_base).toFixed(2)}</p>
                     <Button
-                      onClick={() => navigate(`/asientos/${r.id}`, { state: { precio: r.precio_base } })}
+                      onClick={() => navigate(`/asientos/${r.id}`, { state: { precio: r.precio_base, origen: r.origen, destino: r.destino, fecha: r.fecha_salida, hora: r.hora_salida, placa: r.bus_placa, tipo: r.bus_tipo } })}
                       disabled={r.asientos_disponibles === 0}
                       className="disabled:opacity-40"
                     >

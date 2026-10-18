@@ -60,58 +60,64 @@ export default function Dashboard() {
           <h2 className="text-lg font-bold text-navy dark:text-white px-4 py-3 border-b border-line dark:border-stone-700">
             Buses ({buses.length})
           </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 dark:bg-stone-800 text-left text-muted dark:text-stone-400">
-                <tr>
-                  <th className="px-4 py-2 font-semibold">Placa</th>
-                  <th className="px-4 py-2 font-semibold">Modelo</th>
-                  <th className="px-4 py-2 font-semibold">Tipo</th>
-                  <th className="px-4 py-2 font-semibold text-right">Asientos</th>
-                </tr>
-              </thead>
-              <tbody className="text-navy dark:text-stone-200">
-                {buses.length === 0 && <tr><td colSpan="4" className="px-4 py-3 text-muted dark:text-stone-500">Sin buses registrados</td></tr>}
-                {buses.map(b => (
-                  <tr key={b.id} className="border-t border-line dark:border-stone-700">
-                    <td className="px-4 py-2 font-semibold">{b.placa}</td>
-                    <td className="px-4 py-2">{b.modelo}</td>
-                    <td className="px-4 py-2">{b.tipo}</td>
-                    <td className="px-4 py-2 text-right">{b.total_asientos} ({b.capacidad_piso1}+{b.capacidad_piso2})</td>
+          {buses.length === 0 ? (
+            <p className="empty-state m-4">Sin buses registrados</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 dark:bg-stone-800 text-left text-muted dark:text-stone-400">
+                  <tr>
+                    <th className="px-4 py-2 font-semibold">Placa</th>
+                    <th className="px-4 py-2 font-semibold">Modelo</th>
+                    <th className="px-4 py-2 font-semibold">Tipo</th>
+                    <th className="px-4 py-2 font-semibold text-right">Asientos</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="text-navy dark:text-stone-200">
+                  {buses.map(b => (
+                    <tr key={b.id} className="border-t border-line dark:border-stone-700">
+                      <td className="px-4 py-2 font-semibold">{b.placa}</td>
+                      <td className="px-4 py-2">{b.modelo}</td>
+                      <td className="px-4 py-2">{b.tipo}</td>
+                      <td className="px-4 py-2 text-right">{b.total_asientos} ({b.capacidad_piso1}+{b.capacidad_piso2})</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         <div className="card overflow-hidden">
           <h2 className="text-lg font-bold text-navy dark:text-white px-4 py-3 border-b border-line dark:border-stone-700">
             Rutas ({rutas.length})
           </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 dark:bg-stone-800 text-left text-muted dark:text-stone-400">
-                <tr>
-                  <th className="px-4 py-2 font-semibold">Ruta</th>
-                  <th className="px-4 py-2 font-semibold">Salida</th>
-                  <th className="px-4 py-2 font-semibold">Bus</th>
-                  <th className="px-4 py-2 font-semibold text-right">Precio</th>
-                </tr>
-              </thead>
-              <tbody className="text-navy dark:text-stone-200">
-                {rutas.length === 0 && <tr><td colSpan="4" className="px-4 py-3 text-muted dark:text-stone-500">Sin rutas registradas</td></tr>}
-                {rutas.map(r => (
-                  <tr key={r.id} className="border-t border-line dark:border-stone-700">
-                    <td className="px-4 py-2 font-semibold">{r.origen} → {r.destino}</td>
-                    <td className="px-4 py-2">{new Date(r.fecha_salida).toLocaleDateString()} - {r.hora_salida}</td>
-                    <td className="px-4 py-2">{busById[r.bus_id]?.placa || `#${r.bus_id}`} ({busById[r.bus_id]?.tipo || '-'})</td>
-                    <td className="px-4 py-2 text-right">{moneda(r.precio_base)}</td>
+          {rutas.length === 0 ? (
+            <p className="empty-state m-4">Sin rutas registradas</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 dark:bg-stone-800 text-left text-muted dark:text-stone-400">
+                  <tr>
+                    <th className="px-4 py-2 font-semibold">Ruta</th>
+                    <th className="px-4 py-2 font-semibold">Salida</th>
+                    <th className="px-4 py-2 font-semibold">Bus</th>
+                    <th className="px-4 py-2 font-semibold text-right">Precio</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="text-navy dark:text-stone-200">
+                  {rutas.map(r => (
+                    <tr key={r.id} className="border-t border-line dark:border-stone-700">
+                      <td className="px-4 py-2 font-semibold">{r.origen} → {r.destino}</td>
+                      <td className="px-4 py-2">{new Date(r.fecha_salida).toLocaleDateString('es-PE')} - {r.hora_salida}</td>
+                      <td className="px-4 py-2">{busById[r.bus_id]?.placa || `#${r.bus_id}`} ({busById[r.bus_id]?.tipo || '-'})</td>
+                      <td className="px-4 py-2 text-right">{moneda(r.precio_base)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

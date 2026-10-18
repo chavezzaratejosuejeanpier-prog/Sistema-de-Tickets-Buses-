@@ -14,8 +14,13 @@ const Navbar = () => {
 
   useEffect(() => {
     const alCambiarTamano = () => window.innerWidth >= 768 && setAbierto(false)
+    const alPresionarTecla = (e) => { if (e.key === 'Escape') setAbierto(false) }
     window.addEventListener('resize', alCambiarTamano)
-    return () => window.removeEventListener('resize', alCambiarTamano)
+    window.addEventListener('keydown', alPresionarTecla)
+    return () => {
+      window.removeEventListener('resize', alCambiarTamano)
+      window.removeEventListener('keydown', alPresionarTecla)
+    }
   }, [])
 
   const enlaces = [{ texto: 'Mis Pasajes', to: '/mis-pasajes' }]
@@ -43,21 +48,17 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center gap-8">
           {enlaces.map(({ texto, to }) => (
-            <NavLink key={texto} to={to} className={enlaceClass}>
+            <NavLink
+              key={texto}
+              to={to}
+              className={({ isActive }) => `${enlaceClass}${isActive ? ' text-primary dark:text-primary' : ''}`}
+            >
               {texto}
             </NavLink>
           ))}
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            className="hidden md:inline-flex rounded-lg bg-slate-100 dark:bg-stone-800 px-[18px] py-2.5 text-sm font-semibold text-navy dark:text-neutral-100 transition-colors hover:bg-slate-200 dark:hover:bg-stone-700"
-            aria-label="Moneda: soles peruanos"
-          >
-            PEN (S/.)
-          </button>
-
           <ThemeToggle />
 
           {user && (
@@ -89,7 +90,12 @@ const Navbar = () => {
         <div className="md:hidden bg-white dark:bg-stone-900 border-b border-line dark:border-stone-800">
           <div className="max-w-shell mx-auto px-4 py-4 flex flex-col gap-4">
             {enlaces.map(({ texto, to }) => (
-              <NavLink key={texto} to={to} onClick={() => setAbierto(false)} className={enlaceClass}>
+              <NavLink
+                key={texto}
+                to={to}
+                onClick={() => setAbierto(false)}
+                className={({ isActive }) => `${enlaceClass}${isActive ? ' text-primary dark:text-primary' : ''}`}
+              >
                 {texto}
               </NavLink>
             ))}
@@ -100,12 +106,7 @@ const Navbar = () => {
               </button>
             )}
 
-            <div className="flex items-center gap-3">
-              <span className="rounded-lg bg-slate-100 dark:bg-stone-800 px-[18px] py-2.5 text-sm font-semibold text-navy dark:text-neutral-100">
-                PEN (S/.)
-              </span>
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
           </div>
         </div>
       )}
