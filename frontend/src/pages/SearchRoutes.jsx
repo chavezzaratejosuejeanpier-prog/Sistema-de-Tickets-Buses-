@@ -16,7 +16,8 @@ export default function SearchRoutes() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const hoy = new Date().toISOString().split('T')[0]
+  const ahora = new Date()
+  const hoy = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`
 
   const canSearch = origen.trim().length >= 2 && destino.trim().length >= 2 && origen.trim().toLowerCase() !== destino.trim().toLowerCase()
 

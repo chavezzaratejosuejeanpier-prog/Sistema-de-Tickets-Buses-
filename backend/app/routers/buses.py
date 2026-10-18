@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List
 from ..database import get_db
@@ -24,15 +24,17 @@ def crear_bus(data: BusCreate, db: Session = Depends(get_db), _admin: User = Dep
     return bus
 
 @router.get("/{bus_id}/asientos")
-def asientos_por_bus(bus_id: int, db: Session = Depends(get_db)):
+def asientos_por_bus(bus_id: int, route_id: int = Query(..., description="Viaje/ruta del que se quieren los asientos"), db: Session = Depends(get_db)):
     bus = db.query(Bus).filter(Bus.id == bus_id).first()
     if not bus:
         raise HTTPException(404, "Bus no encontrado")
-    tickets = (
-        db.query(Ticket)
-        .join(Route, Ticket.route_id == Route.id)
-        .filter(Route.bus_id == bus_id, Ticket.estado != EstadoTicket.DISPONIBLE)
-        .all()
-    )
-    ocupados = [t.numero_asiento for t in tickets]
-    return {"bus_id": bus_id, "ocupados": ocupados, "total_piso1": bus.capacidad_piso1, "total_piso2": bus.capacidad_piso2}
+    ruta = db.query(Route).filter(Route.id == route_id, Route.bus_id == bus_id).first()
+    if not ruta:
+        raise HTTPException(404, "Esa ruta no pertenece a este bus")
+    # La ocupacion es por viaje (ruta), no por bus: un mismo bus hace varios viajes.
+    ocupados = [
+        t.numero_asiento for t in db.query(Ticket).filter(
+            Ticket.route_id == route_id, Ticket.estado != EstadoTicket.DISPONIBLE
+        ).all()
+    ]
+    return {"bus_id": bus_id, "route_id": route_id, "ocupados": ocupados, "total_piso1": bus.capacidad_piso1, "total_piso2": bus.capacidad_piso2}
