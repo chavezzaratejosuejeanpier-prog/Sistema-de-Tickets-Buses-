@@ -46,7 +46,7 @@
 
 @layer components {
   .card {
-    @apply bg-white rounded-xl border border-line shadow-soft;
+    @apply bg-white dark:bg-stone-900 rounded-xl border border-line dark:border-stone-800 shadow-soft;
   }
 
   .btn-primary {
@@ -66,7 +66,7 @@
   }
 
   .input {
-    @apply w-full rounded-lg border border-line bg-white px-4 py-3 text-[15px] text-navy placeholder-slate-400 transition-colors duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15;
+    @apply w-full rounded-lg border border-line bg-white px-4 py-3 text-[15px] text-navy placeholder-slate-400 transition-colors duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15 dark:border-stone-700 dark:bg-stone-800 dark:text-white dark:placeholder-stone-500;
   }
 
   .badge {

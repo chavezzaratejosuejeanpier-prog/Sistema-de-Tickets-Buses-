@@ -9,18 +9,18 @@ const BENEFICIOS = [
 export default function Benefits() {
   return (
     <div>
-      <h2 className="mb-6 text-[30px] font-extrabold text-navy sm:text-[40px]">Nuestros Beneficios</h2>
+      <h2 className="mb-6 text-3xl font-extrabold text-navy dark:text-white sm:text-4xl">Nuestros Beneficios</h2>
 
       {/* flex-1: las 3 tarjetas reparten la altura de la columna y quedan a la par de las de rutas */}
       <div className="flex h-full flex-col gap-5">
         {BENEFICIOS.map(({ Icono, titulo, texto }) => (
           <div key={titulo} className="card flex flex-1 items-center gap-4 p-6">
-            <span className="flex size-[50px] shrink-0 items-center justify-center rounded-lg bg-[#DBEAFE] text-[#1E3A8A]">
+            <span className="flex size-[50px] shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Icono size={24} />
             </span>
             <div>
-              <h3 className="text-[24px] font-semibold text-navy">{titulo}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-muted">{texto}</p>
+              <h3 className="text-2xl font-semibold text-navy dark:text-white">{titulo}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-muted dark:text-stone-400">{texto}</p>
             </div>
           </div>
         ))}

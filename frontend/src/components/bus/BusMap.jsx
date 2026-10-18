@@ -53,7 +53,7 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
       </ul>
 
       {/* Carrocería del bus */}
-      <div className="border-[3px] border-black/5 rounded-[2rem] p-6 sm:p-8 bg-gradient-to-b from-gray-50 to-white relative shadow-inner overflow-hidden">
+      <div className="border-[3px] border-black/5 rounded-2xl p-6 sm:p-8 bg-gradient-to-b from-gray-50 to-white relative shadow-inner overflow-hidden dark:border-white/10 dark:from-stone-800 dark:to-stone-900">
         {/* Volante decorativo */}
         <div
           className="absolute top-5 right-8 w-11 h-11 border-[3px] border-black/5 rounded-full flex items-center justify-center bg-white shadow-sm"

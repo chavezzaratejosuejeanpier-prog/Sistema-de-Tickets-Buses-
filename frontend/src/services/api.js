@@ -11,6 +11,20 @@ api.interceptors.request.use(cfg => {
   return cfg
 })
 
+api.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login'
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
 export const searchRoutes = (origen, destino, fecha) => {
   const params = new URLSearchParams({ origen, destino })
   if (fecha) params.append('fecha', fecha)

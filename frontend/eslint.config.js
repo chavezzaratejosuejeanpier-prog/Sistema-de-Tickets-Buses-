@@ -19,6 +19,7 @@ export default [
         clearInterval: 'readonly',
         alert: 'readonly',
         URLSearchParams: 'readonly',
+        atob: 'readonly',
         console: 'readonly'
       },
       parserOptions: { ecmaVersion: 'latest', ecmaFeatures: { jsx: true }, sourceType: 'module' }

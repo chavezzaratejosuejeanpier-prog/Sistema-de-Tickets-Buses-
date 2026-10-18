@@ -10,7 +10,7 @@ const RUTAS = [
 export default function PopularRoutes({ onSelect }) {
   return (
     <div>
-      <h2 className="mb-6 text-[30px] font-extrabold text-navy sm:text-[40px]">Rutas Populares</h2>
+      <h2 className="mb-6 text-3xl font-extrabold text-navy dark:text-white sm:text-4xl">Rutas Populares</h2>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         {RUTAS.map(r => (
