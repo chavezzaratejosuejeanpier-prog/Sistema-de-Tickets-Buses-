@@ -71,7 +71,7 @@ export default function SearchRoutes() {
       </div>
 
       {/* Form Card */}
-      <form onSubmit={buscar} className="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-black/5 dark:border-stone-700 p-6 md:p-7">
+      <form onSubmit={buscar} className="bg-white dark:bg-stone-800 rounded-xl shadow-soft border border-black/5 dark:border-stone-700 p-6 md:p-7">
         <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-end">
           <CityField label="Origen" value={origen} onChange={setOrigen} placeholder="Ej. Lima" exclude={destino} />
 
@@ -80,7 +80,7 @@ export default function SearchRoutes() {
             onClick={swap}
             aria-label="Intercambiar origen y destino"
             title="Intercambiar"
-            className="self-center md:self-end shrink-0 w-10 h-10 rounded-full bg-white dark:bg-stone-700 border border-black/10 dark:border-stone-600 shadow-sm flex items-center justify-center text-navy dark:text-white hover:bg-navy hover:text-white hover:border-navy transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
+            className="self-center md:self-end shrink-0 w-10 h-10 rounded-full bg-white dark:bg-stone-700 border border-black/10 dark:border-stone-600 shadow-soft flex items-center justify-center text-navy dark:text-white hover:bg-navy hover:text-white hover:border-navy transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
           >
             <ArrowLeftRight size={18} aria-hidden="true" />
           </button>
@@ -135,7 +135,7 @@ export default function SearchRoutes() {
       {/* Resultados */}
       <div className="mt-6" aria-live="polite" aria-busy={loading}>
         {!hasSearched ? (
-          <div className="bg-navy/5 dark:bg-white/5 border border-dashed border-navy/20 dark:border-white/10 rounded-2xl p-8 text-center">
+          <div className="bg-navy/5 dark:bg-white/5 border border-dashed border-navy/20 dark:border-white/10 rounded-xl p-8 text-center">
             <p className="text-sm text-stone-600 dark:text-neutral-300">Ingresa <span className="font-bold text-navy dark:text-white">origen</span> y <span className="font-bold text-navy dark:text-white">destino</span> y presiona <span className="font-bold">Buscar</span>. Usa el calendario para filtrar por fecha.</p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               {['Lima → Cusco', 'Lima → Arequipa', 'Trujillo → Lima'].map(s => (
@@ -146,7 +146,7 @@ export default function SearchRoutes() {
         ) : loading ? (
           <div className="grid gap-4">
             {[1,2,3].map(i => (
-              <div key={i} className="bg-white dark:bg-stone-800 rounded-2xl border border-black/5 dark:border-stone-700 p-5 animate-pulse">
+              <div key={i} className="bg-white dark:bg-stone-800 rounded-xl border border-black/5 dark:border-stone-700 p-5 animate-pulse">
                 <div className="h-4 bg-gray-50 dark:bg-stone-700 rounded w-1/3" />
                 <div className="h-3 bg-gray-50 dark:bg-stone-700 rounded w-2/3 mt-3" />
                 <div className="h-3 bg-gray-50 dark:bg-stone-700 rounded w-1/4 mt-3" />
@@ -158,7 +158,7 @@ export default function SearchRoutes() {
             <p className="text-xs font-bold tracking-widest text-stone-400 dark:text-stone-500 uppercase mb-3">{resultados.length} resultado(s) {fecha && `• ${new Date(fecha).toLocaleDateString()}`}</p>
             <div className="grid gap-4">
               {resultados.map(r => (
-                <div key={r.id} className="bg-white dark:bg-stone-800 rounded-2xl border border-black/5 dark:border-stone-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all p-5 flex flex-col sm:flex-row justify-between gap-4">
+                <div key={r.id} className="bg-white dark:bg-stone-800 rounded-xl border border-black/5 dark:border-stone-700 shadow-soft hover:shadow-lift hover:-translate-y-0.5 transition-all p-5 flex flex-col sm:flex-row justify-between gap-4">
                   <div className="min-w-0">
                     <p className="font-extrabold text-navy dark:text-white text-base flex items-center gap-2">
                       {r.origen} <span className="text-accent">→</span> {r.destino}

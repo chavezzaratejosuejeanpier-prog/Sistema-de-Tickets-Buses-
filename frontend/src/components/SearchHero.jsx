@@ -37,7 +37,7 @@ export default function SearchHero({
   const valido = origen.trim().length >= 2 && destino.trim().length >= 2 && origen.trim().toLowerCase() !== destino.trim().toLowerCase()
 
   return (
-    <section className="relative h-[500px] overflow-hidden rounded-2xl border border-line shadow-soft">
+    <section className="relative h-[500px] overflow-hidden rounded-xl border border-line shadow-soft">
       {/* ponytail: degradado de respaldo, no imagen. Ver nota FONDO arriba. */}
       <div className={`absolute inset-0 ${FONDO}`} />
       <div className="absolute inset-0 bg-white/60 dark:bg-slate-900/70" />
@@ -52,7 +52,7 @@ export default function SearchHero({
 
         <form
           onSubmit={onSubmit}
-          className="mt-10 w-full max-w-[1120px] rounded-xl bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.10)] dark:bg-stone-900 md:p-[30px]"
+          className="mt-10 w-full max-w-[1120px] rounded-xl bg-white p-5 shadow-lift dark:bg-stone-900 md:p-[30px]"
         >
           <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:flex lg:gap-5">
             <div className="lg:flex-1">

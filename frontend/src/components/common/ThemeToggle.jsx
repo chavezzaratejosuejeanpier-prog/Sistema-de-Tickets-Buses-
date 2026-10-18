@@ -11,7 +11,7 @@ export default function ThemeToggle({ className = '' }) {
       className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:focus-visible:ring-offset-navy-dark ${
         isDark
           ? 'bg-white/10 border-white/20 text-white hover:bg-white hover:text-navy'
-          : 'bg-white border-black/10 text-navy hover:bg-stone-100 shadow-sm'
+          : 'bg-white border-black/10 text-navy hover:bg-stone-100 shadow-soft'
       } ${className}`}
     >
       {isDark ? (

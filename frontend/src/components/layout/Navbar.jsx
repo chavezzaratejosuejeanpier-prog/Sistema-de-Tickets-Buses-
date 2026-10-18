@@ -40,7 +40,7 @@ const Navbar = () => {
       <div className="max-w-shell mx-auto px-4 sm:px-[30px] h-full flex items-center justify-between">
         <Link
           to="/"
-          className="text-4xl font-bold text-navy dark:text-white leading-none shrink-0"
+          className="text-2xl sm:text-3xl md:text-4xl font-bold text-navy dark:text-white leading-none shrink-0"
           aria-label="BUSS ConnectPro - Inicio"
         >
           BUSS ConnectPro

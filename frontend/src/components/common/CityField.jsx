@@ -45,7 +45,7 @@ export default function CityField({ label, value, onChange, placeholder, exclude
       </div>
 
       {showList && (
-        <ul id={`${id}-lista`} role="listbox" className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border border-line dark:border-stone-700 bg-white dark:bg-stone-800 py-1 shadow-xl">
+        <ul id={`${id}-lista`} role="listbox" className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border border-line dark:border-stone-700 bg-white dark:bg-stone-800 py-1 shadow-lift">
           {filtered.map(c => (
             <li key={c} role="option" aria-selected={c === value}>
               <button

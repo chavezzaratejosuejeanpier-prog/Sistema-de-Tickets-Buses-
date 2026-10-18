@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { TrendingUp, Bus, MapPin } from 'lucide-react'
 import { getBuses, getRoutes, getSalesSummary } from '../services/api.js'
 
 export default function Dashboard() {
@@ -40,18 +41,33 @@ export default function Dashboard() {
       {error && <p className="text-sm text-red-600 dark:text-red-400 mt-2">{error}</p>}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-        <div className="card p-6">
-          <p className="text-sm font-medium text-muted dark:text-stone-400">Ventas Hoy</p>
-          <p className="text-2xl font-bold text-navy dark:text-white mt-1">{ventas?.ventas_hoy ?? '--'}</p>
-          <p className="text-sm text-green-600 dark:text-green-400">{moneda(ventas?.recaudacion_hoy)}</p>
+        <div className="card p-6 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-muted dark:text-stone-400">Ventas Hoy</p>
+            <p className="text-2xl font-bold text-navy dark:text-white mt-1">{ventas?.ventas_hoy ?? '--'}</p>
+            <p className="text-sm text-green-600 dark:text-green-400">{moneda(ventas?.recaudacion_hoy)}</p>
+          </div>
+          <span className="inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-lg bg-primary/10 text-primary">
+            <TrendingUp size={20} aria-hidden="true" />
+          </span>
         </div>
-        <div className="card p-6">
-          <p className="text-sm font-medium text-muted dark:text-stone-400">Buses</p>
-          <p className="text-2xl font-bold text-navy dark:text-white mt-1">{buses.length}</p>
+        <div className="card p-6 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-muted dark:text-stone-400">Buses</p>
+            <p className="text-2xl font-bold text-navy dark:text-white mt-1">{buses.length}</p>
+          </div>
+          <span className="inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-lg bg-primary/10 text-primary">
+            <Bus size={20} aria-hidden="true" />
+          </span>
         </div>
-        <div className="card p-6">
-          <p className="text-sm font-medium text-muted dark:text-stone-400">Rutas</p>
-          <p className="text-2xl font-bold text-navy dark:text-white mt-1">{rutas.length}</p>
+        <div className="card p-6 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-muted dark:text-stone-400">Rutas</p>
+            <p className="text-2xl font-bold text-navy dark:text-white mt-1">{rutas.length}</p>
+          </div>
+          <span className="inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-lg bg-primary/10 text-primary">
+            <MapPin size={20} aria-hidden="true" />
+          </span>
         </div>
       </div>
 

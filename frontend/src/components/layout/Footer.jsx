@@ -11,7 +11,7 @@ const Footer = () => (
           <span
             key={texto}
             title="Disponible próximamente"
-            className="text-sm font-medium text-footerLink"
+            className="cursor-not-allowed text-sm font-medium text-footerLink transition-colors hover:text-white"
           >
             {texto}
           </span>

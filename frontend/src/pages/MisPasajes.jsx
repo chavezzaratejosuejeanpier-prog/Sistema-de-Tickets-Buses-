@@ -10,6 +10,12 @@ const formatoFecha = (iso) => {
   return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })
 }
 
+const ESTADO_BADGE = {
+  PAGADO: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+  RESERVADO: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  CANCELADO: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+}
+
 export default function MisPasajes() {
   const [codigo, setCodigo] = useState(() => localStorage.getItem('ultimaReserva') || '')
   const [tickets, setTickets] = useState(null)
@@ -131,7 +137,7 @@ export default function MisPasajes() {
                 </div>
               </div>
               <div className="text-right">
-                <span className="badge bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                <span className={`badge ${ESTADO_BADGE[t.estado] || 'bg-slate-100 text-slate-700 dark:bg-stone-800 dark:text-stone-300'}`}>
                   {t.estado}
                 </span>
                 <p className="text-sm font-semibold text-navy dark:text-white mt-1.5">

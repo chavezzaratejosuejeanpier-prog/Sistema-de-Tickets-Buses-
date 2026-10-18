@@ -42,21 +42,21 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
       {/* Leyenda accesible */}
       <ul className="flex justify-center gap-4 my-5 text-xs font-semibold list-none" aria-label="Leyenda de estados">
         <li className="flex items-center gap-1.5 text-stone-600 dark:text-stone-300">
-          <span className="w-3.5 h-3.5 bg-white dark:bg-stone-900 border-2 border-navy dark:border-white rounded-sm shadow-sm" aria-hidden /> Libre
+          <span className="w-3.5 h-3.5 bg-white dark:bg-stone-900 border-2 border-navy dark:border-white rounded shadow-soft" aria-hidden /> Libre
         </li>
         <li className="flex items-center gap-1.5 text-stone-600 dark:text-stone-300">
-          <span className="w-3.5 h-3.5 bg-accent rounded-sm shadow-sm" aria-hidden /> Selección
+          <span className="w-3.5 h-3.5 bg-accent rounded shadow-soft" aria-hidden /> Selección
         </li>
         <li className="flex items-center gap-1.5 text-stone-600 dark:text-stone-300">
-          <span className="w-3.5 h-3.5 bg-gray-100 dark:bg-stone-700 border border-black/5 dark:border-white/10 rounded-sm" aria-hidden /> Ocupado
+          <span className="w-3.5 h-3.5 bg-gray-100 dark:bg-stone-700 border border-black/5 dark:border-white/10 rounded" aria-hidden /> Ocupado
         </li>
       </ul>
 
       {/* Carrocería del bus */}
-      <div className="border-[3px] border-black/5 rounded-2xl p-6 sm:p-8 bg-gradient-to-b from-gray-50 to-white relative shadow-inner overflow-hidden dark:border-white/10 dark:from-stone-800 dark:to-stone-900">
+      <div className="border-[3px] border-black/5 rounded-xl p-6 sm:p-8 bg-gradient-to-b from-gray-50 to-white relative shadow-soft overflow-hidden dark:border-white/10 dark:from-stone-800 dark:to-stone-900">
         {/* Volante decorativo */}
         <div
-          className="absolute top-5 right-8 w-11 h-11 border-[3px] border-black/5 dark:border-white/10 rounded-full flex items-center justify-center bg-white dark:bg-stone-900 shadow-sm"
+          className="absolute top-5 right-8 w-11 h-11 border-[3px] border-black/5 dark:border-white/10 rounded-full flex items-center justify-center bg-white dark:bg-stone-900 shadow-soft"
           aria-hidden="true"
         >
           <div className="w-3.5 h-3.5 bg-stone-400 rounded-full" />
