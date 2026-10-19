@@ -4,6 +4,7 @@ import { ArrowLeftRight, Search } from 'lucide-react'
 import { searchRoutes } from '../services/api.js'
 import Button from '../components/common/Button.jsx'
 import CityField from '../components/common/CityField.jsx'
+import DateField from '../components/common/DateField.jsx'
 import { CIUDADES } from '../components/common/ciudades.js'
 
 export default function SearchRoutes() {
@@ -87,24 +88,14 @@ export default function SearchRoutes() {
 
           <CityField label="Destino" value={destino} onChange={setDestino} placeholder="Ej. Cusco" exclude={origen} />
 
-          <div className="flex-1 md:max-w-[200px]">
-            <label className="text-xs font-bold tracking-widest text-stone-500 dark:text-stone-400 uppercase mb-1.5 block" htmlFor="fecha-viaje">Fecha</label>
-            <div className="relative">
-              <input
-                id="fecha-viaje"
-                type="date"
-                value={fecha}
-                min={hoy}
-                onChange={e => setFecha(e.target.value)}
-                className="w-full pl-4 pr-4 py-3 bg-gray-50 dark:bg-stone-800 border border-black/10 dark:border-stone-600 rounded-xl text-sm font-medium text-navy dark:text-white focus:outline-none focus:bg-white dark:focus:bg-stone-900 focus:border-navy focus:ring-2 focus:ring-navy/10 transition [color-scheme:light] dark:[color-scheme:dark]"
-              />
-            </div>
+          <div className="flex-1 md:max-w-[220px]">
+            <DateField label="Fecha" value={fecha} onChange={e => setFecha(e.target.value)} min={hoy} />
             <p className="text-xs text-stone-400 dark:text-stone-500 mt-1.5">Opcional — filtra por día</p>
           </div>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <Button type="submit" disabled={!canSearch || loading} className="disabled:opacity-50 disabled:cursor-not-allowed min-w-[160px] flex items-center justify-center gap-2">
+          <Button type="submit" disabled={!canSearch || loading} className="disabled:opacity-50 disabled:cursor-not-allowed min-w-[150px] flex items-center justify-center gap-2">
             {loading ? (
               <>
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Buscando...

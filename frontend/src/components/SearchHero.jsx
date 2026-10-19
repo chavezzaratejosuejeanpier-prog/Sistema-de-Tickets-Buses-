@@ -1,6 +1,7 @@
 import { useId } from 'react'
-import { ArrowLeftRight, Calendar, User } from 'lucide-react'
+import { ArrowLeftRight, User } from 'lucide-react'
 import CityField from './common/CityField.jsx'
+import DateField from './common/DateField.jsx'
 
 // ponytail: sin imagen de fondo todavia. Cuando exista src/assets/hero-montanas.jpg,
 // sustituir el bg-[linear-gradient(...)] de FONDO por style={{ backgroundImage: `url(${hero})` }} + bg-cover bg-center.
@@ -8,25 +9,7 @@ import CityField from './common/CityField.jsx'
 // Si el backend los soporta, añadirlos a la query y pasarlos en el navigate de Home.
 const FONDO = 'bg-gradient-to-br from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800'
 
-const DateField = ({ label, value, onChange, min }) => {
-  const id = useId()
-  return (
-    <div>
-      <label htmlFor={id} className="mb-2 block text-sm font-semibold text-navy-light dark:text-stone-300">{label}</label>
-      <div className="relative">
-        <Calendar size={20} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
-        <input
-          id={id}
-          type="date"
-          value={value}
-          min={min}
-          onChange={e => onChange(e.target.value)}
-          className="input h-[52px] border-slate-300 py-0 pl-11 pr-3 focus:ring-2 [color-scheme:light] dark:[color-scheme:dark]"
-        />
-      </div>
-    </div>
-  )
-}
+
 
 export default function SearchHero({
   origen, destino, fechaIda, fechaRetorno, pasajeros,
@@ -37,7 +20,7 @@ export default function SearchHero({
   const valido = origen.trim().length >= 2 && destino.trim().length >= 2 && origen.trim().toLowerCase() !== destino.trim().toLowerCase()
 
   return (
-    <section className="relative h-[500px] overflow-hidden rounded-xl border border-line shadow-soft">
+      <section className="relative h-[480px] sm:h-[500px] overflow-hidden rounded-xl border border-line shadow-soft">
       {/* ponytail: degradado de respaldo, no imagen. Ver nota FONDO arriba. */}
       <div className={`absolute inset-0 ${FONDO}`} />
       <div className="absolute inset-0 bg-white/60 dark:bg-slate-900/70" />
@@ -52,7 +35,7 @@ export default function SearchHero({
 
         <form
           onSubmit={onSubmit}
-          className="mt-10 w-full max-w-[1120px] rounded-xl bg-white p-5 shadow-lift dark:bg-stone-900 md:p-[30px]"
+          className="mt-10 w-full max-w-[1100px] rounded-xl bg-white p-5 shadow-lift dark:bg-stone-900 md:p-[30px]"
         >
           <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:flex lg:gap-5">
             <div className="lg:flex-1">
@@ -74,11 +57,11 @@ export default function SearchHero({
             </div>
 
             <div className="lg:w-[190px] lg:shrink-0">
-              <DateField label="Fecha Ida" value={fechaIda} onChange={onFechaIda} min={hoy} />
+              <DateField label="Fecha Ida" value={fechaIda} onChange={e => onFechaIda(e.target.value)} min={hoy} />
             </div>
 
             <div className="lg:w-[190px] lg:shrink-0">
-              <DateField label="Fecha Retorno" value={fechaRetorno} onChange={onFechaRetorno} min={fechaIda || hoy} />
+              <DateField label="Fecha Retorno" value={fechaRetorno} onChange={e => onFechaRetorno(e.target.value)} min={fechaIda || hoy} />
             </div>
 
             <div className="lg:w-[130px] lg:shrink-0">
@@ -92,7 +75,7 @@ export default function SearchHero({
                   max={12}
                   value={pasajeros}
                   onChange={e => onPasajeros(e.target.value)}
-                  className="input h-[52px] border-slate-300 py-0 pl-11 pr-3 focus:ring-2"
+                  className="input h-12 border-slate-300 py-0 pl-11 pr-3 focus:ring-2"
                 />
               </div>
             </div>

@@ -31,7 +31,8 @@ export default function CityField({ label, value, onChange, placeholder, exclude
           role="combobox"
           aria-expanded={showList}
           aria-controls={`${id}-lista`}
-          className="input h-[52px] border-slate-300 py-0 pl-11 pr-11 focus:ring-2"
+          aria-autocomplete="list"
+          className="input h-12 border-slate-300 py-0 pl-11 pr-11 focus:ring-2"
         />
 
         <button

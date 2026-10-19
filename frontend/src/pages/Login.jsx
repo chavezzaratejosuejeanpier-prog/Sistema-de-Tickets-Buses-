@@ -41,16 +41,21 @@ export default function Login() {
       setEnviando(false)
     }
   }
+
   return (
-    <div className="max-w-sm mx-auto mt-10 card p-6">
-      <h1 className="text-xl font-bold text-navy dark:text-white mb-4">Acceso BUSS ConnectPro</h1>
-      <form onSubmit={handle} className="flex flex-col gap-4">
-        <Input label="Correo electrónico" type="email" value={email} onChange={e=>setEmail(e.target.value)} />
-        <Input label="Contraseña" type="password" value={password} onChange={e=>setPassword(e.target.value)} />
-        <Button type="submit" disabled={enviando}>
-          {enviando ? (<><span className="spinner" aria-hidden="true" /> Ingresando...</>) : 'Ingresar'}
-        </Button>
-      </form>
+    <div className="max-w-sm mx-auto mt-10">
+      <h1 className="text-center text-2xl font-bold text-navy dark:text-white mb-4">BUSS ConnectPro</h1>
+      <p className="text-center text-sm text-muted dark:text-stone-400 mb-6">Accede a tu cuenta</p>
+      <div className="card p-6">
+        <h2 className="text-xl font-bold text-navy dark:text-white mb-4">Acceso</h2>
+        <form onSubmit={handle} className="flex flex-col gap-4">
+          <Input label="Correo electrónico" type="email" value={email} onChange={e => setEmail(e.target.value)} />
+          <Input label="Contraseña" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+          <Button type="submit" disabled={enviando}>
+            {enviando ? (<><span className="spinner" aria-hidden="true" /> Ingresando...</>) : 'Ingresar'}
+          </Button>
+        </form>
+      </div>
       <p className="text-sm text-muted dark:text-stone-400 text-center mt-4">
         ¿No tienes cuenta? <Link to="/registro" className="text-accent hover:underline">Regístrate</Link>
       </p>
