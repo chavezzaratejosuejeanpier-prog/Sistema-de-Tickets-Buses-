@@ -73,7 +73,12 @@ def _esquema_tickets_desactualizado(con):
     sql = con.execute("select sql from sqlite_master where name='tickets'").fetchone()
     if not sql:
         return False
-    if "UNIQUE" in sql[0].upper():
+    ddl = sql[0].upper()
+    # Esquema legacy: UNIQUE sobre codigo_reserva (rompe compras de 2+ asientos)
+    if "UNIQUE" in ddl and "CODIGO_RESERVA" in ddl:
+        return True
+    # Falta la restriccion que impide vender dos veces el mismo asiento
+    if "UQ_TICKET_RUTA_ASIENTO" not in ddl:
         return True
     for indice in Base.metadata.tables["tickets"].indexes:
         if not con.execute(
@@ -106,7 +111,7 @@ def main():
     Base.metadata.create_all(bind=engine)
 
     if corregir_constraint_legacy():
-        print("Migracion: se elimino UNIQUE de tickets.codigo_reserva")
+        print("Migracion: esquema de la tabla tickets actualizado")
 
     db = SessionLocal()
     try:

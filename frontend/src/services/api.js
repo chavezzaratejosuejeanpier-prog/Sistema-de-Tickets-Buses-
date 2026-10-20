@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
   headers: { 'Content-Type': 'application/json' }
 })
 
@@ -10,6 +10,20 @@ api.interceptors.request.use(cfg => {
   if (token) cfg.headers.Authorization = `Bearer ${token}`
   return cfg
 })
+
+api.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login'
+      }
+    }
+    return Promise.reject(error)
+  }
+)
 
 export const searchRoutes = (origen, destino, fecha) => {
   const params = new URLSearchParams({ origen, destino })
@@ -20,7 +34,6 @@ export const searchRoutes = (origen, destino, fecha) => {
 export const getRouteSeats = (routeId) => api.get(`/routes/${routeId}/asientos`)
 export const getRoutes = () => api.get('/routes/')
 export const getBuses = () => api.get('/buses/')
-export const getBusSeats = (busId) => api.get(`/buses/${busId}/asientos`)
 
 export const checkout = (data) => api.post('/sales/checkout', data)
 export const getSalesSummary = () => api.get('/sales/')

@@ -1,8 +1,14 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, DateTime
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, DateTime, UniqueConstraint
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from ..database import Base
 import enum
+
+
+def _utcnow():
+    # UTC naive, consistente con los datos ya guardados
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
 
 class EstadoTicket(str, enum.Enum):
     DISPONIBLE = "DISPONIBLE"
@@ -12,6 +18,8 @@ class EstadoTicket(str, enum.Enum):
 
 class Ticket(Base):
     __tablename__ = "tickets"
+    # Impide vender dos veces el mismo asiento de una ruta (race condition)
+    __table_args__ = (UniqueConstraint("route_id", "numero_asiento", name="uq_ticket_ruta_asiento"),)
     id = Column(Integer, primary_key=True, index=True)
     route_id = Column(Integer, ForeignKey("routes.id"), nullable=False)
     numero_asiento = Column(Integer, nullable=False)
@@ -22,6 +30,6 @@ class Ticket(Base):
     estado = Column(Enum(EstadoTicket), default=EstadoTicket.DISPONIBLE)
     # Sin unique: una compra genera N tickets que comparten el mismo codigo_reserva
     codigo_reserva = Column(String, nullable=True, index=True)
-    creado_en = Column(DateTime, default=datetime.utcnow)
+    creado_en = Column(DateTime, default=_utcnow)
 
     route = relationship("Route", back_populates="tickets")

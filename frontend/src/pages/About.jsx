@@ -8,7 +8,7 @@ import { CIUDADES } from '../components/common/ciudades.js'
 const SERVICIOS = [
   {
     titulo: 'Piso 1 — VIP',
-    punto: 'bg-morado',
+    punto: 'bg-navy dark:bg-white',
     texto: 'Asientos de ejecutiva en el primer piso del bus, con más espacio para viajar cómodo.',
   },
   {
@@ -90,23 +90,23 @@ export default function About() {
 
       <section className="px-6 pt-20 pb-16 text-center">
         <span className="badge bg-accent/10 text-accent">BUSS ConnectPro</span>
-        <h1 className="mt-5 text-5xl md:text-6xl font-semibold tracking-tight text-navy">
+        <h2 className="mt-5 text-5xl font-semibold tracking-tight text-navy dark:text-white md:text-6xl">
           Tus viajes por el Perú,
           <br className="hidden sm:block" /> sin colas.
-        </h1>
-        <p className="mt-6 text-lg md:text-xl text-stone-600 max-w-2xl mx-auto leading-relaxed">
+        </h2>
+        <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-stone-600 dark:text-stone-300 md:text-xl">
           Reserva tu asiento, paga y viaja. Búsqueda de rutas, mapa del bus, pago y control
           interno en un solo lugar.
         </p>
         <div className="mt-8 flex flex-wrap gap-3 justify-center">
-          <Link to="/buscar" className="btn-accent">Buscar viajes</Link>
+          <Link to="/buscar" className="btn-primary">Buscar viajes</Link>
           <a href="#como-funciona" className="btn-outline">Cómo funciona</a>
         </div>
       </section>
 
-      <section className="px-6 py-16 border-t border-black/5">
-        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-navy">Quiénes somos</h2>
-        <div className="mt-6 space-y-4 text-[17px] leading-relaxed text-stone-600 max-w-3xl">
+      <section className="border-t border-black/5 px-6 py-16 dark:border-white/10">
+        <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">Quiénes somos</h2>
+        <div className="mt-6 max-w-3xl space-y-4 text-base leading-relaxed text-stone-600 dark:text-stone-300">
           <p>
             BUSS ConnectPro nació para resolver una molestia de todos los días: comprar un pasaje
             interprovincial. Antes significaba hacer fila en la terminal, sin sistema y sin
@@ -115,19 +115,19 @@ export default function About() {
           <p>
             Hoy reunimos en un solo sitio la búsqueda de rutas, el mapa de asientos del bus, el pago
             y el control interno, de modo que pasajero y empresa vean exactamente la misma
-            información. Ofrecemos dos servicios: <strong className="text-navy">VIP</strong> (primer
-            piso) y <strong className="text-navy">Estándar</strong> (segundo piso), con capacidad
+            información. Ofrecemos dos servicios: <strong className="text-navy dark:text-white">VIP</strong> (primer
+            piso) y <strong className="text-navy dark:text-white">Estándar</strong> (segundo piso), con capacidad
             configurable por bus y sin sobreventa: un asiento ocupado no se puede volver a seleccionar.
           </p>
         </div>
       </section>
 
-      <section className="px-6 py-16 border-t border-black/5">
-        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-navy">Los viajes que hacemos</h2>
-        <p className="mt-3 text-[17px] text-stone-600">Rutas interprovinciales desde y hacia:</p>
+      <section className="border-t border-black/5 px-6 py-16 dark:border-white/10">
+        <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">Los viajes que hacemos</h2>
+        <p className="mt-3 text-base text-stone-600 dark:text-stone-300">Rutas interprovinciales desde y hacia:</p>
         <div className="mt-6 flex flex-wrap gap-2">
           {CIUDADES.map(c => (
-            <span key={c} className="rounded-full bg-white border border-black/5 px-4 py-2 text-sm text-navy">
+            <span key={c} className="rounded-full border border-black/5 bg-white px-4 py-2 text-sm text-navy dark:border-stone-800 dark:bg-stone-900 dark:text-stone-200">
               {c}
             </span>
           ))}
@@ -137,44 +137,44 @@ export default function About() {
             <div key={s.titulo} className="card p-6">
               <div className="flex items-center gap-2.5">
                 <span className={`w-2.5 h-2.5 rounded-full ${s.punto}`} aria-hidden />
-                <h3 className="font-semibold text-[17px] text-navy">{s.titulo}</h3>
+                <h3 className="text-base font-semibold text-navy dark:text-white">{s.titulo}</h3>
               </div>
-              <p className="mt-2 text-[15px] leading-relaxed text-stone-600">{s.texto}</p>
+              <p className="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{s.texto}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section id="como-funciona" className="px-6 py-16 border-t border-black/5">
-        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-navy">Cómo funciona</h2>
+      <section id="como-funciona" className="border-t border-black/5 px-6 py-16 dark:border-white/10">
+        <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">Cómo funciona</h2>
         <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {PASOS.map((p, i) => (
             <div key={p.titulo}>
               <span className="text-sm font-medium text-accent">Paso {i + 1}</span>
-              <h3 className="mt-1.5 font-semibold text-[17px] text-navy">{p.titulo}</h3>
-              <p className="mt-1.5 text-[15px] leading-relaxed text-stone-600">{p.texto}</p>
+              <h3 className="mt-1.5 text-base font-semibold text-navy dark:text-white">{p.titulo}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{p.texto}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="px-6 py-16 border-t border-black/5">
-        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-navy">Qué puedes hacer aquí</h2>
+      <section className="border-t border-black/5 px-6 py-16 dark:border-white/10">
+        <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">Qué puedes hacer aquí</h2>
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           {SERVICIOS_APP.map(f => (
             <div key={f.titulo} className="card p-6">
-              <h3 className="font-semibold text-[17px] text-navy">{f.titulo}</h3>
-              <p className="mt-1.5 text-[15px] leading-relaxed text-stone-600">{f.texto}</p>
+              <h3 className="text-base font-semibold text-navy dark:text-white">{f.titulo}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{f.texto}</p>
             </div>
           ))}
         </div>
       </section>
 
       <section className="px-6 py-20 text-center">
-        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-navy">¿Listo para viajar?</h2>
-        <p className="mt-4 text-lg text-stone-600">Consulta los viajes disponibles y elige tu asiento en el mapa del bus.</p>
+        <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">¿Listo para viajar?</h2>
+        <p className="mt-4 text-lg text-stone-600 dark:text-stone-300">Consulta los viajes disponibles y elige tu asiento en el mapa del bus.</p>
         <div className="mt-8">
-          <Link to="/buscar" className="btn-accent">Buscar viajes</Link>
+          <Link to="/buscar" className="btn-primary">Buscar viajes</Link>
         </div>
       </section>
     </div>

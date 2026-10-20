@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { Timer } from 'lucide-react'
 import Swal from 'sweetalert2'
 import Button from '../components/common/Button.jsx'
 import { checkout } from '../services/api.js'
@@ -11,8 +12,8 @@ const Checkout = () => {
   const navigate = useNavigate()
 
   const rutaId = Number(location.state?.rutaId)
-  const asientosSeleccionados = location.state?.asientos || [{ id: 1, number: 14 }]
-  const precioPorAsiento = Number(location.state?.precio ?? 45)
+  const asientosSeleccionados = location.state?.asientos || []
+  const precioPorAsiento = Number(location.state?.precio ?? 0)
 
   const [pasajeros, setPasajeros] = useState(
     asientosSeleccionados.map(a => ({ asiento_id: a.id, numero: a.number, dni: '', nombres: '' }))
@@ -22,6 +23,10 @@ const Checkout = () => {
   const [enviando, setEnviando] = useState(false)
 
   const total = pasajeros.length * precioPorAsiento
+
+  useEffect(() => {
+    if (!rutaId) navigate('/buscar', { replace: true })
+  }, [rutaId, navigate])
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -88,7 +93,7 @@ const Checkout = () => {
         html: `
           <p>Tu código de reserva es:</p>
           <p style="font-size:1.6rem;font-weight:800;letter-spacing:.12em;color:#FF6B00;margin:.5rem 0">${data.codigo_reserva}</p>
-          <p style="font-size:.9rem">Enviamos el detalle a ${data.email}</p>
+          <p style="font-size:.9rem">Guarda este código para consultar tus pasajes. Quedó asociado a ${data.email}</p>
         `,
         icon: 'success',
         confirmButtonColor: '#10b981'
@@ -130,7 +135,7 @@ const Checkout = () => {
               urgente ? 'text-red-300' : 'text-white'
             }`}
           >
-            <span aria-hidden="true">⏱️</span>
+            <Timer size={20} aria-hidden="true" />
             <span aria-label="Tiempo restante">{formatTime(timeLeft)}</span>
           </div>
         </div>
@@ -153,7 +158,7 @@ const Checkout = () => {
                       type="text"
                       inputMode="numeric"
                       maxLength="8"
-                      className="input dark:bg-stone-800 dark:text-white"
+                      className="input"
                       placeholder="Ej. 76543210"
                       value={pasajero.dni}
                       onChange={(e) => handleInputChange(index, 'dni', e.target.value)}
@@ -166,7 +171,7 @@ const Checkout = () => {
                     <input
                       id={`nombres-${index}`}
                       type="text"
-                      className="input dark:bg-stone-800 dark:text-white"
+                      className="input"
                       placeholder="Ej. Juan Pérez"
                       value={pasajero.nombres}
                       onChange={(e) => handleInputChange(index, 'nombres', e.target.value)}
@@ -184,7 +189,7 @@ const Checkout = () => {
             <input
               id="email"
               type="email"
-              className="input dark:bg-stone-800 dark:text-white"
+              className="input"
               placeholder="tu@correo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

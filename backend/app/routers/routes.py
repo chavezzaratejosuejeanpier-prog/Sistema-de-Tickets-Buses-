@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy import func
 from datetime import datetime
 from ..database import get_db
 from ..models.route import Route
@@ -29,10 +29,26 @@ def buscar_viajes(origen: str, destino: str, fecha: Optional[str] = None, db: Se
         Route.origen.ilike(f"%{origen}%"),
         Route.destino.ilike(f"%{destino}%")
     )
+    if fecha:
+        try:
+            dia = datetime.strptime(fecha, "%Y-%m-%d").date().isoformat()
+        except ValueError:
+            raise HTTPException(400, "Formato de fecha inválido (se espera YYYY-MM-DD)")
+        q = q.filter(func.date(Route.fecha_salida) == dia)
     rutas = q.all()
+
+    # Una sola consulta para todos los asientos vendidos (evita N+1)
+    ids = [r.id for r in rutas]
+    vendidos_por_ruta = dict(
+        db.query(Ticket.route_id, func.count(Ticket.id))
+        .filter(Ticket.route_id.in_(ids), Ticket.estado == EstadoTicket.VENDIDO)
+        .group_by(Ticket.route_id)
+        .all()
+    ) if ids else {}
+
     result = []
     for r in rutas:
-        vendidos = db.query(Ticket).filter(Ticket.route_id == r.id, Ticket.estado == EstadoTicket.VENDIDO).count()
+        vendidos = vendidos_por_ruta.get(r.id, 0)
         total = r.bus.total_asientos if r.bus else 60
         result.append({
             "id": r.id, "origen": r.origen, "destino": r.destino,

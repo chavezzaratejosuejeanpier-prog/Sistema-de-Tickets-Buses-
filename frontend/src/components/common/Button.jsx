@@ -1,6 +1,6 @@
 const variants = {
   primary: 'btn-primary',
-  accent: 'btn-accent',
+  accent: 'btn-primary',
   outline: 'btn-outline',
   ghost: 'btn-ghost',
 }

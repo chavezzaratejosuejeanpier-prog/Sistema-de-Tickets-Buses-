@@ -9,22 +9,41 @@ export default function SeatSelection() {
   const location = useLocation()
   const navigate = useNavigate()
   const [data, setData] = useState(null)
+  const [error, setError] = useState('')
   const [seleccionados, setSeleccionados] = useState([])
 
-  const precioBase = Number(location.state?.precio ?? 45)
+  const info = location.state || {}
+  const precioBase = Number(info.precio ?? 0)
+  const tienePrecio = info.precio != null
   const total = seleccionados.length * precioBase
 
   useEffect(() => {
+    if (!tienePrecio) {
+      navigate('/buscar', { replace: true })
+      return
+    }
+    setError('')
     getRouteSeats(routeId)
       .then(r => setData(r.data))
-      .catch(() => setData({ ocupados: [], total_piso1: 20, total_piso2: 40 }))
-  }, [routeId])
+      .catch(err => setError(
+        err.response?.status === 404
+          ? 'Este viaje ya no está disponible.'
+          : 'No pudimos cargar los asientos. Revisa tu conexión e inténtalo de nuevo.'
+      ))
+  }, [routeId, tienePrecio, navigate])
 
   const continuar = () => {
     const asientos = seleccionados.map(n => ({ id: n, number: n }))
     localStorage.setItem('reserva', JSON.stringify({ routeId, asientos }))
     navigate('/checkout', { state: { rutaId: Number(routeId), asientos, precio: precioBase } })
   }
+
+  if (error) return (
+    <div className="max-w-3xl mx-auto p-10 text-center">
+      <p className="text-red-600 dark:text-red-400">{error}</p>
+      <Button onClick={() => navigate('/buscar')} className="mt-4">Volver a buscar</Button>
+    </div>
+  )
 
   if (!data) return (
     <div className="max-w-3xl mx-auto p-10 flex items-center justify-center gap-3 text-stone-500">
@@ -37,7 +56,9 @@ export default function SeatSelection() {
       <div className="mb-6">
         <h1 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white tracking-tight">Elige tus Asientos</h1>
         <p className="text-stone-500 dark:text-stone-400 mt-2 text-sm md:text-base">
-          Ruta #{routeId} · Marca los asientos libres que deseas y continua al pago.
+          {info.origen && info.destino ? `${info.origen} → ${info.destino}` : `Ruta #${routeId}`}
+          {info.fecha ? ` · ${new Date(info.fecha).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}` : ''}
+          {info.hora ? ` · ${info.hora}` : ''} · Elige tus asientos y continúa al pago.
         </p>
       </div>
 
