@@ -5,7 +5,7 @@ IGV = 0.18
 
 def calcularPrecioTotal(precio_base: float, cantidad: int = 1) -> float:
     """Precio final del pedido. IGV y descuento se aplican en ramas separadas."""
-    return precio_base * cantidad
+    return precio_base * cantidad * (1 + IGV)
 
 def verificar_disponibilidad(db: Session, route_id: int, asiento: int) -> bool:
     ocupado = db.query(Ticket).filter(
