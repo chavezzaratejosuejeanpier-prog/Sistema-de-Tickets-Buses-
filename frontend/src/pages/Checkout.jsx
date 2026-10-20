@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useState, useEffect, useMemo } from 'react'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { Timer } from 'lucide-react'
 import Swal from 'sweetalert2'
 import Button from '../components/common/Button.jsx'
@@ -7,21 +7,49 @@ import { checkout } from '../services/api.js'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
+function leerReservaFallback() {
+  try {
+    const raw = localStorage.getItem('reserva')
+    if (!raw) return null
+    const r = JSON.parse(raw)
+    const nums = Array.isArray(r.asientos) ? r.asientos.filter((n) => Number.isInteger(n)) : []
+    if (!r.routeId || nums.length === 0) return null
+    return {
+      rutaId: Number(r.routeId),
+      asientos: nums.map((n) => ({ id: n, number: n })),
+      precio: r.precio != null ? Number(r.precio) : null,
+    }
+  } catch {
+    return null
+  }
+}
+
 const Checkout = () => {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const rutaId = Number(location.state?.rutaId)
-  const asientosSeleccionados = location.state?.asientos || []
-  const precioPorAsiento = Number(location.state?.precio ?? 0)
+  const inicial = useMemo(() => {
+    const st = location.state
+    if (st?.rutaId && Array.isArray(st?.asientos) && st.asientos.length > 0) {
+      return {
+        rutaId: Number(st.rutaId),
+        asientos: st.asientos,
+        precio: st.precio != null ? Number(st.precio) : null,
+      }
+    }
+    return leerReservaFallback()
+  }, [location.state])
 
   const [pasajeros, setPasajeros] = useState(
-    asientosSeleccionados.map(a => ({ asiento_id: a.id, numero: a.number, dni: '', nombres: '' }))
+    (inicial?.asientos || []).map(a => ({ asiento_id: a.id, numero: a.number, dni: '', nombres: '' }))
   )
   const [email, setEmail] = useState('')
   const [timeLeft, setTimeLeft] = useState(300)
   const [enviando, setEnviando] = useState(false)
+  const [result, setResult] = useState(null)
 
+  const rutaId = inicial?.rutaId
+  const precioPorAsiento = Number(inicial?.precio ?? 0)
   const total = pasajeros.length * precioPorAsiento
 
   useEffect(() => {
@@ -29,6 +57,7 @@ const Checkout = () => {
   }, [rutaId, navigate])
 
   useEffect(() => {
+    if (!inicial) return
     if (timeLeft <= 0) {
       Swal.fire({
         title: 'Tiempo agotado',
@@ -40,7 +69,35 @@ const Checkout = () => {
     }
     const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000)
     return () => clearInterval(timer)
-  }, [timeLeft, navigate])
+  }, [timeLeft, navigate, inicial])
+
+  if (!inicial || pasajeros.length === 0) {
+    return (
+      <div className="max-w-xl mx-auto p-6 mt-10">
+        <div className="empty-state">
+          <p className="font-bold text-navy dark:text-white">No hay asientos seleccionados</p>
+          <p className="mt-1">Reserva tus asientos antes de continuar al pago.</p>
+          <Link to="/buscar" className="btn-primary mt-4">Buscar viajes</Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (result) {
+    return (
+      <div className="max-w-xl mx-auto p-6 mt-10">
+        <div className="card p-8 text-center">
+          <h2 className="text-2xl font-bold text-green-600">¡Compra Exitosa!</h2>
+          <p className="mt-2">Código: <span className="font-mono font-bold">{result.codigo_reserva}</span></p>
+          <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">Ruta #{rutaId} • Asientos: {result.asientos.join(', ')} • Total: S/ {Number(result.total).toFixed(2)}</p>
+          <div className="mt-6 flex gap-3 justify-center">
+            <Link to="/buscar" className="btn-outline">Volver a buscar</Link>
+            <Button onClick={() => { try { localStorage.removeItem('reserva') } catch { /* almacenamiento no disponible */ } navigate('/buscar') }}>Aceptar</Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const handleInputChange = (index, field, value) => {
     const nuevosPasajeros = [...pasajeros]
@@ -50,6 +107,7 @@ const Checkout = () => {
 
   const procesarPago = async (e) => {
     e.preventDefault()
+    if (enviando) return
 
     if (!rutaId) {
       Swal.fire('Sesión expirada', 'Vuelve a buscar tu viaje para continuar.', 'error')
@@ -60,12 +118,12 @@ const Checkout = () => {
       return
     }
 
-    for (let p of pasajeros) {
+    for (const p of pasajeros) {
       if (!p.dni || !p.nombres) {
         Swal.fire('Error', 'Todos los campos son obligatorios.', 'error')
         return
       }
-      if (p.dni.length !== 8 || isNaN(p.dni)) {
+      if (p.dni.length !== 8 || Number.isNaN(Number(p.dni))) {
         Swal.fire('DNI Inválido', `El DNI del asiento ${p.numero} debe tener 8 números.`, 'error')
         return
       }
@@ -87,7 +145,7 @@ const Checkout = () => {
         }))
       })
 
-      localStorage.removeItem('reserva')
+      try { localStorage.removeItem('reserva') } catch { /* almacenamiento no disponible */ }
       await Swal.fire({
         title: '¡Pago Exitoso!',
         html: `
@@ -98,7 +156,7 @@ const Checkout = () => {
         icon: 'success',
         confirmButtonColor: '#10b981'
       })
-      navigate('/buscar')
+      setResult(data)
     } catch (error) {
       const detalle = error.response?.data?.detail
       const status = error.response?.status
@@ -143,7 +201,7 @@ const Checkout = () => {
         <form onSubmit={procesarPago} className="p-6 sm:p-8">
           <div className="space-y-6">
             {pasajeros.map((pasajero, index) => (
-              <div key={index} className="card p-6 relative">
+              <div key={pasajero.numero} className="card p-6 relative">
                 <span className="badge bg-primary text-white absolute -top-3 left-4">
                   Asiento {pasajero.numero}
                 </span>
@@ -161,7 +219,7 @@ const Checkout = () => {
                       className="input"
                       placeholder="Ej. 76543210"
                       value={pasajero.dni}
-                      onChange={(e) => handleInputChange(index, 'dni', e.target.value)}
+                      onChange={(e) => handleInputChange(index, 'dni', e.target.value.replace(/\D/g, ''))}
                     />
                   </div>
                   <div>
@@ -204,7 +262,7 @@ const Checkout = () => {
               </span>
             </div>
             <Button type="submit" disabled={enviando} className="w-full md:w-auto">
-              {enviando ? 'Procesando...' : 'Confirmar y Pagar'}
+              {enviando ? (<><span className="spinner" aria-hidden="true" /> Procesando...</>) : 'Confirmar y Pagar'}
             </Button>
           </div>
         </form>

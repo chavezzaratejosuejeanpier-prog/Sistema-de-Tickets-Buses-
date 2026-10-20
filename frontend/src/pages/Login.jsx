@@ -9,6 +9,7 @@ import Button from '../components/common/Button.jsx'
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const { login: ctxLogin } = useAuth()
   const navigate = useNavigate()
@@ -17,16 +18,25 @@ export default function Login() {
 
   const handle = async (e) => {
     e.preventDefault()
+    if (!email.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) {
+      Swal.fire('Email inválido', 'Ingresa un correo válido.', 'error')
+      return
+    }
+    if (password.length < 4) {
+      Swal.fire('Contraseña inválida', 'Ingresa tu contraseña.', 'error')
+      return
+    }
     setEnviando(true)
     try {
-      const { data } = await login({ email, password })
-      ctxLogin({ email, rol: data.rol, nombre: data.nombre }, data.access_token)
-      Swal.fire({
+      const { data } = await login({ email: email.trim(), password })
+      ctxLogin({ email: email.trim(), rol: data.rol, nombre: data.nombre }, data.access_token)
+      await Swal.fire({
         title: '¡Sesión iniciada!',
         text: 'Bienvenido a BUSS ConnectPro.',
         icon: 'success',
         confirmButtonColor: '#FF6B00',
-      }).then(() => navigate(destino, { replace: true }))
+      })
+      navigate(destino, { replace: true })
     } catch (err) {
       const credencialesMalas = err.response?.status === 401
       Swal.fire({
@@ -49,8 +59,18 @@ export default function Login() {
       <div className="card p-6">
         <h2 className="text-xl font-bold text-navy dark:text-white mb-4">Acceso</h2>
         <form onSubmit={handle} className="flex flex-col gap-4">
-          <Input label="Correo electrónico" type="email" value={email} onChange={e => setEmail(e.target.value)} />
-          <Input label="Contraseña" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+          <Input label="Correo electrónico" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required />
+          <div className="relative">
+            <Input label="Contraseña" type={showPw ? 'text' : 'password'} autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required />
+            <button
+              type="button"
+              onClick={() => setShowPw(v => !v)}
+              aria-label={showPw ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              className="absolute right-3 top-9 text-xs font-bold text-stone-500 hover:text-navy dark:text-stone-400 dark:hover:text-white"
+            >
+              {showPw ? 'Ocultar' : 'Ver'}
+            </button>
+          </div>
           <Button type="submit" disabled={enviando}>
             {enviando ? (<><span className="spinner" aria-hidden="true" /> Ingresando...</>) : 'Ingresar'}
           </Button>
