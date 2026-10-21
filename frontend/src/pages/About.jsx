@@ -34,9 +34,9 @@ const SERVICIOS_APP = [
 
 export default function About() {
   const navigate = useNavigate()
-  const [origen, setOrigen] = useState('Lima')
-  const [destino, setDestino] = useState('Cusco')
-  const [fechaIda, setFechaIda] = useState('')
+  const [origen, setOrigen] = useState('')
+  const [destino, setDestino] = useState('')
+  const [fechaIda, setFechaIda] = useState(() => new Date().toLocaleDateString('en-CA'))
   const [fechaRetorno, setFechaRetorno] = useState('')
   const [error, setError] = useState('')
 
@@ -76,13 +76,13 @@ export default function About() {
       />
 
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-[30px]">
-        <section className="mb-[60px] mt-10 grid grid-cols-1 gap-[30px] md:mt-24 lg:grid-cols-3">
-          <div className="lg:col-span-2">
+        <section className="mb-[60px] mt-10 grid grid-cols-1 gap-[30px] md:mt-24 lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px]">
+          <div>
             <PopularRoutes onSelect={elegirRuta} />
           </div>
-          <div>
+          <aside aria-label="Nuestros Beneficios">
             <Benefits />
-          </div>
+          </aside>
         </section>
 
         <section className="px-6 pt-20 pb-16 text-center">

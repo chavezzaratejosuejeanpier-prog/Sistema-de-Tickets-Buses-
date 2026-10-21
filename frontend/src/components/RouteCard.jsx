@@ -1,15 +1,15 @@
 import { Clock, Armchair } from 'lucide-react'
 
-const IMAGENES = import.meta.glob('../assets/routes/*.jpg', { eager: true, import: 'default' })
+const IMAGENES = import.meta.glob('../assets/routes/*.{jpg,jpeg,webp,png}', { eager: true, import: 'default' })
 
-export default function RouteCard({ origen, destino, precio, duracion, asiento, imagen, onSelect }) {
+export default function RouteCard({ origen, destino, precio, duracion, asiento, imagen, onSelect, className = '' }) {
   const src = IMAGENES[`../assets/routes/${imagen}`]
 
   return (
     <button
       type="button"
       onClick={onSelect}
-      className="flex min-h-[340px] w-full flex-col overflow-hidden rounded-xl border border-line bg-white text-left shadow-soft transition-shadow duration-200 hover:shadow-lift dark:border-stone-800 dark:bg-stone-900"
+      className={`group relative overflow-hidden rounded-xl text-left shadow-soft transition-transform duration-300 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950 ${className}`}
     >
       {src ? (
         <img
@@ -17,25 +17,20 @@ export default function RouteCard({ origen, destino, precio, duracion, asiento, 
           alt={`Viaje ${origen} - ${destino}`}
           loading="lazy"
           decoding="async"
-          width={400}
-          height={160}
-          className="h-40 w-full object-cover dark:opacity-90"
+          className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
         />
       ) : (
-        <div aria-hidden className="h-40 w-full bg-slate-300 dark:bg-stone-800" />
+        <div aria-hidden className="absolute inset-0 bg-slate-400 dark:bg-stone-800" />
       )}
 
-      <div className="flex flex-1 flex-col p-5">
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="text-2xl font-semibold text-navy dark:text-white">{origen} - {destino}</h3>
-          <span className="shrink-0 rounded-lg bg-slate-100 px-2.5 py-1 text-base font-semibold text-navy dark:bg-stone-800 dark:text-stone-200">
-            {precio}
-          </span>
-        </div>
+      <div aria-hidden className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/80 to-transparent" />
 
-        <div className="mt-2.5 flex gap-4 text-sm text-muted dark:text-stone-400">
-          <span className="inline-flex items-center gap-1.5"><Clock size={16} />{duracion}</span>
-          <span className="inline-flex items-center gap-1.5"><Armchair size={16} />{asiento}</span>
+      <div className="absolute bottom-0 left-0 p-4 text-white">
+        <h3 className="text-xl font-bold sm:text-2xl">{origen} - {destino}</h3>
+        <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-medium text-white/90">
+          <span className="font-semibold">{precio}</span>
+          <span className="inline-flex items-center gap-1.5"><Clock size={15} />{duracion}</span>
+          <span className="inline-flex items-center gap-1.5"><Armchair size={15} />{asiento}</span>
         </div>
       </div>
     </button>

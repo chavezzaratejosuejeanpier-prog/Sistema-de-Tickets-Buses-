@@ -13,7 +13,7 @@ export default function SearchHero({
   origen, destino, fechaIda, fechaRetorno,
   onOrigen, onDestino, onFechaIda, onFechaRetorno, onSwap, onSubmit, error,
 }) {
-  const hoy = new Date().toISOString().split('T')[0]
+  const hoy = new Date().toLocaleDateString('en-CA')
   const valido = origen.trim().length >= 2 && destino.trim().length >= 2 && origen.trim().toLowerCase() !== destino.trim().toLowerCase()
 
   return (
@@ -25,7 +25,7 @@ export default function SearchHero({
       />
       <div className="absolute inset-0 bg-gradient-to-l from-[#6B21A8] via-[#6B21A8]/80 to-transparent" />
 
-      <div className="relative mx-auto flex min-h-[760px] w-full max-w-shell items-center justify-end px-4 pb-64 pt-28 sm:px-[30px] md:min-h-[80vh] md:pb-36">
+      <div className="relative mx-auto flex min-h-[760px] w-full max-w-shell items-center justify-end px-4 pb-64 pt-28 sm:px-[30px] md:min-h-[80vh] md:pb-56">
         <div className="max-w-xl text-right text-white">
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-white/80">BUSS ConnectPro</p>
           <h1 className="mt-3 text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
@@ -48,7 +48,7 @@ export default function SearchHero({
 
       <form
         onSubmit={onSubmit}
-        className="absolute inset-x-4 bottom-4 z-20 mx-auto w-auto max-w-6xl md:inset-x-6 md:bottom-0 md:translate-y-1/2"
+        className="absolute inset-x-4 bottom-4 z-20 mx-auto w-auto max-w-6xl md:inset-x-6 md:bottom-24"
       >
         {error && (
           <p className="mb-2 ml-auto w-fit rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-red-600 shadow-lg">
@@ -63,7 +63,7 @@ export default function SearchHero({
               label="Origen"
               value={origen}
               onChange={onOrigen}
-              placeholder="Ej. Lima"
+              placeholder="Ingrese una ciudad"
               exclude={destino}
             />
           </div>
@@ -84,7 +84,7 @@ export default function SearchHero({
               label="Destino"
               value={destino}
               onChange={onDestino}
-              placeholder="Ej. Cusco"
+              placeholder="Ingrese el destino"
               exclude={origen}
             />
           </div>
