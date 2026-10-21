@@ -19,7 +19,7 @@ const SERVICIOS = [
   },
   {
     titulo: 'Piso 2 — Estándar',
-    punto: 'bg-primary',
+    punto: 'bg-orange-500',
     texto: 'Dos filas a cada lado del pasillo, el servicio más usado por su relación precio/comodidad.',
   },
 ]
@@ -58,13 +58,6 @@ export default function About() {
     navigate('/buscar', { state: { origen: origen.trim(), destino: destino.trim(), fecha: fechaIda } })
   }
 
-  const elegirRuta = ({ origen, destino }) => {
-    setOrigen(origen)
-    setDestino(destino)
-    setError('')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
   return (
     <div>
       <SearchHero
@@ -82,13 +75,12 @@ export default function About() {
       />
 
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-[30px]">
-        <section className="mb-[60px] mt-10 grid grid-cols-1 gap-[30px] md:mt-24 lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px]">
-          <div>
-            <PopularRoutes onSelect={elegirRuta} />
-          </div>
-          <aside aria-label="Nuestros Beneficios">
-            <Benefits />
-          </aside>
+        <section className="mt-10 md:mt-24">
+          <PopularRoutes />
+        </section>
+
+        <section aria-label="Nuestros Beneficios" className="mb-[60px] mt-14">
+          <Benefits />
         </section>
 
         <section className="px-6 py-12 text-center">
@@ -129,7 +121,7 @@ export default function About() {
           <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {PASOS.map((p, i) => (
               <div key={p.titulo}>
-                <span className="text-sm font-medium text-primary">Paso {i + 1}</span>
+                <span className="text-sm font-medium text-orange-600 dark:text-orange-400">Paso {i + 1}</span>
                 <h3 className="mt-1.5 text-base font-semibold text-navy dark:text-white">{p.titulo}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{p.texto}</p>
               </div>
@@ -153,7 +145,12 @@ export default function About() {
           <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">¿Listo para viajar?</h2>
           <p className="mt-4 text-lg text-stone-600 dark:text-stone-300">Consulta los viajes disponibles y elige tu asiento en el mapa del bus.</p>
           <div className="mt-8">
-            <Link to="/buscar" className="btn-primary">Buscar viajes</Link>
+            <Link
+              to="/buscar"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-zinc-950 transition-colors duration-200 hover:bg-orange-600 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
+            >
+              Buscar viajes
+            </Link>
           </div>
         </section>
       </div>

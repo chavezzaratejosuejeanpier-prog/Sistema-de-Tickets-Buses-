@@ -43,7 +43,7 @@ export default function SearchRoutes() {
   useEffect(() => {
     const entrada = location.state
     if (!entrada) return
-    const fechaEntrada = entrada.fecha || hoy
+    const fechaEntrada = entrada.fecha ?? hoy
     setOrigen(entrada.origen); setDestino(entrada.destino); setFecha(fechaEntrada)
     ejecutar(entrada.origen, entrada.destino, fechaEntrada)
   }, [location.state])

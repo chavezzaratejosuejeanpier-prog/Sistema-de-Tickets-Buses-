@@ -11,10 +11,10 @@ export default function Benefits() {
     <section aria-labelledby="beneficios-titulo">
       <h2 id="beneficios-titulo" className="mb-6 text-3xl font-extrabold text-navy dark:text-white sm:text-4xl">Nuestros Beneficios</h2>
 
-      <div className="flex h-full flex-col gap-5">
+      <div className="grid gap-5 md:grid-cols-3">
         {BENEFICIOS.map(({ Icono, titulo, texto }) => (
-          <div key={titulo} className="card flex flex-1 items-center gap-4 p-6">
-            <span className="flex size-[50px] shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <div key={titulo} className="card flex items-start gap-4 p-6">
+            <span className="flex size-[50px] shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-300">
               <Icono size={24} />
             </span>
             <div>

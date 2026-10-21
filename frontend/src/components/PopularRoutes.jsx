@@ -1,41 +1,101 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
+import { FILTROS, POPULAR_ROUTES } from '../data/popularRoutes.js'
 import RouteCard from './RouteCard.jsx'
 
-const RUTAS = [
-  { origen: 'Lima', destino: 'Cusco', precio: 'Desde S/. 80', duracion: '22h', asiento: 'Cama', imagen: 'cusco.webp' },
-  { origen: 'Trujillo', destino: 'Chiclayo', precio: 'Desde S/. 30', duracion: '4h', asiento: 'Semi Cama', imagen: 'chiclayo.jpeg' },
-  { origen: 'Lima', destino: 'Arequipa', precio: 'Desde S/. 65', duracion: '16h', asiento: 'Cama', imagen: 'arequipa.webp' },
-  { origen: 'Cusco', destino: 'Puno', precio: 'Desde S/. 25', duracion: '7h', asiento: 'Semi Cama', imagen: 'puno.webp' },
-]
+const filtrarRutas = (rutas, filtro) => {
+  if (filtro === 'todas') return rutas
+  if (filtro === 'top') return rutas.filter(ruta => ruta.top === true)
+  return rutas.filter(ruta => ruta.region === filtro)
+}
 
-const BENTO = [
-  'col-span-2 h-72 md:col-span-1 md:row-span-2 md:h-auto',
-  'col-span-2 h-44 md:col-span-2 md:h-auto',
-  'col-span-1 h-44 md:h-auto',
-  'col-span-1 h-44 md:h-auto',
-]
+const CREDITOS = POPULAR_ROUTES.filter(
+  (ruta, i, rutas) => rutas.findIndex(r => r.creditoUrl === ruta.creditoUrl) === i
+)
 
-export default function PopularRoutes({ onSelect }) {
+export default function PopularRoutes() {
+  const [filtro, setFiltro] = useState('todas')
+  const rutas = filtrarRutas(POPULAR_ROUTES, filtro)
+
   return (
-    <div>
-      <h2 className="mb-6 text-3xl font-extrabold text-navy dark:text-white sm:text-4xl">Rutas Populares</h2>
+    <section aria-labelledby="rutas-populares-titulo">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-orange-600 dark:text-orange-400">
+            LOS FAVORITOS DEL PERÚ
+          </p>
+          <h2 id="rutas-populares-titulo" className="mt-2 text-3xl font-extrabold tracking-tight text-navy dark:text-white sm:text-4xl">
+            Rutas populares
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-stone-600 dark:text-stone-300 sm:text-base">
+            Las rutas que más viajan los peruanos. Elige una y te llevamos al buscador con el formulario listo.
+          </p>
+        </div>
 
-      <div className="grid grid-cols-2 gap-4 md:auto-rows-[220px] md:grid-cols-3">
-        {RUTAS.map((r, i) => (
-          <RouteCard
-            key={`${r.origen}-${r.destino}`}
-            {...r}
-            className={BENTO[i]}
-            onSelect={() => onSelect(r)}
-          />
+        <Link
+          to="/buscar"
+          className="inline-flex items-center gap-2 rounded-full border border-orange-500 px-4 py-2 text-sm font-semibold text-orange-600 transition-colors hover:bg-orange-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:border-orange-400 dark:text-orange-300 dark:hover:bg-orange-500 dark:hover:text-white dark:focus-visible:ring-offset-stone-950"
+        >
+          Buscar todas las rutas
+          <ArrowRight size={16} aria-hidden="true" />
+        </Link>
+      </div>
+
+      <div
+        role="group"
+        aria-label="Filtrar rutas populares"
+        className="mt-6 flex gap-2 overflow-x-auto pb-1"
+      >
+        {FILTROS.map(({ id, label }) => {
+          const activo = filtro === id
+          return (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={activo}
+              onClick={() => setFiltro(id)}
+              className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950 ${
+                activo
+                  ? 'border-orange-600 bg-orange-600 text-white'
+                  : 'border-black/10 bg-white text-stone-600 hover:border-orange-300 hover:text-orange-700 dark:border-white/10 dark:bg-stone-800 dark:text-stone-300 dark:hover:border-orange-400 dark:hover:text-orange-300'
+              }`}
+            >
+              {label}
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {rutas.map(ruta => (
+          <RouteCard key={ruta.id} ruta={ruta} />
         ))}
       </div>
 
-      <div className="mt-6 text-center">
-        <Link to="/buscar" className="btn-outline inline-flex">
-          Ver todas las rutas
-        </Link>
-      </div>
-    </div>
+      <p className="mt-4 text-[11px] leading-relaxed text-stone-500 dark:text-stone-400">
+        Precios referenciales por tramo, sujetos a fecha, servicio y disponibilidad. Actualizado en octubre 2026.
+      </p>
+
+      <details className="mt-4 text-xs text-stone-500 dark:text-stone-400">
+        <summary className="w-fit cursor-pointer font-semibold text-stone-600 transition-colors hover:text-orange-600 dark:text-stone-300 dark:hover:text-orange-300">
+          Créditos de imágenes
+        </summary>
+        <ul className="mt-2 space-y-1">
+          {CREDITOS.map(({ creditoUrl, credito }) => (
+            <li key={creditoUrl}>
+              <a
+                href={creditoUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="underline decoration-stone-300 underline-offset-2 transition-colors hover:text-orange-600 dark:decoration-stone-600 dark:hover:text-orange-300"
+              >
+                {credito}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </details>
+    </section>
   )
 }
