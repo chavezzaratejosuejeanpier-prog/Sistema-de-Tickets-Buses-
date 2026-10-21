@@ -5,21 +5,19 @@ import { searchRoutes } from '../services/api.js'
 import Button from '../components/common/Button.jsx'
 import CityField from '../components/common/CityField.jsx'
 import DateField from '../components/common/DateField.jsx'
-import { CIUDADES } from '../components/common/ciudades.js'
+import DestinationGrid from '../components/DestinationGrid.jsx'
 
 export default function SearchRoutes() {
-  const [origen, setOrigen] = useState('Lima')
-  const [destino, setDestino] = useState('Cusco')
-  const [fecha, setFecha] = useState('')
+  const hoy = new Date().toLocaleDateString('en-CA')
+  const [origen, setOrigen] = useState('')
+  const [destino, setDestino] = useState('')
+  const [fecha, setFecha] = useState(hoy)
   const [resultados, setResultados] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [hasSearched, setHasSearched] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-
-  const ahora = new Date()
-  const hoy = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`
 
   const canSearch = origen.trim().length >= 2 && destino.trim().length >= 2 && origen.trim().toLowerCase() !== destino.trim().toLowerCase()
 
@@ -45,8 +43,9 @@ export default function SearchRoutes() {
   useEffect(() => {
     const entrada = location.state
     if (!entrada) return
-    setOrigen(entrada.origen); setDestino(entrada.destino); setFecha(entrada.fecha || '')
-    ejecutar(entrada.origen, entrada.destino, entrada.fecha || '')
+    const fechaEntrada = entrada.fecha || hoy
+    setOrigen(entrada.origen); setDestino(entrada.destino); setFecha(fechaEntrada)
+    ejecutar(entrada.origen, entrada.destino, fechaEntrada)
   }, [location.state])
 
   const buscar = (e) => {
@@ -59,19 +58,31 @@ export default function SearchRoutes() {
   }
 
   const limpiar = () => {
-    setOrigen(''); setDestino(''); setFecha(''); setResultados([]); setError(''); setHasSearched(false)
+    setOrigen(''); setDestino(''); setFecha(hoy); setResultados([]); setError(''); setHasSearched(false)
+  }
+
+  const elegirDestino = (ciudad) => {
+    setOrigen('Lima')
+    setDestino(ciudad)
+    setFecha(hoy)
+    setResultados([])
+    setError('')
+    setHasSearched(false)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6">
       <div className="mb-6">
         <h1 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white tracking-tight">Buscar Viajes</h1>
         <p className="text-stone-500 dark:text-stone-400 mt-2 text-sm md:text-base">Elige origen, destino y fecha. Resultados en tiempo real con asientos disponibles.</p>
       </div>
 
       <form onSubmit={buscar} className="bg-white dark:bg-stone-800 rounded-xl shadow-soft border border-black/5 dark:border-stone-700 p-6 md:p-7">
-        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-end">
-          <CityField label="Origen" value={origen} onChange={setOrigen} placeholder="Ej. Lima" exclude={destino} />
+        <div className="flex flex-col gap-4 md:flex-row md:items-end">
+          <div className="min-w-0 flex-1">
+            <CityField label="Origen" value={origen} onChange={setOrigen} placeholder="Ingrese una ciudad" exclude={destino} />
+          </div>
 
           <button
             type="button"
@@ -83,11 +94,12 @@ export default function SearchRoutes() {
             <ArrowLeftRight size={18} aria-hidden="true" />
           </button>
 
-          <CityField label="Destino" value={destino} onChange={setDestino} placeholder="Ej. Cusco" exclude={origen} />
+          <div className="min-w-0 flex-1">
+            <CityField label="Destino" value={destino} onChange={setDestino} placeholder="Ingrese el destino" exclude={origen} />
+          </div>
 
-          <div className="flex-1 md:max-w-[220px]">
+          <div className="w-full shrink-0 md:w-[220px]">
             <DateField label="Fecha" value={fecha} onChange={e => setFecha(e.target.value)} min={hoy} />
-            <p className="text-xs text-stone-400 dark:text-stone-500 mt-1.5">Opcional — filtra por día</p>
           </div>
         </div>
 
@@ -121,14 +133,7 @@ export default function SearchRoutes() {
 
       <div className="mt-6" aria-live="polite" aria-busy={loading}>
         {!hasSearched ? (
-          <div className="bg-navy/5 dark:bg-white/5 border border-dashed border-navy/20 dark:border-white/10 rounded-xl p-8 text-center">
-            <p className="text-sm text-stone-600 dark:text-neutral-300">Ingresa <span className="font-bold text-navy dark:text-white">origen</span> y <span className="font-bold text-navy dark:text-white">destino</span> y presiona <span className="font-bold">Buscar</span>. Usa el calendario para filtrar por fecha.</p>
-            <div className="mt-4 flex flex-wrap justify-center gap-2">
-              {['Lima → Cusco', 'Lima → Arequipa', 'Trujillo → Lima'].map(s => (
-                <button key={s} onClick={() => { const [o,d]=s.split(' → '); setOrigen(o); setDestino(d) }} className="text-xs bg-white dark:bg-stone-800 border border-black/10 dark:border-stone-600 dark:text-neutral-300 px-3 py-1.5 rounded-full hover:border-navy hover:text-navy transition-colors">{s}</button>
-              ))}
-            </div>
-          </div>
+          <DestinationGrid onSelect={elegirDestino} />
         ) : loading ? (
           <div className="grid gap-4">
             {[1,2,3].map(i => (
@@ -175,8 +180,6 @@ export default function SearchRoutes() {
           </>
         ) : null}
       </div>
-
-      <p className="text-xs text-stone-400 dark:text-stone-500 mt-6 text-center">Ciudades sugeridas: {CIUDADES.slice(0,8).join(' • ')} • Escribe para filtrar</p>
     </div>
   )
 }

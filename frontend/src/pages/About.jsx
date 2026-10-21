@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import SearchHero from '../components/SearchHero.jsx'
 import PopularRoutes from '../components/PopularRoutes.jsx'
 import Benefits from '../components/Benefits.jsx'
-import { CIUDADES } from '../components/common/ciudades.js'
 
 const BENEFICIOS = [
   { icono: 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z', texto: 'Puntualidad y comodidad en tu experiencia de viaje' },
@@ -110,15 +109,8 @@ export default function About() {
         </section>
 
         <section className="border-t border-black/5 px-6 py-16 dark:border-white/10">
-          <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">Los viajes que hacemos</h2>
-          <p className="mt-3 text-base text-stone-600 dark:text-stone-300">Rutas interprovinciales desde y hacia:</p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            {CIUDADES.map(c => (
-              <span key={c} className="rounded-full border border-black/5 bg-white px-4 py-2 text-sm text-navy dark:border-stone-800 dark:bg-stone-900 dark:text-stone-200">
-                {c}
-              </span>
-            ))}
-          </div>
+          <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">Nuestros servicios a bordo</h2>
+          <p className="mt-3 text-base text-stone-600 dark:text-stone-300">Dos ambientes para elegir cómo viajar:</p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {SERVICIOS.map(s => (
               <div key={s.titulo} className="card p-6">
