@@ -51,7 +51,7 @@ const Navbar = () => {
   const botonBase = 'inline-flex items-center gap-2 rounded-md border bg-transparent px-4 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950'
   const botonInactivo = `${botonBase} border-line text-navy hover:border-primary hover:bg-primary/5 dark:border-white/30 dark:text-white dark:hover:border-white dark:hover:bg-white/10`
   const botonInactivoOscuro = `${botonBase} border-white/30 text-white hover:border-white hover:bg-white/10`
-  const botonActivo = `${botonBase} border-purple-500 bg-purple-500/10 text-purple-400`
+  const botonActivo = `${botonBase} border-orange-500 bg-orange-500/10 text-orange-500 dark:text-orange-400`
 
   const claseEnlace = (to) => {
     const esActivo = to === pathname && !to.includes('#')
@@ -78,7 +78,7 @@ const Navbar = () => {
           <Bus size={32} strokeWidth={2.2} aria-hidden="true" />
           <span className="flex flex-col">
             <span className="text-2xl font-black tracking-tight sm:text-3xl">LUX</span>
-            <span className="mt-1 text-xs font-semibold uppercase tracking-wider text-purple-500">
+            <span className={`mt-1 text-xs font-semibold uppercase tracking-wider ${transparente ? 'text-orange-400' : 'text-orange-500'}`}>
               Líneas Únicas Xpress
             </span>
           </span>

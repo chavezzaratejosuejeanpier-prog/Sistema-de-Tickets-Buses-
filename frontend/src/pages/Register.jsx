@@ -38,7 +38,7 @@ export default function Register() {
         title: '¡Cuenta creada!',
         text: 'Ahora inicia sesión con tu correo y contraseña.',
         icon: 'success',
-        confirmButtonColor: '#7C3AED',
+        confirmButtonColor: '#EA580C',
       })
       navigate('/login', { replace: true })
     } catch (err) {

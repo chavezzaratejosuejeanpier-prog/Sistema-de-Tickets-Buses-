@@ -94,11 +94,11 @@ export default function About() {
 
         <section className="px-6 py-12 text-center">
           <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">¿Por qué elegirnos?</h2>
-          <div className="mx-auto mt-2 h-1 w-12 bg-purple-600" />
+          <div className="mx-auto mt-2 h-1 w-12 bg-orange-500" />
           <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-4">
             {BENEFICIOS.map(b => (
               <div key={b.texto} className="flex flex-col items-center">
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-purple-700/50 bg-purple-900/40 text-purple-200">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-orange-500/40 bg-orange-50 text-orange-600 dark:border-orange-400/40 dark:bg-orange-500/10 dark:text-orange-300">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-10 w-10">
                     <path strokeLinecap="round" strokeLinejoin="round" d={b.icono} />
                   </svg>

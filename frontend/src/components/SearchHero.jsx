@@ -23,7 +23,7 @@ export default function SearchHero({
         alt="Plaza de Armas del Cusco - LUX Líneas Únicas Xpress"
         className="absolute inset-0 h-full w-full object-cover object-center"
       />
-      <div className="absolute inset-0 bg-gradient-to-l from-purple-900/95 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-l from-orange-950/95 via-orange-900/50 to-transparent" />
 
       <div className="relative mx-auto flex min-h-[760px] w-full max-w-shell items-center justify-end px-4 pb-64 pt-28 sm:px-[30px] md:min-h-[80vh] md:pb-56">
         <div className="max-w-xl text-right text-white">

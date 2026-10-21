@@ -7,7 +7,7 @@ export default {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
       },
       colors: {
-        primary: { DEFAULT: '#7C3AED', dark: '#6D28D9', light: '#A78BFA' },
+        primary: { DEFAULT: '#EA580C', dark: '#C2410C', light: '#FDBA74' },
         accent: { DEFAULT: '#F97316', hover: '#EA580C' },
         success: { DEFAULT: '#22C55E', dark: '#16A34A' },
         navy: { DEFAULT: '#0F172A', light: '#334155', dark: '#020617' },

@@ -34,7 +34,7 @@ export default function Login() {
         title: '¡Sesión iniciada!',
         text: 'Bienvenido a LUX - Líneas Únicas Xpress.',
         icon: 'success',
-        confirmButtonColor: '#7C3AED',
+        confirmButtonColor: '#EA580C',
       })
       navigate(destino, { replace: true })
     } catch (err) {
