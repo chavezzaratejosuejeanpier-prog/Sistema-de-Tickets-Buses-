@@ -23,7 +23,6 @@ export default function SeatSelection() {
   useEffect(() => {
     let vivo = true
     setError('')
-    // Si no vino el precio en el state, se obtiene del backend (evita bloquear el flujo)
     Promise.all([
       getRouteSeats(routeId),
       precio == null ? getRoutes().catch(() => null) : Promise.resolve(null),
@@ -56,7 +55,7 @@ export default function SeatSelection() {
     const asientos = [...seleccionados].sort((a, b) => a - b).map((n) => ({ id: n, number: n }))
     try {
       localStorage.setItem('reserva', JSON.stringify({ routeId: Number(routeId), asientos: [...seleccionados].sort((a, b) => a - b), precio: precio != null ? Number(precio) : null }))
-    } catch { /* almacenamiento no disponible */ }
+    } catch {}
     navigate('/checkout', { state: { rutaId: Number(routeId), asientos, precio: precio != null ? Number(precio) : null } })
   }
 

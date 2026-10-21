@@ -11,7 +11,6 @@ export default function Benefits() {
     <section aria-labelledby="beneficios-titulo">
       <h2 id="beneficios-titulo" className="mb-6 text-3xl font-extrabold text-navy dark:text-white sm:text-4xl">Nuestros Beneficios</h2>
 
-      {/* flex-1: las 3 tarjetas reparten la altura de la columna y quedan a la par de las de rutas */}
       <div className="flex h-full flex-col gap-5">
         {BENEFICIOS.map(({ Icono, titulo, texto }) => (
           <div key={titulo} className="card flex flex-1 items-center gap-4 p-6">

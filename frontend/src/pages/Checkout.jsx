@@ -92,7 +92,7 @@ const Checkout = () => {
           <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">Ruta #{rutaId} • Asientos: {result.asientos.join(', ')} • Total: S/ {Number(result.total).toFixed(2)}</p>
           <div className="mt-6 flex gap-3 justify-center">
             <Link to="/buscar" className="btn-outline">Volver a buscar</Link>
-            <Button onClick={() => { try { localStorage.removeItem('reserva') } catch { /* almacenamiento no disponible */ } navigate('/buscar') }}>Aceptar</Button>
+            <Button onClick={() => { try { localStorage.removeItem('reserva') } catch {} navigate('/buscar') }}>Aceptar</Button>
           </div>
         </div>
       </div>
@@ -145,7 +145,7 @@ const Checkout = () => {
         }))
       })
 
-      try { localStorage.removeItem('reserva') } catch { /* almacenamiento no disponible */ }
+      try { localStorage.removeItem('reserva') } catch {}
       await Swal.fire({
         title: '¡Pago Exitoso!',
         html: `

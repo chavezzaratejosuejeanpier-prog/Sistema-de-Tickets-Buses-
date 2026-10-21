@@ -4,21 +4,34 @@ import { CIUDADES } from './ciudades.js'
 
 function getFiltered(query, exclude) {
   const q = query.trim().toLowerCase()
-  return CIUDADES.filter(c => c.toLowerCase().includes(q) && c.toLowerCase() !== exclude.toLowerCase()).slice(0, 6)
+  return CIUDADES.filter(c => c.toLowerCase().includes(q) && c.toLowerCase() !== exclude.toLowerCase()).slice(0, 8)
 }
 
-export default function CityField({ label, value, onChange, placeholder, exclude = '' }) {
+export default function CityField({ label, value, onChange, placeholder, exclude = '', variant = 'default' }) {
   const id = useId()
   const [abierto, setAbierto] = useState(false)
   const filtered = useMemo(() => getFiltered(value, exclude), [value, exclude])
   const showList = abierto && filtered.length > 0
+  const pill = variant === 'pill'
 
   return (
     <div className="relative">
-      <label htmlFor={id} className="mb-2 block text-sm font-semibold text-navy-light dark:text-stone-300">{label}</label>
+      <label
+        htmlFor={id}
+        className={pill
+          ? 'block text-[11px] font-semibold uppercase tracking-wide text-muted dark:text-stone-400'
+          : 'mb-2 block text-sm font-semibold text-navy-light dark:text-stone-300'}
+      >
+        {label}
+      </label>
 
       <div className="relative">
-        <MapPin size={20} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
+        <MapPin
+          size={pill ? 16 : 20}
+          className={pill
+            ? 'pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-muted'
+            : 'pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted'}
+        />
 
         <input
           id={id}
@@ -32,16 +45,20 @@ export default function CityField({ label, value, onChange, placeholder, exclude
           aria-expanded={showList}
           aria-controls={`${id}-lista`}
           aria-autocomplete="list"
-          className="input h-12 border-slate-300 py-0 pl-11 pr-11 focus:ring-2"
+          className={pill
+            ? 'w-full border-0 bg-transparent p-0 pl-6 pr-5 text-sm font-semibold text-navy placeholder-slate-400 focus:outline-none focus:ring-0 dark:text-white dark:placeholder-stone-500'
+            : 'input h-12 border-slate-300 py-0 pl-11 pr-11 focus:ring-2'}
         />
 
         <button
           type="button"
           aria-label={`Ver ciudades para ${label}`}
           onMouseDown={e => { e.preventDefault(); setAbierto(o => !o) }}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-navy"
+          className={pill
+            ? 'absolute right-0 top-1/2 -translate-y-1/2 text-muted hover:text-navy'
+            : 'absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-navy'}
         >
-          <ChevronDown size={20} />
+          <ChevronDown size={pill ? 16 : 20} />
         </button>
       </div>
 

@@ -42,7 +42,6 @@ export default function SearchRoutes() {
     }
   }
 
-  // Llegada desde el hero de la Home: prefill y dispara la misma búsqueda
   useEffect(() => {
     const entrada = location.state
     if (!entrada) return
@@ -65,13 +64,11 @@ export default function SearchRoutes() {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      {/* Header */}
       <div className="mb-6">
         <h1 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white tracking-tight">Buscar Viajes</h1>
         <p className="text-stone-500 dark:text-stone-400 mt-2 text-sm md:text-base">Elige origen, destino y fecha. Resultados en tiempo real con asientos disponibles.</p>
       </div>
 
-      {/* Form Card */}
       <form onSubmit={buscar} className="bg-white dark:bg-stone-800 rounded-xl shadow-soft border border-black/5 dark:border-stone-700 p-6 md:p-7">
         <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-end">
           <CityField label="Origen" value={origen} onChange={setOrigen} placeholder="Ej. Lima" exclude={destino} />
@@ -116,14 +113,12 @@ export default function SearchRoutes() {
         </div>
       </form>
 
-      {/* Estados */}
       {error && (
         <div className={`mt-5 rounded-xl px-4 py-3 text-sm font-medium border ${resultados.length > 0 ? 'bg-gray-50 dark:bg-stone-800 border-black/5 dark:border-stone-700 text-stone-600 dark:text-stone-300' : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900 text-red-700 dark:text-red-300'}`}>
           {error}
         </div>
       )}
 
-      {/* Resultados */}
       <div className="mt-6" aria-live="polite" aria-busy={loading}>
         {!hasSearched ? (
           <div className="bg-navy/5 dark:bg-white/5 border border-dashed border-navy/20 dark:border-white/10 rounded-xl p-8 text-center">

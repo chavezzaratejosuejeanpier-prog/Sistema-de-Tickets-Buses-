@@ -1,7 +1,5 @@
 import { Clock, Armchair } from 'lucide-react'
 
-// ponytail: sin jpgs todavia. Al soltarlos en src/assets/routes/ aparecen solos (import.meta.glob),
-// sin tocar este archivo; si falta alguno se muestra el bloque de color de respaldo.
 const IMAGENES = import.meta.glob('../assets/routes/*.jpg', { eager: true, import: 'default' })
 
 export default function RouteCard({ origen, destino, precio, duracion, asiento, imagen, onSelect }) {

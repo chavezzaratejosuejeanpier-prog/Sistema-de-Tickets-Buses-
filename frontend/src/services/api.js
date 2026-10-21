@@ -1,7 +1,5 @@
 import axios from 'axios'
 
-// Compatible: si existe VITE_API_URL se usa, si no se mantiene el backend local.
-// No cambia el comportamiento actual cuando no hay `.env`.
 const api = axios.create({
   baseURL: import.meta.env?.VITE_API_URL || 'http://localhost:8000/api',
   headers: { 'Content-Type': 'application/json' },

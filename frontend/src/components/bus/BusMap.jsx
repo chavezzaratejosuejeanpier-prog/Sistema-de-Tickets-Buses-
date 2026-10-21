@@ -39,7 +39,6 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
 
       <FloorTab piso={piso} setPiso={handlePisoChange} />
 
-      {/* Leyenda accesible */}
       <ul className="flex justify-center gap-4 my-5 text-xs font-semibold list-none" aria-label="Leyenda de estados">
         <li className="flex items-center gap-1.5 text-stone-600 dark:text-stone-300">
           <span className="w-3.5 h-3.5 bg-white dark:bg-stone-900 border-2 border-navy dark:border-white rounded shadow-soft" aria-hidden /> Libre
@@ -52,9 +51,7 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
         </li>
       </ul>
 
-      {/* Carrocería del bus */}
       <div className="border-[3px] border-black/5 rounded-xl p-6 sm:p-8 bg-gradient-to-b from-gray-50 to-white relative shadow-soft overflow-hidden dark:border-white/10 dark:from-stone-800 dark:to-stone-900">
-        {/* Volante decorativo */}
         <div
           className="absolute top-5 right-8 w-11 h-11 border-[3px] border-black/5 dark:border-white/10 rounded-full flex items-center justify-center bg-white dark:bg-stone-900 shadow-soft"
           aria-hidden="true"
@@ -74,7 +71,6 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
               const nums = [base + 1, base + 2, base + 3, base + 4]
               return (
                 <React.Fragment key={row}>
-                  {/* Lado izquierdo: 2 asientos */}
                   <div className="flex justify-center" role="gridcell">
                     {nums[0] <= total && (
                       <Seat
@@ -95,11 +91,9 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
                       />
                     )}
                   </div>
-                  {/* Pasillo */}
                   <div aria-hidden className="flex items-center justify-center">
                     <div className="w-px h-8 bg-gray-100/60 dark:bg-white/10 hidden sm:block" />
                   </div>
-                  {/* Lado derecho: 2 asientos */}
                   <div className="flex justify-center" role="gridcell">
                     {nums[2] <= total && (
                       <Seat
@@ -127,7 +121,6 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
         )}
       </div>
 
-      {/* Resumen dinámico */}
       <div className="mt-5 flex items-center justify-between gap-3 text-xs bg-gray-50 dark:bg-stone-800 border border-black/5 dark:border-stone-700 rounded-xl px-4 py-3">
         <span className="text-stone-500 dark:text-stone-400 font-medium whitespace-nowrap">
           Piso {piso} • <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 bg-white dark:bg-stone-900 border border-black/10 dark:border-stone-600 rounded-full text-navy dark:text-white font-bold ml-1">{seleccionados.length}</span> <span className="ml-1">seleccionado(s)</span>
