@@ -150,7 +150,7 @@ const Checkout = () => {
         title: '¡Pago Exitoso!',
         html: `
           <p>Tu código de reserva es:</p>
-          <p style="font-size:1.6rem;font-weight:800;letter-spacing:.12em;color:#FF6B00;margin:.5rem 0">${data.codigo_reserva}</p>
+          <p style="font-size:1.6rem;font-weight:800;letter-spacing:.12em;color:#7C3AED;margin:.5rem 0">${data.codigo_reserva}</p>
           <p style="font-size:.9rem">Guarda este código para consultar tus pasajes. Quedó asociado a ${data.email}</p>
         `,
         icon: 'success',

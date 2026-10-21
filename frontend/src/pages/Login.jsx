@@ -32,9 +32,9 @@ export default function Login() {
       ctxLogin({ email: email.trim(), rol: data.rol, nombre: data.nombre }, data.access_token)
       await Swal.fire({
         title: '¡Sesión iniciada!',
-        text: 'Bienvenido a BUSS ConnectPro.',
+        text: 'Bienvenido a LUX - Líneas Únicas Xpress.',
         icon: 'success',
-        confirmButtonColor: '#FF6B00',
+        confirmButtonColor: '#7C3AED',
       })
       navigate(destino, { replace: true })
     } catch (err) {
@@ -54,7 +54,8 @@ export default function Login() {
 
   return (
     <div className="max-w-sm mx-auto mt-10">
-      <h1 className="text-center text-2xl font-bold text-navy dark:text-white mb-4">BUSS ConnectPro</h1>
+      <h1 className="text-center text-3xl font-black tracking-tight text-navy dark:text-white mb-1">LUX</h1>
+      <p className="text-center text-xs font-semibold uppercase tracking-wider text-primary mb-3">Líneas Únicas Xpress</p>
       <p className="text-center text-sm text-muted dark:text-stone-400 mb-6">Accede a tu cuenta</p>
       <div className="card p-6">
         <h2 className="text-xl font-bold text-navy dark:text-white mb-4">Acceso</h2>
@@ -77,7 +78,7 @@ export default function Login() {
         </form>
       </div>
       <p className="text-sm text-muted dark:text-stone-400 text-center mt-4">
-        ¿No tienes cuenta? <Link to="/registro" className="text-accent hover:underline">Regístrate</Link>
+        ¿No tienes cuenta? <Link to="/registro" className="text-primary hover:underline">Regístrate</Link>
       </p>
     </div>
   )

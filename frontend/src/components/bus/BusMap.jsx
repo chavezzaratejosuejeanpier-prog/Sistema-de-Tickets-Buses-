@@ -41,10 +41,10 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
 
       <ul className="flex justify-center gap-4 my-5 text-xs font-semibold list-none" aria-label="Leyenda de estados">
         <li className="flex items-center gap-1.5 text-stone-600 dark:text-stone-300">
-          <span className="w-3.5 h-3.5 bg-white dark:bg-stone-900 border-2 border-navy dark:border-white rounded shadow-soft" aria-hidden /> Libre
+          <span className="w-3.5 h-3.5 bg-white dark:bg-stone-900 border-2 border-success/60 rounded shadow-soft" aria-hidden /> Libre
         </li>
         <li className="flex items-center gap-1.5 text-stone-600 dark:text-stone-300">
-          <span className="w-3.5 h-3.5 bg-accent rounded shadow-soft" aria-hidden /> Selección
+          <span className="w-3.5 h-3.5 bg-primary rounded shadow-soft" aria-hidden /> Selección
         </li>
         <li className="flex items-center gap-1.5 text-stone-600 dark:text-stone-300">
           <span className="w-3.5 h-3.5 bg-gray-100 dark:bg-stone-700 border border-black/5 dark:border-white/10 rounded" aria-hidden /> Ocupado

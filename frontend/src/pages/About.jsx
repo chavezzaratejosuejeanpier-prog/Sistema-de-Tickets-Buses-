@@ -5,6 +5,13 @@ import PopularRoutes from '../components/PopularRoutes.jsx'
 import Benefits from '../components/Benefits.jsx'
 import { CIUDADES } from '../components/common/ciudades.js'
 
+const BENEFICIOS = [
+  { icono: 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z', texto: 'Puntualidad y comodidad en tu experiencia de viaje' },
+  { icono: 'M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5', texto: 'Variedad de horarios a nuestros diversos destinos' },
+  { icono: 'M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h.375c.621 0 1.125-.504 1.125-1.125V11.25c0-1.09-.634-2.028-1.546-2.452M14.25 21a1.5 1.5 0 00-3 0m3 0h.375c.621 0 1.125-.504 1.125-1.125V11.25c0-1.09-.634-2.028-1.546-2.452M18.75 14.25h-2.625a1.5 1.5 0 01-1.5-1.5V5.625A1.875 1.875 0 0012.75 3.75H11.25A1.875 1.875 0 009.375 5.625v7.125c0 .828-.672 1.5-1.5 1.5H5.25', texto: 'Moderna flota con estándares de seguridad' },
+  { icono: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z', texto: 'Conductores con amplia experiencia' },
+]
+
 const SERVICIOS = [
   {
     titulo: 'Piso 1 — VIP',
@@ -13,7 +20,7 @@ const SERVICIOS = [
   },
   {
     titulo: 'Piso 2 — Estándar',
-    punto: 'bg-accent',
+    punto: 'bg-primary',
     texto: 'Dos filas a cada lado del pasillo, el servicio más usado por su relación precio/comodidad.',
   },
 ]
@@ -85,37 +92,20 @@ export default function About() {
           </aside>
         </section>
 
-        <section className="px-6 pt-20 pb-16 text-center">
-          <span className="badge bg-accent/10 text-accent">BUSS ConnectPro</span>
-          <h2 className="mt-5 text-5xl font-semibold tracking-tight text-navy dark:text-white md:text-6xl">
-            Tus viajes por el Perú,
-            <br className="hidden sm:block" /> sin colas.
-          </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-stone-600 dark:text-stone-300 md:text-xl">
-            Reserva tu asiento, paga y viaja. Búsqueda de rutas, mapa del bus, pago y control
-            interno en un solo lugar.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3 justify-center">
-            <Link to="/buscar" className="btn-primary">Buscar viajes</Link>
-            <a href="#como-funciona" className="btn-outline">Cómo funciona</a>
-          </div>
-        </section>
-
-        <section id="nosotros" className="scroll-mt-24 border-t border-black/5 px-6 py-16 dark:border-white/10">
-          <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">Quiénes somos</h2>
-          <div className="mt-6 max-w-3xl space-y-4 text-base leading-relaxed text-stone-600 dark:text-stone-300">
-            <p>
-              BUSS ConnectPro nació para resolver una molestia de todos los días: comprar un pasaje
-              interprovincial. Antes significaba hacer fila en la terminal, sin sistema y sin
-              visibilidad real de los lugares libres.
-            </p>
-            <p>
-              Hoy reunimos en un solo sitio la búsqueda de rutas, el mapa de asientos del bus, el pago
-              y el control interno, de modo que pasajero y empresa vean exactamente la misma
-              información. Ofrecemos dos servicios: <strong className="text-navy dark:text-white">VIP</strong> (primer
-              piso) y <strong className="text-navy dark:text-white">Estándar</strong> (segundo piso), con capacidad
-              configurable por bus y sin sobreventa: un asiento ocupado no se puede volver a seleccionar.
-            </p>
+        <section className="px-6 py-12 text-center">
+          <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">¿Por qué elegirnos?</h2>
+          <div className="mx-auto mt-2 h-1 w-12 bg-purple-600" />
+          <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-4">
+            {BENEFICIOS.map(b => (
+              <div key={b.texto} className="flex flex-col items-center">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-purple-700/50 bg-purple-900/40 text-purple-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-10 w-10">
+                    <path strokeLinecap="round" strokeLinejoin="round" d={b.icono} />
+                  </svg>
+                </div>
+                <p className="mt-4 max-w-[200px] text-sm text-stone-700 dark:text-stone-300">{b.texto}</p>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -147,7 +137,7 @@ export default function About() {
           <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {PASOS.map((p, i) => (
               <div key={p.titulo}>
-                <span className="text-sm font-medium text-accent">Paso {i + 1}</span>
+                <span className="text-sm font-medium text-primary">Paso {i + 1}</span>
                 <h3 className="mt-1.5 text-base font-semibold text-navy dark:text-white">{p.titulo}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{p.texto}</p>
               </div>

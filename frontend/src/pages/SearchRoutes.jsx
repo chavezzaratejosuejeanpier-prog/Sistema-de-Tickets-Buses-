@@ -78,7 +78,7 @@ export default function SearchRoutes() {
             onClick={swap}
             aria-label="Intercambiar origen y destino"
             title="Intercambiar"
-            className="self-center md:self-end shrink-0 w-10 h-10 rounded-full bg-white dark:bg-stone-700 border border-black/10 dark:border-stone-600 shadow-soft flex items-center justify-center text-navy dark:text-white hover:bg-navy hover:text-white hover:border-navy transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
+            className="self-center md:self-end shrink-0 w-10 h-10 rounded-full bg-white dark:bg-stone-700 border border-black/10 dark:border-stone-600 shadow-soft flex items-center justify-center text-navy dark:text-white hover:bg-navy hover:text-white hover:border-navy transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
           >
             <ArrowLeftRight size={18} aria-hidden="true" />
           </button>
@@ -108,7 +108,7 @@ export default function SearchRoutes() {
             Limpiar
           </Button>
           {!canSearch && origen && destino && (
-            <span className="self-center text-xs font-semibold text-accent bg-gray-50 dark:bg-stone-800 border border-black/5 dark:border-stone-700 px-3 py-1.5 rounded-full">Origen ≠ Destino</span>
+            <span className="self-center text-xs font-semibold text-primary bg-gray-50 dark:bg-stone-800 border border-black/5 dark:border-stone-700 px-3 py-1.5 rounded-full">Origen ≠ Destino</span>
           )}
         </div>
       </form>
@@ -147,14 +147,14 @@ export default function SearchRoutes() {
                 <div key={r.id} className="bg-white dark:bg-stone-800 rounded-xl border border-black/5 dark:border-stone-700 shadow-soft hover:shadow-lift hover:-translate-y-0.5 transition-all p-5 flex flex-col sm:flex-row justify-between gap-4">
                   <div className="min-w-0">
                     <p className="font-extrabold text-navy dark:text-white text-base flex items-center gap-2">
-                      {r.origen} <span className="text-accent">→</span> {r.destino}
+                      {r.origen} <span className="text-primary">→</span> {r.destino}
                     </p>
                     <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">
                       {r.fecha_salida ? new Date(r.fecha_salida).toLocaleDateString('es-PE', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) : 'Fecha por confirmar'} • {r.hora_salida} • Bus {r.bus_placa} <span className="inline-block bg-gray-50 dark:bg-stone-700 border border-black/10 dark:border-stone-600 dark:text-stone-200 px-2 py-0.5 rounded-full text-xs font-bold ml-1">{r.bus_tipo}</span>
                     </p>
                     <p className="text-sm mt-2">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${r.asientos_disponibles > 10 ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-300' : r.asientos_disponibles > 0 ? 'bg-gray-50 dark:bg-stone-800 border-black/5 dark:border-stone-700 text-stone-600 dark:text-stone-300' : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900 text-red-700 dark:text-red-300'}`}>
-                        <span className={`w-2 h-2 rounded-full ${r.asientos_disponibles > 10 ? 'bg-emerald-500' : r.asientos_disponibles > 0 ? 'bg-accent' : 'bg-red-500'}`} />
+                        <span className={`w-2 h-2 rounded-full ${r.asientos_disponibles > 10 ? 'bg-emerald-500' : r.asientos_disponibles > 0 ? 'bg-amber-500' : 'bg-red-500'}`} />
                         {r.asientos_disponibles} asientos libres
                       </span>
                     </p>

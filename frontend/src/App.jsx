@@ -6,6 +6,7 @@ import ScrollToTop from './components/common/ScrollToTop'
 import ProtectedRoute from './components/common/ProtectedRoute'
 
 import About from './pages/About'
+import Nosotros from './pages/Nosotros'
 const Checkout = lazy(() => import('./pages/Checkout'))
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
@@ -18,6 +19,7 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 const TITULOS = {
   '/': 'Inicio',
   '/buscar': 'Buscar Viajes',
+  '/nosotros': 'Nosotros',
   '/checkout': 'Pago',
   '/mis-pasajes': 'Mis Pasajes',
   '/login': 'Iniciar Sesión',
@@ -29,7 +31,7 @@ function TituloRuta() {
   const { pathname } = useLocation()
   useEffect(() => {
     const titulo = pathname.startsWith('/asientos') ? 'Elegir Asientos' : TITULOS[pathname]
-    document.title = titulo ? `${titulo} | BUSS ConnectPro` : 'BUSS ConnectPro - Venta de Pasajes'
+    document.title = titulo ? `${titulo} | LUX` : 'LUX - Líneas Únicas Xpress - Venta de Pasajes'
   }, [pathname])
   return null
 }
@@ -37,6 +39,12 @@ function TituloRuta() {
 function Layout() {
   const { pathname } = useLocation()
   const esInicio = pathname === '/'
+  const esNosotros = pathname === '/nosotros'
+  const claseMain = esInicio
+    ? 'flex-grow'
+    : esNosotros
+      ? 'flex-grow pt-20'
+      : 'flex-grow pt-28 pb-8 w-full max-w-shell mx-auto px-4 sm:px-[30px]'
 
   return (
     <div className="min-h-screen bg-surface dark:bg-stone-950 flex flex-col">
@@ -51,11 +59,7 @@ function Layout() {
 
       <main
         id="main"
-        className={
-          esInicio
-            ? 'flex-grow'
-            : 'flex-grow py-8 w-full max-w-shell mx-auto px-4 sm:px-[30px]'
-        }
+        className={claseMain}
       >
         <Suspense
           fallback={
@@ -67,6 +71,7 @@ function Layout() {
           <Routes>
             <Route path="/" element={<About />} />
             <Route path="/buscar" element={<SearchRoutes />} />
+            <Route path="/nosotros" element={<Nosotros />} />
             <Route path="/asientos/:routeId" element={<SeatSelection />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/mis-pasajes" element={<MisPasajes />} />

@@ -7,14 +7,15 @@ export default {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
       },
       colors: {
-        primary: { DEFAULT: '#FF6B00', dark: '#E65F00' },
+        primary: { DEFAULT: '#7C3AED', dark: '#6D28D9', light: '#A78BFA' },
+        accent: { DEFAULT: '#F97316', hover: '#EA580C' },
+        success: { DEFAULT: '#22C55E', dark: '#16A34A' },
         navy: { DEFAULT: '#0F172A', light: '#334155', dark: '#020617' },
         footer: '#0B1526',
         surface: '#F8FAFC',
         line: '#E2E8F0',
         muted: '#64748B',
         footerLink: '#A5B4CB',
-        accent: { DEFAULT: '#FF6B00', hover: '#E65F00' },
         corporate: '#0F172A',
         canvas: '#F8FAFC',
         stone: {

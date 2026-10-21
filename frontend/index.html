@@ -7,22 +7,20 @@
       (function () {
         try {
           var t = localStorage.getItem('theme')
-          if (t !== 'dark' && t !== 'light') {
-            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-          }
+          if (t !== 'dark' && t !== 'light') t = 'dark'
           if (t === 'dark') document.documentElement.classList.add('dark')
         } catch (e) {}
       })()
     </script>
     <meta
       name="description"
-      content="BUSS ConnectPro: compra pasajes de bus en línea. Busca rutas a nivel nacional, elige tu asiento y reserva en minutos."
+      content="LUX - Líneas Únicas Xpress: compra pasajes de bus en línea. Busca rutas a nivel nacional, elige tu asiento y reserva en minutos."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#0F172A" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="BUSS ConnectPro" />
-    <meta property="og:title" content="BUSS ConnectPro - Venta de Pasajes" />
+    <meta property="og:site_name" content="LUX - Líneas Únicas Xpress" />
+    <meta property="og:title" content="LUX - Líneas Únicas Xpress - Venta de Pasajes" />
     <meta property="og:description" content="Busca rutas a nivel nacional, elige tu asiento y reserva tu pasaje de bus en minutos." />
     <meta name="twitter:card" content="summary" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -31,7 +29,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <title>BUSS ConnectPro - Venta de Pasajes</title>
+    <title>LUX - Líneas Únicas Xpress - Venta de Pasajes</title>
   </head>
   <body class="bg-surface">
     <div id="root"></div>
