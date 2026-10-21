@@ -48,15 +48,21 @@ const Navbar = () => {
   const nombre = user?.nombre || user?.email?.split('@')[0]
 
   const baseLink = 'text-base font-medium transition-colors duration-200'
-  const botonBase = 'inline-flex items-center gap-2 rounded-md border bg-transparent px-4 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950'
-  const botonInactivo = `${botonBase} border-line text-navy hover:border-primary hover:bg-primary/5 dark:border-white/30 dark:text-white dark:hover:border-white dark:hover:bg-white/10`
-  const botonInactivoOscuro = `${botonBase} border-white/30 text-white hover:border-white hover:bg-white/10`
-  const botonActivo = `${botonBase} border-orange-500 bg-orange-500/10 text-orange-500 dark:text-orange-400`
+  const botonBase =
+    'inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
+
+  // Inicio transparente sobre el hero
+  const linkHomeInactivo = `${botonBase} border-white/40 text-white hover:border-white hover:bg-white/10 hover:backdrop-blur-md hover:shadow-[0_0_18px_rgba(255,255,255,0.18)] focus-visible:border-white focus-visible:bg-white/10 focus-visible:ring-white/60`
+  const linkHomeActivo = `${botonBase} border-white bg-white/15 text-white backdrop-blur-md shadow-[0_0_18px_rgba(255,255,255,0.18)]`
+
+  // Rutas, Servicios, Nosotros y navbar sólida
+  const linkSeccionInactivo = `${botonBase} border-line text-navy hover:border-orange-500 hover:bg-orange-500/15 hover:text-orange-600 hover:backdrop-blur-md hover:shadow-[0_0_18px_rgba(249,115,22,0.22)] focus-visible:border-orange-500 focus-visible:bg-orange-500/15 focus-visible:text-orange-600 focus-visible:ring-orange-500/60 dark:border-stone-700 dark:text-white dark:hover:border-orange-400 dark:hover:bg-orange-500/15 dark:hover:text-orange-300 dark:focus-visible:border-orange-400 dark:focus-visible:bg-orange-500/15 dark:focus-visible:text-orange-300`
+  const linkSeccionActivo = `${botonBase} border-orange-500 bg-orange-500/15 text-orange-600 backdrop-blur-md shadow-[0_0_18px_rgba(249,115,22,0.22)] dark:border-orange-400 dark:bg-orange-500/15 dark:text-orange-300`
 
   const claseEnlace = (to) => {
     const esActivo = to === pathname && !to.includes('#')
-    if (transparente) return esActivo ? botonActivo : botonInactivoOscuro
-    return esActivo ? botonActivo : botonInactivo
+    if (transparente) return esActivo ? linkHomeActivo : linkHomeInactivo
+    return esActivo ? linkSeccionActivo : linkSeccionInactivo
   }
 
   return (
