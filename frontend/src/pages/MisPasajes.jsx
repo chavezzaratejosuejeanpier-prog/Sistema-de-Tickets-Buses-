@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Ticket as TicketIcon, Bus, CalendarDays, Search } from 'lucide-react'
+import { Ticket as TicketIcon, Bus, CalendarDays, Search, Download } from 'lucide-react'
 import Button from '../components/common/Button.jsx'
-import { getTicketByCode } from '../services/api.js'
+import { getTicketByCode, getPdfUrl } from '../services/api.js'
 
 const formatoFecha = (iso) => {
   if (!iso) return 'Fecha no disponible'
@@ -56,6 +56,7 @@ export default function MisPasajes() {
 
   const total = tickets?.reduce((suma, t) => suma + (t.precio_pagado || 0), 0) || 0
   const viaje = tickets?.[0]
+  const codigoReserva = viaje?.codigo_reserva
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -119,6 +120,17 @@ export default function MisPasajes() {
                 <span className="inline-flex items-center gap-2 text-muted dark:text-stone-400">
                   <Bus size={16} aria-hidden="true" /> {viaje.bus_placa}
                 </span>
+              )}
+              {codigoReserva && (
+                <a
+                  href={getPdfUrl(codigoReserva)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="ml-auto inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-6 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
+                >
+                  <Download size={18} aria-hidden="true" />
+                  Descargar boleto (PDF)
+                </a>
               )}
             </div>
           )}

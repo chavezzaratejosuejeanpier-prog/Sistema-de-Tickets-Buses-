@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import { Timer } from 'lucide-react'
+import { Timer, Download } from 'lucide-react'
 import Swal from 'sweetalert2'
 import Button from '../components/common/Button.jsx'
-import { checkout } from '../services/api.js'
+import { checkout, getPdfUrl } from '../services/api.js'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -90,7 +90,16 @@ const Checkout = () => {
           <h2 className="text-2xl font-bold text-green-600">¡Compra Exitosa!</h2>
           <p className="mt-2">Código: <span className="font-mono font-bold">{result.codigo_reserva}</span></p>
           <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">Ruta #{rutaId} • Asientos: {result.asientos.join(', ')} • Total: S/ {Number(result.total).toFixed(2)}</p>
-          <div className="mt-6 flex gap-3 justify-center">
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+            <a
+              href={getPdfUrl(result.codigo_reserva)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-6 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
+            >
+              <Download size={18} aria-hidden="true" />
+              Descargar boleto (PDF)
+            </a>
             <Link to="/buscar" className="btn-outline">Volver a buscar</Link>
             <Button onClick={() => { try { localStorage.removeItem('reserva') } catch {} navigate('/buscar') }}>Aceptar</Button>
           </div>
@@ -145,7 +154,10 @@ const Checkout = () => {
         }))
       })
 
-      try { localStorage.removeItem('reserva') } catch {}
+      try {
+        localStorage.removeItem('reserva')
+        localStorage.setItem('ultimaReserva', data.codigo_reserva)
+      } catch {}
       await Swal.fire({
         title: '¡Pago Exitoso!',
         html: `

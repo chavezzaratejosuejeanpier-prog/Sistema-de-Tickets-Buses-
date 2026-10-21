@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
@@ -9,10 +9,22 @@ from ..models.ticket import Ticket, EstadoTicket
 from ..models.route import Route
 from ..schemas.ticket_schema import CheckoutRequest, CheckoutResponse, VentaResumen
 from ..services.ticket_service import verificar_disponibilidad, calcularPrecioTotal
+from ..services.boleto_pdf import generar_pdf_boletos
 from ..core.deps import require_admin
 from ..models.user import User
 
 router = APIRouter()
+
+
+def _cargar_reserva(db: Session, codigo: str):
+    """Tickets de una reserva (con ruta y bus cargados) por codigo de reserva."""
+    return (
+        db.query(Ticket)
+        .options(joinedload(Ticket.route).joinedload(Route.bus))
+        .filter(Ticket.codigo_reserva == codigo.strip().upper())
+        .all()
+    )
+
 
 @router.get("/", response_model=VentaResumen)
 def resumen_ventas(db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
@@ -82,12 +94,7 @@ def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):
 
 @router.get("/tickets/{codigo}")
 def obtener_ticket(codigo: str, db: Session = Depends(get_db)):
-    tickets = (
-        db.query(Ticket)
-        .options(joinedload(Ticket.route).joinedload(Route.bus))
-        .filter(Ticket.codigo_reserva == codigo)
-        .all()
-    )
+    tickets = _cargar_reserva(db, codigo)
     if not tickets:
         raise HTTPException(404, "Reserva no encontrada")
     respuesta = []
@@ -99,6 +106,7 @@ def obtener_ticket(codigo: str, db: Session = Depends(get_db)):
             "numero_asiento": t.numero_asiento,
             "piso": t.piso,
             "estado": t.estado.value,
+            "codigo_reserva": t.codigo_reserva,
             "pasajero_nombre": t.pasajero_nombre,
             "precio_pagado": t.precio_pagado,
             "origen": ruta.origen if ruta else None,
@@ -108,3 +116,44 @@ def obtener_ticket(codigo: str, db: Session = Depends(get_db)):
             "bus_placa": ruta.bus.placa if ruta and ruta.bus else None,
         })
     return respuesta
+
+
+@router.get("/tickets/{codigo}/pdf")
+def pdf_ticket(codigo: str, db: Session = Depends(get_db)):
+    codigo = codigo.strip().upper()
+    tickets = _cargar_reserva(db, codigo)
+    if not tickets:
+        raise HTTPException(404, "Reserva no encontrada")
+
+    datos = {
+        "codigo": codigo,
+        "email": None,  # el email del comprador no se guarda (se descarta en checkout)
+        "total": sum(float(t.precio_pagado or 0) for t in tickets),
+        "tickets": [
+            {
+                "id": t.id,
+                "numero_boleto": f"LUX-{t.id:06d}",
+                "codigo_reserva": t.codigo_reserva,
+                "numero_asiento": t.numero_asiento,
+                "piso": t.piso,
+                "pasajero_nombre": t.pasajero_nombre,
+                "pasajero_dni": t.pasajero_dni,
+                "precio_pagado": t.precio_pagado,
+                "origen": t.route.origen if t.route else None,
+                "destino": t.route.destino if t.route else None,
+                "fecha_salida": t.route.fecha_salida if t.route else None,
+                "hora_salida": t.route.hora_salida if t.route else None,
+                "duracion_horas": t.route.duracion_horas if t.route else None,
+                "bus_placa": t.route.bus.placa if t.route and t.route.bus else None,
+                "bus_modelo": t.route.bus.modelo if t.route and t.route.bus else None,
+                "bus_tipo": t.route.bus.tipo.value if t.route and t.route.bus else None,
+            }
+            for t in tickets
+        ],
+    }
+
+    return Response(
+        content=generar_pdf_boletos(datos),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="boleto-{codigo}.pdf"'},
+    )
