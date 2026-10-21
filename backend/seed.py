@@ -4,9 +4,11 @@ Uso:  python seed.py
 
 - Crea las tablas si no existen.
 - Elimina la restriccion UNIQUE legacy de tickets.codigo_reserva (compartido por compra).
-- Inserta buses, rutas y el usuario admin solo si la tabla esta vacia.
+- Inserta buses y el usuario admin solo si la tabla esta vacia.
+- Crea o actualiza las rutas de demo por (origen, destino) sin duplicarlas.
 """
 from datetime import datetime, timedelta
+import re
 import sqlite3
 from pathlib import Path
 
@@ -25,10 +27,15 @@ BUSES = [
 ]
 
 RUTAS = [
-    ("Lima", "Cusco", 7, 120.0, 180.0),
-    ("Lima", "Arequipa", 6, 90.0, 140.0),
-    ("Cusco", "Puno", 4, 60.0, None),
-    ("Lima", "Trujillo", 8, 110.0, None),
+    ("Lima", "Trujillo", 9, 50.0, 90.0),
+    ("Lima", "Chiclayo", 13, 90.0, 130.0),
+    ("Lima", "Piura", 17, 100.0, 150.0),
+    ("Lima", "Arequipa", 17, 90.0, 140.0),
+    ("Lima", "Cusco", 22, 120.0, 180.0),
+    ("Lima", "Huaraz", 8, 80.0, 120.0),
+    ("Lima", "Ica", 4, 40.0, 70.0),
+    ("Arequipa", "Cusco", 10, 85.0, 130.0),
+    ("Cusco", "Puno", 7, 60.0, 90.0),
     ("Arequipa", "Moquegua", 3, 45.0, None),
 ]
 
@@ -52,6 +59,9 @@ def _reconstruir_tickets(con, conservar_datos=True):
     for (nombre,) in con.execute(
         "select name from sqlite_master where type='index' and tbl_name='tickets_legacy'"
     ).fetchall():
+        # Los autoindices pertenecen a una constraint y SQLite no deja borrarlos.
+        if nombre.startswith("sqlite_autoindex"):
+            continue
         con.execute(f'drop index if exists "{nombre}"')
 
     Base.metadata.create_all(bind=engine)
@@ -74,15 +84,16 @@ def _esquema_tickets_desactualizado(con):
     if not sql:
         return False
     ddl = sql[0].upper()
-    # Esquema legacy: UNIQUE sobre codigo_reserva (rompe compras de 2+ asientos)
-    if "UNIQUE" in ddl and "CODIGO_RESERVA" in ddl:
-        return True
     # Falta la restriccion que impide vender dos veces el mismo asiento
     if "UQ_TICKET_RUTA_ASIENTO" not in ddl:
         return True
+    # Esquema legacy: UNIQUE sobre codigo_reserva (rompe compras de 2+ asientos)
+    if re.search(r"UNIQUE\s*\(\s*CODIGO_RESERVA\s*\)", ddl):
+        return True
     for indice in Base.metadata.tables["tickets"].indexes:
         if not con.execute(
-            "select name from sqlite_master where type='index' and name=?", (indice.name,)
+            "select name from sqlite_master where type='index' and name=? and tbl_name='tickets'",
+            (indice.name,),
         ).fetchone():
             return True
     return False
@@ -98,7 +109,23 @@ def corregir_constraint_legacy():
         return False
     con = sqlite3.connect(DB_PATH)
     try:
-        con.execute("drop table if exists tickets_legacy")
+        tablas = {
+            nombre for (nombre,) in con.execute(
+                "select name from sqlite_master where type='table'"
+            ).fetchall()
+        }
+        # Recupera una reconstruccion interrumpida sin perder los tickets.
+        if "tickets" not in tablas and "tickets_legacy" in tablas:
+            con.execute("alter table tickets_legacy rename to tickets")
+            con.commit()
+        elif "tickets" in tablas and "tickets_legacy" in tablas:
+            if con.execute("select count(*) from tickets").fetchone()[0] == 0:
+                con.execute("drop table tickets")
+                con.execute("alter table tickets_legacy rename to tickets")
+            else:
+                con.execute("drop table tickets_legacy")
+            con.commit()
+
         if not _esquema_tickets_desactualizado(con):
             return False
         _reconstruir_tickets(con)
@@ -108,10 +135,12 @@ def corregir_constraint_legacy():
 
 
 def main():
-    Base.metadata.create_all(bind=engine)
-
+    # Antes de create_all: si quedo una tabla tickets_legacy de una ejecucion
+    # interrumpida, sus indices chocan con los de la tabla tickets nueva.
     if corregir_constraint_legacy():
         print("Migracion: esquema de la tabla tickets actualizado")
+
+    Base.metadata.create_all(bind=engine)
 
     db = SessionLocal()
     try:
@@ -123,9 +152,20 @@ def main():
 
         buses = db.query(Bus).order_by(Bus.id).all()
 
-        if db.query(Route).count() == 0:
-            base = datetime.utcnow().replace(minute=0, second=0, microsecond=0)
-            for i, (origen, destino, duracion, precio, vip) in enumerate(RUTAS):
+        base = datetime.utcnow().replace(minute=0, second=0, microsecond=0)
+        creadas = actualizadas = 0
+        for i, (origen, destino, duracion, precio, vip) in enumerate(RUTAS):
+            ruta = db.query(Route).filter(
+                Route.origen == origen, Route.destino == destino
+            ).first()
+            if ruta:
+                ruta.duracion_horas = float(duracion)
+                ruta.precio_base = precio
+                ruta.precio_vip = vip
+                ruta.fecha_salida = base + timedelta(days=i + 1)
+                ruta.hora_salida = f"{8 + i:02d}:00"
+                actualizadas += 1
+            else:
                 db.add(Route(
                     origen=origen, destino=destino,
                     fecha_salida=base + timedelta(days=i + 1),
@@ -134,7 +174,8 @@ def main():
                     precio_base=precio, precio_vip=vip,
                     bus_id=buses[i % len(buses)].id
                 ))
-            print(f" rutas: {len(RUTAS)}")
+                creadas += 1
+        print(f" rutas: {creadas} nuevas, {actualizadas} actualizadas")
 
         if db.query(User).count() == 0:
             db.add(User(
