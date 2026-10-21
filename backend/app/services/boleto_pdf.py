@@ -29,8 +29,9 @@ from reportlab.pdfgen import canvas
 
 MARCA = "LUX"
 LEMA = "Lineas Unicas Xpress"
-VIOLETA = HexColor("#7C3AED")
-NARANJA = HexColor("#F97316")
+# Paleta alineada con frontend/tailwind.config.js (primary #EA580C, accent #F97316)
+PRIMARIO = HexColor("#EA580C")
+ACENTO = HexColor("#F97316")
 GRIS = HexColor("#64748B")
 TINTA = HexColor("#0F172A")
 LINEA = HexColor("#E2E8F0")
@@ -72,7 +73,7 @@ def _cabecera(c, titulo, derecha=None):
     c.rect(0, ALTO - 32 * mm, ANCHO, 32 * mm, stroke=0, fill=1)
     _txt(c, M, ALTO - 16 * mm, MARCA, 20, HexColor("#FFFFFF"), "Helvetica-Bold")
     _txt(c, M, ALTO - 23 * mm, LEMA, 7.5, HexColor("#94A3B8"))
-    _txt(c, M, ALTO - 28 * mm, titulo, 8, NARANJA, "Helvetica-Bold")
+    _txt(c, M, ALTO - 28 * mm, titulo, 8, ACENTO, "Helvetica-Bold")
     if derecha:
         c.setFont("Helvetica-Bold", 10)
         c.setFillColor(HexColor("#FFFFFF"))
@@ -100,14 +101,14 @@ def _portada(c, datos, tickets):
     t = tickets[0] if tickets else {}
     c.setFillColor(HexColor("#F8FAFC"))
     c.rect(M, y - 34 * mm, ANCHO - 2 * M, 40 * mm, stroke=0, fill=1)
-    _txt(c, M + 5 * mm, y - 2 * mm, "VIAJE", 7, VIOLETA, "Helvetica-Bold")
+    _txt(c, M + 5 * mm, y - 2 * mm, "VIAJE", 7, PRIMARIO, "Helvetica-Bold")
     _txt(c, M + 5 * mm, y - 12 * mm, f"{t.get('origen')}  ->  {t.get('destino')}", 16, TINTA, "Helvetica-Bold")
     _dato(c, M + 5 * mm, y - 26 * mm, "Fecha", _fecha(t.get("fecha_salida")))
     _dato(c, M + 55 * mm, y - 26 * mm, "Hora de salida", t.get("hora_salida") or "-")
     _dato(c, M + 105 * mm, y - 26 * mm, "Duracion", f"{t.get('duracion_horas') or 0:g} h")
     y -= 48 * mm
 
-    _txt(c, M, y, "PASAJES", 7, VIOLETA, "Helvetica-Bold")
+    _txt(c, M, y, "PASAJES", 7, PRIMARIO, "Helvetica-Bold")
     y -= 6 * mm
     for t in tickets:
         _txt(c, M, y, f"Asiento {t.get('numero_asiento')}  (Piso {t.get('piso')})", 10, TINTA, "Helvetica-Bold")
@@ -119,7 +120,7 @@ def _portada(c, datos, tickets):
 
     y -= 2 * mm
     _txt(c, ANCHO - M - 45 * mm, y, "TOTAL PAGADO", 8, GRIS, "Helvetica-Bold")
-    _txt(c, ANCHO - M, y - 8 * mm, f"S/ {float(datos.get('total') or 0):.2f}", 18, VIOLETA, "Helvetica-Bold")
+    _txt(c, ANCHO - M, y - 8 * mm, f"S/ {float(datos.get('total') or 0):.2f}", 18, PRIMARIO, "Helvetica-Bold")
     _qr(c, codigo, M, 22 * mm, 26 * mm)
     _txt(c, M + 30 * mm, 30 * mm, "Presenta este codigo", 8, GRIS, "Helvetica-Bold")
     _txt(c, M + 30 * mm, 25 * mm, "en la boleteria al abordar.", 8, GRIS)
@@ -145,8 +146,8 @@ def _boleto(c, t):
     _txt(c, M + 45 * mm, y, "ASIENTO", 7, GRIS, "Helvetica-Bold")
     _txt(c, M + 90 * mm, y, "PRECIO PAGADO", 7, GRIS, "Helvetica-Bold")
     y -= 14 * mm
-    _txt(c, M, y, str(t.get("piso") or 1), 30, VIOLETA, "Helvetica-Bold")
-    _txt(c, M + 45 * mm, y, str(t.get("numero_asiento")), 30, NARANJA, "Helvetica-Bold")
+    _txt(c, M, y, str(t.get("piso") or 1), 30, TINTA, "Helvetica-Bold")
+    _txt(c, M + 45 * mm, y, str(t.get("numero_asiento")), 30, PRIMARIO, "Helvetica-Bold")
     _txt(c, M + 90 * mm, y, f"S/ {float(t.get('precio_pagado') or 0):.2f}", 22, TINTA, "Helvetica-Bold")
     y -= 16 * mm
 
