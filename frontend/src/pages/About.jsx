@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import SearchHero from '../components/SearchHero.jsx'
 import PopularRoutes from '../components/PopularRoutes.jsx'
 import Benefits from '../components/Benefits.jsx'
@@ -9,33 +9,6 @@ const BENEFICIOS = [
   { icono: 'M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5', texto: 'Variedad de horarios a nuestros diversos destinos' },
   { icono: 'M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h.375c.621 0 1.125-.504 1.125-1.125V11.25c0-1.09-.634-2.028-1.546-2.452M14.25 21a1.5 1.5 0 00-3 0m3 0h.375c.621 0 1.125-.504 1.125-1.125V11.25c0-1.09-.634-2.028-1.546-2.452M18.75 14.25h-2.625a1.5 1.5 0 01-1.5-1.5V5.625A1.875 1.875 0 0012.75 3.75H11.25A1.875 1.875 0 009.375 5.625v7.125c0 .828-.672 1.5-1.5 1.5H5.25', texto: 'Moderna flota con estándares de seguridad' },
   { icono: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z', texto: 'Conductores con amplia experiencia' },
-]
-
-const SERVICIOS = [
-  {
-    titulo: 'Piso 1 — VIP',
-    punto: 'bg-navy dark:bg-white',
-    texto: 'Asientos de ejecutiva en el primer piso del bus, con más espacio para viajar cómodo.',
-  },
-  {
-    titulo: 'Piso 2 — Estándar',
-    punto: 'bg-orange-500',
-    texto: 'Dos filas a cada lado del pasillo, el servicio más usado por su relación precio/comodidad.',
-  },
-]
-
-const PASOS = [
-  { titulo: 'Busca tu viaje', texto: 'Elige origen, destino y, si quieres, la fecha de salida.' },
-  { titulo: 'Elige tus asientos', texto: 'Mapa interactivo por piso: ves los ocupados y marcas los tuyos.' },
-  { titulo: 'Confirma y paga', texto: 'Revisa el total y completa el pago para reservar tu lugar.' },
-  { titulo: 'Recibe tu código', texto: 'Al validar la compra obtienes el código de tu pasaje.' },
-]
-
-const SERVICIOS_APP = [
-  { titulo: 'Búsqueda por fecha', texto: 'Filtra por día para encontrar el viaje que te sirve.' },
-  { titulo: 'Mapa de asientos', texto: 'Pisos VIP y Estándar con los lugares ocupados en tiempo real.' },
-  { titulo: 'Precios claros', texto: 'El precio de cada ruta se muestra antes de reservar.' },
-  { titulo: 'Control de ventas', texto: 'Los administradores ven buses, rutas y recaudación del día.' },
 ]
 
 export default function About() {
@@ -100,59 +73,6 @@ export default function About() {
           </div>
         </section>
 
-        <section className="border-t border-black/5 px-6 py-16 dark:border-white/10">
-          <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">Nuestros servicios a bordo</h2>
-          <p className="mt-3 text-base text-stone-600 dark:text-stone-300">Dos ambientes para elegir cómo viajar:</p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {SERVICIOS.map(s => (
-              <div key={s.titulo} className="card p-6">
-                <div className="flex items-center gap-2.5">
-                  <span className={`w-2.5 h-2.5 rounded-full ${s.punto}`} aria-hidden />
-                  <h3 className="text-base font-semibold text-navy dark:text-white">{s.titulo}</h3>
-                </div>
-                <p className="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{s.texto}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section id="como-funciona" className="scroll-mt-24 border-t border-black/5 px-6 py-16 dark:border-white/10">
-          <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">Cómo funciona</h2>
-          <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {PASOS.map((p, i) => (
-              <div key={p.titulo}>
-                <span className="text-sm font-medium text-orange-600 dark:text-orange-400">Paso {i + 1}</span>
-                <h3 className="mt-1.5 text-base font-semibold text-navy dark:text-white">{p.titulo}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{p.texto}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section id="servicios" className="scroll-mt-24 border-t border-black/5 px-6 py-16 dark:border-white/10">
-          <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">Qué puedes hacer aquí</h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {SERVICIOS_APP.map(f => (
-              <div key={f.titulo} className="card p-6">
-                <h3 className="text-base font-semibold text-navy dark:text-white">{f.titulo}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{f.texto}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="px-6 py-20 text-center">
-          <h2 className="text-3xl font-semibold tracking-tight text-navy dark:text-white md:text-4xl">¿Listo para viajar?</h2>
-          <p className="mt-4 text-lg text-stone-600 dark:text-stone-300">Consulta los viajes disponibles y elige tu asiento en el mapa del bus.</p>
-          <div className="mt-8">
-            <Link
-              to="/buscar"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-zinc-950 transition-colors duration-200 hover:bg-orange-600 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
-            >
-              Buscar viajes
-            </Link>
-          </div>
-        </section>
       </div>
     </div>
   )

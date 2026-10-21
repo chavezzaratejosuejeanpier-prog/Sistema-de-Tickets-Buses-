@@ -10,10 +10,6 @@ const filtrarRutas = (rutas, filtro) => {
   return rutas.filter(ruta => ruta.region === filtro)
 }
 
-const CREDITOS = POPULAR_ROUTES.filter(
-  (ruta, i, rutas) => rutas.findIndex(r => r.creditoUrl === ruta.creditoUrl) === i
-)
-
 export default function PopularRoutes() {
   const [filtro, setFiltro] = useState('todas')
   const rutas = filtrarRutas(POPULAR_ROUTES, filtro)
@@ -72,30 +68,6 @@ export default function PopularRoutes() {
           <RouteCard key={ruta.id} ruta={ruta} />
         ))}
       </div>
-
-      <p className="mt-4 text-[11px] leading-relaxed text-stone-500 dark:text-stone-400">
-        Precios referenciales por tramo, sujetos a fecha, servicio y disponibilidad. Actualizado en octubre 2026.
-      </p>
-
-      <details className="mt-4 text-xs text-stone-500 dark:text-stone-400">
-        <summary className="w-fit cursor-pointer font-semibold text-stone-600 transition-colors hover:text-orange-600 dark:text-stone-300 dark:hover:text-orange-300">
-          Créditos de imágenes
-        </summary>
-        <ul className="mt-2 space-y-1">
-          {CREDITOS.map(({ creditoUrl, credito }) => (
-            <li key={creditoUrl}>
-              <a
-                href={creditoUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="underline decoration-stone-300 underline-offset-2 transition-colors hover:text-orange-600 dark:decoration-stone-600 dark:hover:text-orange-300"
-              >
-                {credito}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </details>
     </section>
   )
 }

@@ -69,27 +69,6 @@ export default function DestinationGrid({ onSelect }) {
           )
         })}
       </div>
-
-      <p className="mt-3 text-[11px] leading-relaxed text-stone-500 dark:text-stone-400">
-        Fotos de Wikimedia Commons: Pitxiquin, Burkhard Mücke, Manuel Reyes Mantilla, Diego Delso y Suizaperuana ·{' '}
-        <a
-          href="https://creativecommons.org/licenses/by-sa/4.0/"
-          target="_blank"
-          rel="noreferrer"
-          className="underline decoration-stone-300 underline-offset-2 hover:text-primary dark:decoration-stone-600"
-        >
-          CC BY-SA 4.0
-        </a>{' '}
-        /{' '}
-        <a
-          href="https://creativecommons.org/licenses/by-sa/3.0/"
-          target="_blank"
-          rel="noreferrer"
-          className="underline decoration-stone-300 underline-offset-2 hover:text-primary dark:decoration-stone-600"
-        >
-          3.0
-        </a>
-      </p>
     </section>
   )
 }
