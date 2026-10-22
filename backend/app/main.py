@@ -1,19 +1,35 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from .database import engine, Base
-from .database import get_db
+from .database import get_db, SessionLocal
 from .routers import buses, routes, sales, auth, reservas
-from .models import Reserva  # noqa: F401  (registra la tabla en Base.metadata)
+from .models import Reserva
+from .services import programa
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from fastapi import Depends
 
 Base.metadata.create_all(bind=engine)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    db = SessionLocal()
+    try:
+        nuevas = programa.sincronizar_ventana(db)
+        if nuevas:
+            print(f"Programa de salidas: {nuevas} salidas creadas")
+    finally:
+        db.close()
+    yield
+
+
 app = FastAPI(
     title="BUSS ConnectPro API",
     description="Sistema de venta de pasajes - API REST desacoplada",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(

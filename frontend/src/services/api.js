@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE_URL = import.meta.env?.VITE_API_URL || 'http://localhost:8000/api'
+const BASE_URL = import.meta.env?.VITE_API_URL || '/api'
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -43,7 +43,6 @@ export const checkout = (data) => api.post('/sales/checkout', data)
 export const getSalesSummary = () => api.get('/sales/')
 export const getTicketByCode = (codigo) => api.get(`/sales/tickets/${codigo}`)
 
-// Descarga directa: sin axios para evitar el interceptor de Blob
 export const getPdfUrl = (codigo) => `${BASE_URL}/sales/tickets/${encodeURIComponent(codigo)}/pdf`
 
 export const login = (data) => api.post('/auth/login', data)

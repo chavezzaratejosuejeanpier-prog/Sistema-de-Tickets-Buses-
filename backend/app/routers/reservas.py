@@ -1,9 +1,3 @@
-"""Administracion de reservas y check-in.
-
-- `GET /`                  lista de reservas (admin)
-- `POST /{codigo}/cancelar` cancela la reserva y libera sus asientos (admin)
-- `POST /checkin`          marca el ticket como USADO cuando el pasajero aborda
-"""
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -25,13 +19,13 @@ class CheckinRequest(BaseModel):
 
 @router.get("/")
 def listar_reservas(db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
-    """Reservas registradas, de la mas reciente a la mas antigua."""
     reservas = db.query(Reserva).order_by(Reserva.id.desc()).all()
     return [
         {
             "id": r.id,
             "codigo": r.codigo,
             "email": r.email,
+            "ruc": r.ruc,
             "cantidad_asientos": r.cantidad_asientos,
             "total_pagado": r.total_pagado,
             "estado": r.estado,
@@ -43,7 +37,6 @@ def listar_reservas(db: Session = Depends(get_db), _admin: User = Depends(requir
 
 @router.post("/{codigo}/cancelar")
 def cancelar_reserva(codigo: str, db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
-    """Cancela la reserva y sus tickets: los asientos vuelven a quedar libres."""
     codigo = codigo.strip().upper()
     reserva = db.query(Reserva).filter(Reserva.codigo == codigo).first()
     if not reserva:
@@ -71,7 +64,6 @@ def cancelar_reserva(codigo: str, db: Session = Depends(get_db), _admin: User = 
 
 @router.post("/checkin")
 def checkin(data: CheckinRequest, db: Session = Depends(get_db), _staff: User = Depends(require_staff)):
-    """Valida el boleto escaneado y marca el ticket como USADO."""
     codigo = data.codigo_reserva.strip().upper()
     ticket = db.query(Ticket).filter(Ticket.id == data.ticket_id).first()
     if not ticket:
@@ -88,7 +80,6 @@ def checkin(data: CheckinRequest, db: Session = Depends(get_db), _staff: User = 
     ticket.estado = EstadoTicket.USADO
     db.commit()
 
-    # La reserva queda USADA cuando todos sus tickets fueron validados.
     pendientes = (
         db.query(Ticket)
         .filter(Ticket.codigo_reserva == codigo, Ticket.estado != EstadoTicket.USADO)
@@ -104,7 +95,7 @@ def checkin(data: CheckinRequest, db: Session = Depends(get_db), _staff: User = 
         "ticket_id": ticket.id,
         "codigo_reserva": codigo,
         "estado": ticket.estado.value,
-        "pasajero": ticket.pasajero_nombre,
+        "pasajero": ticket.nombre_completo,
         "asiento": ticket.numero_asiento,
         "piso": ticket.piso,
     }

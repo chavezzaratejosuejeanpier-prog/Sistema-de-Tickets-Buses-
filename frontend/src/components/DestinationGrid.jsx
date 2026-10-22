@@ -1,21 +1,32 @@
+import { useEffect, useState } from 'react'
 import { ArrowUpRight } from 'lucide-react'
+import { cargarCiudades } from './common/ciudades.js'
 
-const IMAGENES = import.meta.glob('../assets/routes/*.{jpg,jpeg,webp,png}', { eager: true, import: 'default' })
+const IMAGENES = import.meta.glob('../assets/routes/*.{jpg,jpeg,webp,png}', { eager: true, 'import': 'default' })
 
-const DESTINOS = [
-  { ciudad: 'Cusco', imagen: 'cusco-machu-picchu.jpg' },
-  { ciudad: 'Arequipa', imagen: 'arequipa.jpg' },
-  { ciudad: 'Trujillo', imagen: 'trujillo.jpg' },
-  { ciudad: 'Chiclayo', imagen: 'chiclayo.jpg' },
-  { ciudad: 'Piura', imagen: 'piura.jpg' },
-  { ciudad: 'Huaraz', imagen: 'huaraz.jpg' },
-  { ciudad: 'Ica', imagen: 'ica-huacachina.jpg' },
-  { ciudad: 'Puno', imagen: 'puno-titicaca.jpg' },
-]
+const FOTO_POR_CIUDAD = {
+  Cusco: 'cusco-machu-picchu.jpg',
+  Arequipa: 'arequipa.jpg',
+  Trujillo: 'trujillo.jpg',
+  Chiclayo: 'chiclayo.jpg',
+  Piura: 'piura.jpg',
+  Huaraz: 'huaraz.jpg',
+  Ica: 'ica-huacachina.jpg',
+  Puno: 'puno-titicaca.jpg',
+}
 
 export default function DestinationGrid({ onSelect, exclude = '' }) {
+  const [ciudades, setCiudades] = useState([])
   const ex = exclude.trim().toLowerCase()
-  const destinos = DESTINOS.filter(d => d.ciudad.toLowerCase() !== ex)
+
+  useEffect(() => {
+    let vivo = true
+    cargarCiudades().then(c => { if (vivo) setCiudades(c) })
+    return () => { vivo = false }
+  }, [])
+
+  const destinos = ciudades.filter(c => c.toLowerCase() !== ex)
+
   return (
     <section className="mt-10" aria-labelledby="destinos-titulo">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -28,13 +39,14 @@ export default function DestinationGrid({ onSelect, exclude = '' }) {
           </p>
         </div>
         <span className="hidden rounded-full border border-black/5 bg-white px-3 py-1.5 text-xs font-semibold text-stone-500 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 sm:inline-flex">
-          Toca un destino
+          {destinos.length} destinos
         </span>
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {destinos.map(({ ciudad, imagen }) => {
-          const src = IMAGENES[`../assets/routes/${imagen}`]
+        {destinos.map((ciudad) => {
+          const archivo = FOTO_POR_CIUDAD[ciudad]
+          const src = archivo ? IMAGENES[`../assets/routes/${archivo}`] : null
 
           return (
             <button
@@ -53,7 +65,7 @@ export default function DestinationGrid({ onSelect, exclude = '' }) {
                   className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                 />
               ) : (
-                <span aria-hidden className="absolute inset-0 bg-slate-400 dark:bg-stone-800" />
+                <span aria-hidden className="absolute inset-0 bg-gradient-to-br from-orange-500 via-orange-700 to-orange-950" />
               )}
 
               <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />

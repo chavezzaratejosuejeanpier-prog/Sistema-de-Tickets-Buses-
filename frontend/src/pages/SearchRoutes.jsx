@@ -62,8 +62,6 @@ export default function SearchRoutes() {
   }
 
   const elegirDestino = (ciudad) => {
-    // Los viajes de la grilla salen desde Lima ( asi lo dice cada tarjeta ).
-    // No se ofrece una ciudad que ya esta elegida como origen.
     if (ciudad.toLowerCase() === origen.trim().toLowerCase()) return
     setOrigen('Lima')
     setDestino(ciudad)
@@ -158,7 +156,7 @@ export default function SearchRoutes() {
                       {r.origen} <span className="text-primary">→</span> {r.destino}
                     </p>
                     <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">
-                      {r.fecha_salida ? new Date(r.fecha_salida).toLocaleDateString('es-PE', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) : 'Fecha por confirmar'} • {r.hora_salida} • Bus {r.bus_placa} <span className="inline-block bg-gray-50 dark:bg-stone-700 border border-black/10 dark:border-stone-600 dark:text-stone-200 px-2 py-0.5 rounded-full text-xs font-bold ml-1">{r.bus_tipo}</span>
+                      {r.fecha_salida ? new Date(r.fecha_salida).toLocaleDateString('es-PE', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) : 'Fecha por confirmar'} • {r.hora_salida} • {r.duracion_horas} h • Bus {r.bus_placa} <span className="inline-block bg-gray-50 dark:bg-stone-700 border border-black/10 dark:border-stone-600 dark:text-stone-200 px-2 py-0.5 rounded-full text-xs font-bold ml-1">{r.bus_tipo}</span>
                     </p>
                     <p className="text-sm mt-2">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${r.asientos_disponibles > 10 ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-300' : r.asientos_disponibles > 0 ? 'bg-gray-50 dark:bg-stone-800 border-black/5 dark:border-stone-700 text-stone-600 dark:text-stone-300' : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900 text-red-700 dark:text-red-300'}`}>

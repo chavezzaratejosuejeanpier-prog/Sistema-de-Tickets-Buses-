@@ -11,9 +11,9 @@ class Reserva(Base):
         ),
     )
     id = Column(Integer, primary_key=True, index=True)
-    # Mismo codigo que tickets.codigo_reserva (BC-XXXXXXXX)
     codigo = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, nullable=True)
+    ruc = Column(String, nullable=True)
     subtotal = Column(Float, nullable=False)
     igv = Column(Float, nullable=False)
     total_pagado = Column(Float, nullable=False)

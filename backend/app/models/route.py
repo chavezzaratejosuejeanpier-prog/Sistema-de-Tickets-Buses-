@@ -9,7 +9,7 @@ class Route(Base):
     origen = Column(String, nullable=False, index=True)
     destino = Column(String, nullable=False, index=True)
     fecha_salida = Column(DateTime, nullable=False)
-    hora_salida = Column(String, nullable=False)  # "22:00"
+    hora_salida = Column(String, nullable=False)
     duracion_horas = Column(Float, default=8.0)
     precio_base = Column(Float, nullable=False)
     precio_vip = Column(Float, nullable=True)

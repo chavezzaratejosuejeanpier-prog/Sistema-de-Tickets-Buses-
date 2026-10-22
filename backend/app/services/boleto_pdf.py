@@ -1,25 +1,5 @@
-"""Generacion del PDF de una reserva: portada corporativa + un ticket termico por pasajero.
-
-Contrato de `datos`:
-{
-  "codigo": "BC-A1B2C3D4",
-  "email": "correo@dominio.com" | None,
-  "total": 283.20,
-  "tickets": [{
-    "id": 42,
-    "numero_boleto": "LUX-000042",
-    "numero_asiento": 12, "piso": 1,
-    "pasajero_nombre": "Juan Perez", "pasajero_dni": "76543210",
-    "precio_pagado": 141.60,
-    "origen": "Lima", "destino": "Cusco",
-    "fecha_salida": datetime, "hora_salida": "22:00",
-    "duracion_horas": 8.0,
-    "bus_placa": "ABC-123", "bus_modelo": "Volvo 9800", "bus_tipo": "PREMIUM",
-  }]
-}
-"""
 import io
-from datetime import datetime
+from datetime import date, datetime
 
 from reportlab.graphics import renderPDF
 from reportlab.graphics.barcode import createBarcodeDrawing
@@ -30,7 +10,6 @@ from reportlab.pdfgen import canvas
 
 ANCHO, ALTO = A4
 
-# Paleta alineada con frontend/tailwind.config.js (primary #EA580C, accent #F97316)
 TINTA = HexColor("#0F172A")
 ACENTO = HexColor("#F97316")
 GRIS = HexColor("#64748B")
@@ -39,9 +18,8 @@ LINEA = HexColor("#E2E8F0")
 BLANCO = HexColor("#FFFFFF")
 
 M = 18 * mm
-ALTO_CABECERA = 100  # alto de la banda superior de la portada, en puntos
+ALTO_CABECERA = 100
 
-# Ticket termico: columna angosta centrada en la pagina, como el rollo de un POS de bus.
 TW = 200
 TX = (ANCHO - TW) / 2
 MONO = "Courier"
@@ -72,7 +50,7 @@ def _mono(c, x, y, texto, size=9, font=MONO, centrado=False):
 
 
 def _fecha(dt):
-    if isinstance(dt, datetime):
+    if isinstance(dt, (datetime, date)):
         return dt.strftime("%d/%m/%Y")
     return str(dt or "-")
 
@@ -80,6 +58,16 @@ def _fecha(dt):
 def _recorta(texto, maximo=24):
     texto = str(texto or "")
     return texto if len(texto) <= maximo else texto[: maximo - 3] + "..."
+
+
+def _nombre(t):
+    apellidos = " ".join(
+        p for p in ((t.get("apellido_paterno") or "").strip(), (t.get("apellido_materno") or "").strip()) if p
+    )
+    nombres = (t.get("nombres") or "").strip()
+    if apellidos and nombres:
+        return f"{apellidos}, {nombres}"
+    return nombres or apellidos or t.get("pasajero_nombre") or "Pasajero"
 
 
 def _envuelve(texto, maximo):
@@ -128,7 +116,7 @@ def _portada(c, datos, tickets):
     y -= 16
     for t in tickets:
         _txt(c, M, y, f"Asiento {t.get('numero_asiento')} (Piso {t.get('piso')})", 10, TINTA, "Helvetica-Bold")
-        _txt(c, M + 60 * mm, y, t.get("pasajero_nombre") or "Pasajero", 10, TINTA)
+        _txt(c, M + 60 * mm, y, _nombre(t), 10, TINTA)
         _txt(c, ANCHO - M, y, f"S/ {float(t.get('precio_pagado') or 0):.2f}", 10, TINTA, "Helvetica-Bold", derecha=True)
         y -= 8
         c.setStrokeColor(LINEA)
@@ -157,10 +145,22 @@ def _ticket(c, t, codigo):
     y -= 13
     _mono(c, TX, y, f"EMISION   : {_fecha(datetime.now())}", 9)
     y -= 13
-    _mono(c, TX, y, f"PASAJERO  : {_recorta(t.get('pasajero_nombre') or 'Pasajero')}", 9)
+    _mono(c, TX, y, f"PASAJERO  : {_recorta(_nombre(t))}", 9)
     y -= 13
-    if t.get("pasajero_dni"):
-        _mono(c, TX, y, f"DOCUMENTO : {t.get('pasajero_dni')}", 9)
+    documento = " ".join(
+        p for p in ((t.get("tipo_documento") or "").strip(), (t.get("documento") or "").strip()) if p
+    )
+    if documento:
+        _mono(c, TX, y, f"DOCUMENTO : {_recorta(documento)}", 9)
+        y -= 13
+    if t.get("sexo"):
+        _mono(c, TX, y, f"SEXO      : {_recorta(t.get('sexo'))}", 9)
+        y -= 13
+    if t.get("fecha_nacimiento"):
+        _mono(c, TX, y, f"F. NACIM  : {_fecha(t.get('fecha_nacimiento'))}", 9)
+        y -= 13
+    if t.get("telefono"):
+        _mono(c, TX, y, f"TELEFONO  : {_recorta(t.get('telefono'))}", 9)
         y -= 13
     y -= 8
 
@@ -196,7 +196,6 @@ def _ticket(c, t, codigo):
 
 
 def generar_pdf_boletos(datos: dict) -> bytes:
-    """Arma el PDF (portada + un ticket por pasajero) y devuelve los bytes."""
     tickets = datos.get("tickets") or []
     codigo = datos.get("codigo") or "-"
     buf = io.BytesIO()

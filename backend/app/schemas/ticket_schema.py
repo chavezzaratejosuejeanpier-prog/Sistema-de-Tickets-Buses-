@@ -1,13 +1,19 @@
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional, List
 
 class TicketCreate(BaseModel):
     route_id: int
     numero_asiento: int
     piso: int = 1
-    pasajero_nombre: str
-    pasajero_dni: str
+    tipo_documento: str
+    documento: str
+    nombres: str
+    apellido_paterno: str
+    apellido_materno: Optional[str] = None
+    sexo: Optional[str] = None
+    fecha_nacimiento: Optional[date] = None
+    telefono: Optional[str] = None
 
 class TicketResponse(BaseModel):
     id: int
@@ -17,19 +23,33 @@ class TicketResponse(BaseModel):
     estado: str
     codigo_reserva: Optional[str] = None
     precio_pagado: Optional[float] = None
-    pasajero_nombre: Optional[str] = None
+    tipo_documento: Optional[str] = None
+    documento: Optional[str] = None
+    nombres: Optional[str] = None
+    apellido_paterno: Optional[str] = None
+    apellido_materno: Optional[str] = None
+    sexo: Optional[str] = None
+    fecha_nacimiento: Optional[date] = None
+    telefono: Optional[str] = None
     class Config:
         from_attributes = True
 
 class PasajeroCheckout(BaseModel):
     numero_asiento: int
-    dni: str
-    nombre: str
+    tipo_documento: str
+    documento: str
+    nombres: str
+    apellido_paterno: str
+    apellido_materno: Optional[str] = ""
+    sexo: Optional[str] = None
+    fecha_nacimiento: Optional[date] = None
+    telefono: Optional[str] = None
 
 class CheckoutRequest(BaseModel):
     route_id: int
     pasajeros: List[PasajeroCheckout]
     email: EmailStr
+    ruc: Optional[str] = None
 
 class RouteCreate(BaseModel):
     origen: str
@@ -53,9 +73,15 @@ class RouteSearchResponse(BaseModel):
     fecha_salida: datetime
     hora_salida: str
     precio_base: float
+    duracion_horas: float
     asientos_disponibles: int
     bus_placa: str
     bus_tipo: str
+
+class ProximasSalidasResponse(BaseModel):
+    total: int
+    pares: int
+    rutas: List[RouteResponse]
 
 class CheckoutResponse(BaseModel):
     mensaje: str

@@ -18,7 +18,6 @@ router = APIRouter()
 
 
 def _cargar_reserva(db: Session, codigo: str):
-    """Tickets de una reserva (con ruta y bus cargados) por codigo de reserva."""
     return (
         db.query(Ticket)
         .options(joinedload(Ticket.route).joinedload(Route.bus))
@@ -29,9 +28,7 @@ def _cargar_reserva(db: Session, codigo: str):
 
 @router.get("/", response_model=VentaResumen)
 def resumen_ventas(db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
-    # VENDIDO o USADO: el ticket sigue vendido aunque el pasajero ya haya abordar.
     vendido = Ticket.estado.in_(ESTADOS_VENDIDOS)
-    # "Hoy" en hora de Peru (UTC-5). creado_en se guarda en UTC naive.
     hoy_peru = (datetime.now(timezone.utc) - timedelta(hours=5)).date()
     inicio_hoy = datetime.combine(hoy_peru, time.min) + timedelta(hours=5)
     total_ventas = db.query(func.count(Ticket.id)).filter(vendido).scalar() or 0
@@ -61,6 +58,12 @@ def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):
         vistos.add(pasajero.numero_asiento)
         if not verificar_disponibilidad(db, data.route_id, pasajero.numero_asiento):
             raise HTTPException(409, f"Asiento {pasajero.numero_asiento} ya vendido")
+        if not pasajero.documento.strip() or not pasajero.nombres.strip() or not pasajero.apellido_paterno.strip():
+            raise HTTPException(400, f"Faltan datos del pasajero del asiento {pasajero.numero_asiento}")
+
+    ruc = (data.ruc or "").strip()
+    if ruc and (len(ruc) != 11 or not ruc.isdigit()):
+        raise HTTPException(400, "El RUC debe tener 11 números")
 
     capacidad = (ruta.bus.capacidad_piso1 or 0) + (ruta.bus.capacidad_piso2 or 0)
     for pasajero in data.pasajeros:
@@ -73,6 +76,7 @@ def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):
     db.add(Reserva(
         codigo=codigo,
         email=data.email,
+        ruc=ruc or None,
         subtotal=subtotal,
         igv=igv,
         total_pagado=total,
@@ -85,8 +89,14 @@ def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):
             route_id=data.route_id,
             numero_asiento=pasajero.numero_asiento,
             piso=1 if pasajero.numero_asiento <= (ruta.bus.capacidad_piso1 or 0) else 2,
-            pasajero_nombre=pasajero.nombre.strip(),
-            pasajero_dni=pasajero.dni.strip(),
+            tipo_documento=pasajero.tipo_documento.strip().upper(),
+            documento=pasajero.documento.strip(),
+            nombres=pasajero.nombres.strip(),
+            apellido_paterno=pasajero.apellido_paterno.strip(),
+            apellido_materno=(pasajero.apellido_materno or "").strip() or None,
+            sexo=(pasajero.sexo or "").strip().upper() or None,
+            fecha_nacimiento=pasajero.fecha_nacimiento,
+            telefono=(pasajero.telefono or "").strip() or None,
             precio_pagado=precio_unitario,
             estado=EstadoTicket.VENDIDO,
             codigo_reserva=codigo
@@ -94,7 +104,6 @@ def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):
     try:
         db.commit()
     except IntegrityError:
-        # Alguien compro el mismo asiento entre la validacion y el commit
         db.rollback()
         raise HTTPException(409, "Uno de los asientos ya fue vendido por otra persona")
 
@@ -121,7 +130,15 @@ def obtener_ticket(codigo: str, db: Session = Depends(get_db)):
             "piso": t.piso,
             "estado": t.estado.value,
             "codigo_reserva": t.codigo_reserva,
-            "pasajero_nombre": t.pasajero_nombre,
+            "tipo_documento": t.tipo_documento,
+            "documento": t.documento,
+            "nombres": t.nombres,
+            "apellido_paterno": t.apellido_paterno,
+            "apellido_materno": t.apellido_materno,
+            "sexo": t.sexo,
+            "fecha_nacimiento": t.fecha_nacimiento,
+            "telefono": t.telefono,
+            "pasajero_nombre": t.nombre_completo,
             "precio_pagado": t.precio_pagado,
             "origen": ruta.origen if ruta else None,
             "destino": ruta.destino if ruta else None,
@@ -151,8 +168,14 @@ def pdf_ticket(codigo: str, db: Session = Depends(get_db)):
                 "codigo_reserva": t.codigo_reserva,
                 "numero_asiento": t.numero_asiento,
                 "piso": t.piso,
-                "pasajero_nombre": t.pasajero_nombre,
-                "pasajero_dni": t.pasajero_dni,
+                "tipo_documento": t.tipo_documento,
+                "documento": t.documento,
+                "nombres": t.nombres,
+                "apellido_paterno": t.apellido_paterno,
+                "apellido_materno": t.apellido_materno,
+                "sexo": t.sexo,
+                "fecha_nacimiento": t.fecha_nacimiento,
+                "telefono": t.telefono,
                 "precio_pagado": t.precio_pagado,
                 "origen": t.route.origen if t.route else None,
                 "destino": t.route.destino if t.route else None,

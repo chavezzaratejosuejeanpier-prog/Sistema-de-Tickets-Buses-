@@ -31,8 +31,8 @@ export default function SeatSelection() {
       .then(([seatsRes, routesRes]) => {
         if (!vivo) return
         setData(seatsRes.data)
-        if (precio == null && routesRes?.data) {
-          const ruta = routesRes.data.find((r) => String(r.id) === String(routeId))
+        if (precio == null && routesRes?.data?.rutas) {
+          const ruta = routesRes.data.rutas.find((r) => String(r.id) === String(routeId))
           if (ruta) {
             setPrecio(Number(ruta.precio_base))
             setRutaInfo({ origen: ruta.origen ?? '', destino: ruta.destino ?? '' })

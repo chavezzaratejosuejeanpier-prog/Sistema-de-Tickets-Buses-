@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, DateTime, Index, text
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, DateTime, Date, Index, text
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from ..database import Base
@@ -6,7 +6,6 @@ import enum
 
 
 def _utcnow():
-    # UTC naive, consistente con los datos ya guardados
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
@@ -19,9 +18,6 @@ class EstadoTicket(str, enum.Enum):
 
 class Ticket(Base):
     __tablename__ = "tickets"
-    # Impide vender dos veces el mismo asiento de una ruta (race condition).
-    # Los tickets CANCELADOS quedan fuera del indice: al cancelar, el asiento
-    # se libera y otro pasajero puede comprarlo.
     __table_args__ = (
         Index(
             "uq_ticket_ruta_asiento",
@@ -34,13 +30,25 @@ class Ticket(Base):
     id = Column(Integer, primary_key=True, index=True)
     route_id = Column(Integer, ForeignKey("routes.id"), nullable=False)
     numero_asiento = Column(Integer, nullable=False)
-    piso = Column(Integer, default=1)  # 1 o 2
-    pasajero_nombre = Column(String, nullable=True)
-    pasajero_dni = Column(String, nullable=True)
+    piso = Column(Integer, default=1)
+    tipo_documento = Column(String, nullable=True)
+    documento = Column(String, nullable=True)
+    nombres = Column(String, nullable=True)
+    apellido_paterno = Column(String, nullable=True)
+    apellido_materno = Column(String, nullable=True)
+    sexo = Column(String, nullable=True)
+    fecha_nacimiento = Column(Date, nullable=True)
+    telefono = Column(String, nullable=True)
     precio_pagado = Column(Float, nullable=True)
     estado = Column(Enum(EstadoTicket), default=EstadoTicket.DISPONIBLE)
-    # Sin unique: una compra genera N tickets que comparten el mismo codigo_reserva
     codigo_reserva = Column(String, nullable=True, index=True)
     creado_en = Column(DateTime, default=_utcnow)
 
     route = relationship("Route", back_populates="tickets")
+
+    @property
+    def nombre_completo(self) -> str:
+        apellidos = " ".join(p for p in (self.apellido_paterno, self.apellido_materno) if p)
+        if apellidos and self.nombres:
+            return f"{apellidos}, {self.nombres}"
+        return self.nombres or apellidos or "Pasajero"

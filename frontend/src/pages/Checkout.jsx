@@ -7,6 +7,57 @@ import { checkout, getPdfUrl } from '../services/api.js'
 import { totalConIGV } from '../utils/precios.js'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+const HOY_ISO = new Date().toISOString().slice(0, 10)
+
+const DOCUMENTOS = [
+  { value: 'DNI', label: 'DNI', max: 8, min: 8, digits: true, placeholder: 'Ej. 76543210' },
+  { value: 'CE', label: 'Carné de extranjería', max: 12, min: 9, digits: false, placeholder: 'Ej. 001234567' },
+  { value: 'Pasaporte', label: 'Pasaporte', max: 12, min: 6, digits: false, placeholder: 'Ej. A1234567' },
+]
+
+function docDe(valor) {
+  return DOCUMENTOS.find((d) => d.value === valor) || DOCUMENTOS[0]
+}
+
+const PASAJERO_VACIO = {
+  tipo_documento: 'DNI',
+  documento: '',
+  nombres: '',
+  apellido_paterno: '',
+  apellido_materno: '',
+  sexo: '',
+  fecha_nacimiento: '',
+  telefono: '',
+}
+
+function validarPasajeros(pasajeros, email, conFactura, ruc) {
+  if (!EMAIL_RE.test(email.trim())) {
+    return 'Ingresa un correo válido para enviarte los pasajes.'
+  }
+  for (const p of pasajeros) {
+    const asiento = `del asiento ${p.numero}`
+    if (!p.nombres.trim() || p.nombres.trim().length < 2) return `Ingresa los nombres ${asiento}.`
+    if (!p.apellido_paterno.trim()) return `Ingresa el apellido paterno ${asiento}.`
+    if (!p.sexo) return `Selecciona el sexo ${asiento}.`
+    if (!p.fecha_nacimiento) return `Ingresa la fecha de nacimiento ${asiento}.`
+    if (p.fecha_nacimiento > HOY_ISO) return `La fecha de nacimiento ${asiento} no puede ser futura.`
+    const doc = docDe(p.tipo_documento)
+    if (!p.documento.trim()) return `Ingresa el documento ${asiento}.`
+    if (p.documento.length < doc.min || p.documento.length > doc.max) {
+      return `${doc.label} ${asiento} debe tener entre ${doc.min} y ${doc.max} caracteres.`
+    }
+    if (doc.digits && !/^\d+$/.test(p.documento)) {
+      return `${doc.label} ${asiento} solo admite números.`
+    }
+    if (!/^\+?\d{6,15}$/.test(p.telefono.replace(/[\s-]/g, ''))) {
+      return `Ingresa un teléfono válido ${asiento}.`
+    }
+  }
+  if (conFactura && !/^\d{11}$/.test(ruc.trim())) {
+    return 'El RUC debe tener 11 números.'
+  }
+  return null
+}
 
 function leerReservaFallback() {
   try {
@@ -42,9 +93,11 @@ const Checkout = () => {
   }, [location.state])
 
   const [pasajeros, setPasajeros] = useState(
-    (inicial?.asientos || []).map(a => ({ asiento_id: a.id, numero: a.number, dni: '', nombres: '' }))
+    (inicial?.asientos || []).map(a => ({ asiento_id: a.id, numero: a.number, ...PASAJERO_VACIO }))
   )
   const [email, setEmail] = useState('')
+  const [conFactura, setConFactura] = useState(false)
+  const [ruc, setRuc] = useState('')
   const [timeLeft, setTimeLeft] = useState(300)
   const [enviando, setEnviando] = useState(false)
   const [result, setResult] = useState(null)
@@ -110,9 +163,7 @@ const Checkout = () => {
   }
 
   const handleInputChange = (index, field, value) => {
-    const nuevosPasajeros = [...pasajeros]
-    nuevosPasajeros[index][field] = value
-    setPasajeros(nuevosPasajeros)
+    setPasajeros(prev => prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)))
   }
 
   const procesarPago = async (e) => {
@@ -123,24 +174,10 @@ const Checkout = () => {
       Swal.fire('Sesión expirada', 'Vuelve a buscar tu viaje para continuar.', 'error')
       return
     }
-    if (!EMAIL_RE.test(email.trim())) {
-      Swal.fire('Email inválido', 'Ingresa un correo válido para enviarte los pasajes.', 'error')
+    const error = validarPasajeros(pasajeros, email, conFactura, ruc)
+    if (error) {
+      Swal.fire('Revisa los datos', error, 'error')
       return
-    }
-
-    for (const p of pasajeros) {
-      if (!p.dni || !p.nombres) {
-        Swal.fire('Error', 'Todos los campos son obligatorios.', 'error')
-        return
-      }
-      if (p.dni.length !== 8 || Number.isNaN(Number(p.dni))) {
-        Swal.fire('DNI Inválido', `El DNI del asiento ${p.numero} debe tener 8 números.`, 'error')
-        return
-      }
-      if (p.nombres.trim().length < 3) {
-        Swal.fire('Nombre Inválido', `Ingresa un nombre válido para el asiento ${p.numero}.`, 'error')
-        return
-      }
     }
 
     setEnviando(true)
@@ -148,11 +185,18 @@ const Checkout = () => {
       const { data } = await checkout({
         route_id: rutaId,
         email: email.trim(),
+        ruc: conFactura ? ruc.trim() : null,
         pasajeros: pasajeros.map(p => ({
           numero_asiento: p.numero,
-          dni: p.dni.trim(),
-          nombre: p.nombres.trim()
-        }))
+          tipo_documento: p.tipo_documento,
+          documento: p.documento.trim(),
+          nombres: p.nombres.trim(),
+          apellido_paterno: p.apellido_paterno.trim(),
+          apellido_materno: p.apellido_materno.trim(),
+          sexo: p.sexo,
+          fecha_nacimiento: p.fecha_nacimiento || null,
+          telefono: p.telefono.trim(),
+        })),
       })
 
       try {
@@ -194,7 +238,7 @@ const Checkout = () => {
   const urgente = timeLeft <= 60
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="w-full md:w-[70%] mx-auto">
       <div className="card overflow-hidden">
         <div className="bg-navy text-white p-6 flex justify-between items-center gap-4">
           <div>
@@ -214,57 +258,200 @@ const Checkout = () => {
         <form onSubmit={procesarPago} className="p-6 sm:p-8">
           <div className="space-y-6">
             {pasajeros.map((pasajero, index) => (
-              <div key={pasajero.numero} className="card p-6 relative">
-                <span className="badge bg-primary text-white absolute -top-3 left-4">
-                  Asiento {pasajero.numero}
-                </span>
+              <section
+                key={pasajero.numero}
+                className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-stone-700 dark:bg-stone-900"
+              >
+                <div className="rounded-t-lg bg-orange-500 px-4 py-3">
+                  <p className="text-sm font-bold tracking-wide text-white">
+                    PASAJERO - ASIENTO: {pasajero.numero}
+                  </p>
+                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                  <div>
-                    <label htmlFor={`dni-${index}`} className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                      DNI
-                    </label>
-                    <input
-                      id={`dni-${index}`}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength="8"
-                      className="input"
-                      placeholder="Ej. 76543210"
-                      value={pasajero.dni}
-                      onChange={(e) => handleInputChange(index, 'dni', e.target.value.replace(/\D/g, ''))}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor={`nombres-${index}`} className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                      Nombres Completos
-                    </label>
-                    <input
-                      id={`nombres-${index}`}
-                      type="text"
-                      className="input"
-                      placeholder="Ej. Juan Pérez"
-                      value={pasajero.nombres}
-                      onChange={(e) => handleInputChange(index, 'nombres', e.target.value)}
-                    />
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor={`tipo-doc-${index}`} className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                        Tipo de documento
+                      </label>
+                      <select
+                        id={`tipo-doc-${index}`}
+                        className="input"
+                        value={pasajero.tipo_documento}
+                        onChange={(e) => {
+                          const doc = docDe(e.target.value)
+                          const valor = doc.digits
+                            ? pasajero.documento.replace(/\D/g, '')
+                            : pasajero.documento
+                          setPasajeros(prev => prev.map((p, i) => (
+                            i === index
+                              ? { ...p, tipo_documento: doc.value, documento: valor.slice(0, doc.max) }
+                              : p
+                          )))
+                        }}
+                      >
+                        {DOCUMENTOS.map((d) => (
+                          <option key={d.value} value={d.value}>{d.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor={`documento-${index}`} className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                        N° documento
+                      </label>
+                      <input
+                        id={`documento-${index}`}
+                        type="text"
+                        inputMode={docDe(pasajero.tipo_documento).digits ? 'numeric' : 'text'}
+                        maxLength={docDe(pasajero.tipo_documento).max}
+                        className="input"
+                        placeholder={docDe(pasajero.tipo_documento).placeholder}
+                        value={pasajero.documento}
+                        onChange={(e) => {
+                          const doc = docDe(pasajero.tipo_documento)
+                          const valor = doc.digits ? e.target.value.replace(/\D/g, '') : e.target.value
+                          handleInputChange(index, 'documento', valor.slice(0, doc.max))
+                        }}
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label htmlFor={`nombres-${index}`} className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                        Nombres
+                      </label>
+                      <input
+                        id={`nombres-${index}`}
+                        type="text"
+                        className="input"
+                        placeholder="Nombres Completos"
+                        value={pasajero.nombres}
+                        onChange={(e) => handleInputChange(index, 'nombres', e.target.value)}
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor={`paterno-${index}`} className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                        Apellido Paterno
+                      </label>
+                      <input
+                        id={`paterno-${index}`}
+                        type="text"
+                        className="input"
+                        placeholder="Ingrese apellido paterno"
+                        value={pasajero.apellido_paterno}
+                        onChange={(e) => handleInputChange(index, 'apellido_paterno', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor={`materno-${index}`} className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                        Apellido Materno
+                      </label>
+                      <input
+                        id={`materno-${index}`}
+                        type="text"
+                        className="input"
+                        placeholder="Ingrese apellido materno"
+                        value={pasajero.apellido_materno}
+                        onChange={(e) => handleInputChange(index, 'apellido_materno', e.target.value)}
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor={`sexo-${index}`} className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                        Sexo
+                      </label>
+                      <select
+                        id={`sexo-${index}`}
+                        className="input"
+                        value={pasajero.sexo}
+                        onChange={(e) => handleInputChange(index, 'sexo', e.target.value)}
+                      >
+                        <option value="">Selecciona</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Femenino">Femenino</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor={`nacimiento-${index}`} className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                        Fecha de nacimiento
+                      </label>
+                      <input
+                        id={`nacimiento-${index}`}
+                        type="date"
+                        max={HOY_ISO}
+                        className="input"
+                        value={pasajero.fecha_nacimiento}
+                        onChange={(e) => handleInputChange(index, 'fecha_nacimiento', e.target.value)}
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor={`telefono-${index}`} className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                        Teléfono
+                      </label>
+                      <input
+                        id={`telefono-${index}`}
+                        type="tel"
+                        inputMode="tel"
+                        maxLength={15}
+                        className="input"
+                        placeholder="Ej. 987654321"
+                        value={pasajero.telefono}
+                        onChange={(e) => handleInputChange(index, 'telefono', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor={`email-${index}`} className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                        Email
+                      </label>
+                      <input
+                        id={`email-${index}`}
+                        type="email"
+                        className="input"
+                        placeholder="tu@correo.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                      {index === 0 && pasajeros.length > 1 && (
+                        <p className="mt-1 text-xs text-muted dark:text-stone-500">
+                          El mismo correo para todos los pasajes.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </section>
             ))}
           </div>
 
-          <div className="mt-6">
-            <label htmlFor="email" className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
-              Correo para enviar tus pasajes
+          <div className="mt-6 rounded-lg border border-gray-200 bg-white p-6 dark:border-stone-700 dark:bg-stone-900">
+            <label htmlFor="factura" className="flex items-center gap-3 text-sm font-semibold text-stone-700 dark:text-stone-300">
+              <input
+                id="factura"
+                type="checkbox"
+                className="h-4 w-4 accent-orange-500"
+                checked={conFactura}
+                onChange={(e) => setConFactura(e.target.checked)}
+              />
+              RUC (Opcional - Factura)
             </label>
-            <input
-              id="email"
-              type="email"
-              className="input"
-              placeholder="tu@correo.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            {conFactura && (
+              <div className="mt-4 max-w-xs">
+                <label htmlFor="ruc" className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                  RUC
+                </label>
+                <input
+                  id="ruc"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={11}
+                  className="input font-mono"
+                  placeholder="Ej. 20123456789"
+                  value={ruc}
+                  onChange={(e) => setRuc(e.target.value.replace(/\D/g, ''))}
+                />
+              </div>
+            )}
           </div>
 
           <div className="mt-8 border-t border-line dark:border-stone-700 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">

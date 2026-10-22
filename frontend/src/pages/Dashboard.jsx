@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import { TrendingUp, Bus, MapPin } from 'lucide-react'
 import { getBuses, getRoutes, getSalesSummary } from '../services/api.js'
 
-const MAX_FILAS = 100  // el panel no renderiza miles de filas: muestra las salidas mas proximas
+const MAX_FILAS = 100
 
 export default function Dashboard() {
   const [buses, setBuses] = useState([])
-  const [rutas, setRutas] = useState([])
+  const [salidas, setSalidas] = useState([])
+  const [programa, setPrograma] = useState({ total: 0, pares: 0 })
   const [ventas, setVentas] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -15,7 +16,8 @@ export default function Dashboard() {
     Promise.all([getBuses(), getRoutes(), getSalesSummary()])
       .then(([b, r, v]) => {
         setBuses(b.data)
-        setRutas(r.data)
+        setSalidas(r.data.rutas)
+        setPrograma({ total: r.data.total, pares: r.data.pares })
         setVentas(v.data)
       })
       .catch((err) => setError(
@@ -65,7 +67,8 @@ export default function Dashboard() {
         <div className="card p-6 flex items-start justify-between gap-4">
           <div>
             <p className="text-sm font-medium text-muted dark:text-stone-400">Rutas</p>
-            <p className="text-2xl font-bold text-navy dark:text-white mt-1">{rutas.length}</p>
+            <p className="text-2xl font-bold text-navy dark:text-white mt-1">{programa.pares}</p>
+            <p className="text-sm text-stone-500 dark:text-stone-400">{programa.total} salidas programadas</p>
           </div>
           <span className="inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-lg bg-primary/10 text-primary">
             <MapPin size={20} aria-hidden="true" />
@@ -108,10 +111,10 @@ export default function Dashboard() {
 
         <div className="card overflow-hidden">
           <h2 className="text-lg font-bold text-navy dark:text-white px-4 py-3 border-b border-line dark:border-stone-700">
-            Rutas ({rutas.length})
+            Próximas salidas ({programa.total})
           </h2>
-          {rutas.length === 0 ? (
-            <p className="empty-state m-4">Sin rutas registradas</p>
+          {salidas.length === 0 ? (
+            <p className="empty-state m-4">Sin salidas programadas</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -124,7 +127,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="text-navy dark:text-stone-200">
-                  {rutas.slice(0, MAX_FILAS).map(r => (
+                  {salidas.slice(0, MAX_FILAS).map(r => (
                     <tr key={r.id} className="border-t border-line dark:border-stone-700">
                       <td className="px-4 py-2 font-semibold">{r.origen} → {r.destino}</td>
                       <td className="px-4 py-2">{new Date(r.fecha_salida).toLocaleDateString('es-PE')} - {r.hora_salida}</td>
@@ -136,9 +139,9 @@ export default function Dashboard() {
               </table>
             </div>
           )}
-          {rutas.length > MAX_FILAS && (
+          {programa.total > MAX_FILAS && (
             <p className="px-4 py-2 text-xs text-muted dark:text-stone-400 border-t border-line dark:border-stone-700">
-              Mostrando las {MAX_FILAS} salidas más próximas de {rutas.length}.
+              Mostrando las {MAX_FILAS} salidas más próximas de {programa.total}.
             </p>
           )}
         </div>

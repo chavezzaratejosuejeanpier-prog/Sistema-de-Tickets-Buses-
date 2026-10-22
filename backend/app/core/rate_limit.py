@@ -3,7 +3,6 @@ from collections import defaultdict, deque
 
 from fastapi import HTTPException
 
-# Limite simple en memoria: {clave: deque(timestamps de fallos)}
 _fallos = defaultdict(deque)
 
 

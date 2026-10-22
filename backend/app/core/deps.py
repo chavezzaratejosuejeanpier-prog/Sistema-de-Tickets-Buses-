@@ -7,7 +7,6 @@ from ..database import get_db
 from ..models.user import User, RolUsuario
 from .config import settings
 
-# auto_error=False para poder devolver un 401 con mensaje propio
 bearer_scheme = HTTPBearer(auto_error=False)
 
 
@@ -51,7 +50,6 @@ def require_admin(user: User = Depends(get_current_user)) -> User:
 
 
 def require_staff(user: User = Depends(get_current_user)) -> User:
-    """Operacion en boleteria o a bordo: administrador o vendedor."""
     if user.rol not in (RolUsuario.ADMIN, RolUsuario.VENDEDOR):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

@@ -31,7 +31,6 @@ def asientos_por_bus(bus_id: int, route_id: int = Query(..., description="Viaje/
     ruta = db.query(Route).filter(Route.id == route_id, Route.bus_id == bus_id).first()
     if not ruta:
         raise HTTPException(404, "Esa ruta no pertenece a este bus")
-    # La ocupacion es por viaje (ruta), no por bus: un mismo bus hace varios viajes.
     ocupados = [
         t.numero_asiento for t in db.query(Ticket).filter(
             Ticket.route_id == route_id, Ticket.estado != EstadoTicket.DISPONIBLE
