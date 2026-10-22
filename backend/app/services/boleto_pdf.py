@@ -1,4 +1,4 @@
-"""Generacion del PDF de una reserva: una portada + un boleto por pasajero.
+"""Generacion del PDF de una reserva: portada corporativa + un ticket termico por pasajero.
 
 Contrato de `datos`:
 {
@@ -6,6 +6,7 @@ Contrato de `datos`:
   "email": "correo@dominio.com" | None,
   "total": 283.20,
   "tickets": [{
+    "id": 42,
     "numero_boleto": "LUX-000042",
     "numero_asiento": 12, "piso": 1,
     "pasajero_nombre": "Juan Perez", "pasajero_dni": "76543210",
@@ -27,28 +28,47 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 
-MARCA = "LUX"
-LEMA = "Lineas Unicas Xpress"
+ANCHO, ALTO = A4
+
 # Paleta alineada con frontend/tailwind.config.js (primary #EA580C, accent #F97316)
-PRIMARIO = HexColor("#EA580C")
+TINTA = HexColor("#0F172A")
 ACENTO = HexColor("#F97316")
 GRIS = HexColor("#64748B")
-TINTA = HexColor("#0F172A")
+SUAVE = HexColor("#94A3B8")
 LINEA = HexColor("#E2E8F0")
+BLANCO = HexColor("#FFFFFF")
 
-ANCHO, ALTO = A4
 M = 18 * mm
+ALTO_CABECERA = 100  # alto de la banda superior de la portada, en puntos
+
+# Ticket termico: columna angosta centrada en la pagina, como el rollo de un POS de bus.
+TW = 200
+TX = (ANCHO - TW) / 2
+MONO = "Courier"
+MONO_NEGRITA = "Courier-Bold"
 
 
-def _txt(c, x, y, texto, size=9, color=TINTA, font="Helvetica"):
+def _txt(c, x, y, texto, size=9, color=TINTA, font="Helvetica", derecha=False):
     c.setFont(font, size)
     c.setFillColor(color)
-    c.drawString(x, y, texto)
+    if derecha:
+        c.drawRightString(x, y, texto)
+    else:
+        c.drawString(x, y, texto)
 
 
 def _dato(c, x, y, etiqueta, valor, size=10):
     _txt(c, x, y + 5 * mm, etiqueta.upper(), 6.5, GRIS, "Helvetica-Bold")
     _txt(c, x, y, str(valor), size, TINTA, "Helvetica-Bold")
+
+
+def _mono(c, x, y, texto, size=9, font=MONO, centrado=False):
+    c.setFont(font, size)
+    c.setFillColor(TINTA)
+    if centrado:
+        c.drawCentredString(x, y, texto)
+    else:
+        c.drawString(x, y, texto)
 
 
 def _fecha(dt):
@@ -57,134 +77,135 @@ def _fecha(dt):
     return str(dt or "-")
 
 
-def _mascarar_dni(dni):
-    digitos = "".join(c for c in str(dni or "") if c.isdigit())
-    if not digitos:
-        return "-"
-    return f"****{digitos[-4:]}" if len(digitos) >= 4 else digitos
+def _recorta(texto, maximo=24):
+    texto = str(texto or "")
+    return texto if len(texto) <= maximo else texto[: maximo - 3] + "..."
 
 
-def _qr(c, valor, x, y, lado=26 * mm):
-    renderPDF.draw(createBarcodeDrawing("QR", value=valor, size=lado), c, x, y)
-
-
-def _cabecera(c, titulo, derecha=None):
-    c.setFillColor(TINTA)
-    c.rect(0, ALTO - 32 * mm, ANCHO, 32 * mm, stroke=0, fill=1)
-    _txt(c, M, ALTO - 16 * mm, MARCA, 20, HexColor("#FFFFFF"), "Helvetica-Bold")
-    _txt(c, M, ALTO - 23 * mm, LEMA, 7.5, HexColor("#94A3B8"))
-    _txt(c, M, ALTO - 28 * mm, titulo, 8, ACENTO, "Helvetica-Bold")
-    if derecha:
-        c.setFont("Helvetica-Bold", 10)
-        c.setFillColor(HexColor("#FFFFFF"))
-        c.drawRightString(ANCHO - M, ALTO - 18 * mm, derecha)
-
-
-def _pie(c, texto):
-    c.setStrokeColor(LINEA)
-    c.line(M, 14 * mm, ANCHO - M, 14 * mm)
-    _txt(c, M, 9 * mm, texto, 6.5, GRIS)
-    _txt(c, ANCHO - M, 9 * mm, "Generado por LUX", 6.5, GRIS)
+def _envuelve(texto, maximo):
+    lineas, actual = [], ""
+    for palabra in str(texto).split():
+        if actual and len(actual) + 1 + len(palabra) > maximo:
+            lineas.append(actual)
+            actual = palabra
+        else:
+            actual = f"{actual} {palabra}".strip()
+    if actual:
+        lineas.append(actual)
+    return lineas
 
 
 def _portada(c, datos, tickets):
     codigo = datos.get("codigo") or "-"
-    _cabecera(c, "COMPROBANTE DE RESERVA", f"Codigo {codigo}")
+    t0 = tickets[0] if tickets else {}
 
-    y = ALTO - 48 * mm
-    _dato(c, M, y, "Codigo de reserva", codigo, 14)
+    c.setFillColor(TINTA)
+    c.rect(0, ALTO - ALTO_CABECERA, ANCHO, ALTO_CABECERA, stroke=0, fill=1)
+    _txt(c, M, ALTO - 46, "LUX", 34, BLANCO, "Helvetica-Bold")
+    _txt(c, M, ALTO - 64, "Líneas Únicas Xpress", 9, SUAVE)
+    _txt(c, M, ALTO - 82, "COMPROBANTE DE RESERVA", 10, ACENTO, "Helvetica-Bold")
+    c.setFont("Helvetica-Bold", 11)
+    c.setFillColor(BLANCO)
+    c.drawRightString(ANCHO - M, ALTO - 52, f"Código: {codigo}")
     if datos.get("email"):
-        _dato(c, M + 80 * mm, y, "Comprador", datos["email"])
-    y -= 16 * mm
+        _txt(c, ANCHO - M, ALTO - 70, f"Comprador: {datos['email']}", 8, SUAVE, derecha=True)
 
-    # Datos del viaje (se toman del primer ticket: todos comparten la ruta)
-    t = tickets[0] if tickets else {}
-    c.setFillColor(HexColor("#F8FAFC"))
-    c.rect(M, y - 34 * mm, ANCHO - 2 * M, 40 * mm, stroke=0, fill=1)
-    _txt(c, M + 5 * mm, y - 2 * mm, "VIAJE", 7, PRIMARIO, "Helvetica-Bold")
-    _txt(c, M + 5 * mm, y - 12 * mm, f"{t.get('origen')}  ->  {t.get('destino')}", 16, TINTA, "Helvetica-Bold")
-    _dato(c, M + 5 * mm, y - 26 * mm, "Fecha", _fecha(t.get("fecha_salida")))
-    _dato(c, M + 55 * mm, y - 26 * mm, "Hora de salida", t.get("hora_salida") or "-")
-    _dato(c, M + 105 * mm, y - 26 * mm, "Duracion", f"{t.get('duracion_horas') or 0:g} h")
-    y -= 48 * mm
+    y = ALTO - ALTO_CABECERA - 22 * mm
+    _txt(c, M, y, "VIAJE", 9, ACENTO, "Helvetica-Bold")
+    y -= 22
+    _txt(c, M, y, f"{t0.get('origen')}  ->  {t0.get('destino')}", 22, TINTA, "Helvetica-Bold")
+    y -= 32
+    _dato(c, M, y, "Fecha", _fecha(t0.get("fecha_salida")))
+    _dato(c, M + 60 * mm, y, "Hora de salida", t0.get("hora_salida") or "-")
+    _dato(c, M + 110 * mm, y, "Duración", f"{t0.get('duracion_horas') or 0:g} h")
+    y -= 20
 
-    _txt(c, M, y, "PASAJES", 7, PRIMARIO, "Helvetica-Bold")
-    y -= 6 * mm
+    c.setStrokeColor(LINEA)
+    c.line(M, y, ANCHO - M, y)
+    y -= 18
+
+    _txt(c, M, y, "PASAJES", 9, ACENTO, "Helvetica-Bold")
+    y -= 16
     for t in tickets:
-        _txt(c, M, y, f"Asiento {t.get('numero_asiento')}  (Piso {t.get('piso')})", 10, TINTA, "Helvetica-Bold")
+        _txt(c, M, y, f"Asiento {t.get('numero_asiento')} (Piso {t.get('piso')})", 10, TINTA, "Helvetica-Bold")
         _txt(c, M + 60 * mm, y, t.get("pasajero_nombre") or "Pasajero", 10, TINTA)
-        _txt(c, ANCHO - M, y, f"S/ {float(t.get('precio_pagado') or 0):.2f}", 10, TINTA, "Helvetica-Bold")
+        _txt(c, ANCHO - M, y, f"S/ {float(t.get('precio_pagado') or 0):.2f}", 10, TINTA, "Helvetica-Bold", derecha=True)
+        y -= 8
         c.setStrokeColor(LINEA)
-        c.line(M, y - 3 * mm, ANCHO - M, y - 3 * mm)
-        y -= 9 * mm
+        c.line(M, y, ANCHO - M, y)
+        y -= 18
 
-    y -= 2 * mm
-    _txt(c, ANCHO - M - 45 * mm, y, "TOTAL PAGADO", 8, GRIS, "Helvetica-Bold")
-    _txt(c, ANCHO - M, y - 8 * mm, f"S/ {float(datos.get('total') or 0):.2f}", 18, PRIMARIO, "Helvetica-Bold")
-    _qr(c, codigo, M, 22 * mm, 26 * mm)
-    _txt(c, M + 30 * mm, 30 * mm, "Presenta este codigo", 8, GRIS, "Helvetica-Bold")
-    _txt(c, M + 30 * mm, 25 * mm, "en la boleteria al abordar.", 8, GRIS)
-    _pie(c, "Documento informativo generado al momento de la compra.")
+    _txt(c, ANCHO - M, y, "TOTAL PAGADO", 9, GRIS, "Helvetica-Bold", derecha=True)
+    _txt(c, ANCHO - M, y - 22, f"S/ {float(datos.get('total') or 0):.2f}", 24, ACENTO, "Helvetica-Bold", derecha=True)
 
 
-def _boleto(c, t):
-    _cabecera(c, "BOLETO DE VIAJE", t.get("numero_boleto") or "-")
+def _ticket(c, t, codigo):
+    centro = TX + TW / 2
+    numero = t.get("numero_boleto") or f"LUX-{int(t.get('id') or 0):06d}"
 
-    y = ALTO - 46 * mm
-    _txt(c, M, y, f"{t.get('origen')}  ->  {t.get('destino')}", 20, TINTA, "Helvetica-Bold")
-    y -= 10 * mm
-    _dato(c, M, y, "Fecha", _fecha(t.get("fecha_salida")))
-    _dato(c, M + 55 * mm, y, "Hora de salida", t.get("hora_salida") or "-")
-    _dato(c, M + 110 * mm, y, "Duracion", f"{t.get('duracion_horas') or 0:g} h")
-    y -= 22 * mm
+    y = ALTO - 40
+    _mono(c, centro, y, "LUX E.I.R.L.", 13, MONO_NEGRITA, centrado=True)
+    y -= 15
+    _mono(c, centro, y, "RUC: 20000000000", 9, MONO, centrado=True)
+    y -= 17
+    _mono(c, centro, y, "BOLETA DE VIAJE", 11, MONO_NEGRITA, centrado=True)
+    y -= 17
+    _mono(c, centro, y, numero, 11, MONO_NEGRITA, centrado=True)
+    y -= 24
 
-    c.setStrokeColor(LINEA)
-    c.line(M, y + 8 * mm, ANCHO - M, y + 8 * mm)
-    y -= 2 * mm
+    _mono(c, TX, y, "TIPO PAGO : CONTADO", 9)
+    y -= 13
+    _mono(c, TX, y, f"EMISION   : {_fecha(datetime.now())}", 9)
+    y -= 13
+    _mono(c, TX, y, f"PASAJERO  : {_recorta(t.get('pasajero_nombre') or 'Pasajero')}", 9)
+    y -= 13
+    if t.get("pasajero_dni"):
+        _mono(c, TX, y, f"DOCUMENTO : {t.get('pasajero_dni')}", 9)
+        y -= 13
+    y -= 8
 
-    _txt(c, M, y, "PISO", 7, GRIS, "Helvetica-Bold")
-    _txt(c, M + 45 * mm, y, "ASIENTO", 7, GRIS, "Helvetica-Bold")
-    _txt(c, M + 90 * mm, y, "PRECIO PAGADO", 7, GRIS, "Helvetica-Bold")
-    y -= 14 * mm
-    _txt(c, M, y, str(t.get("piso") or 1), 30, TINTA, "Helvetica-Bold")
-    _txt(c, M + 45 * mm, y, str(t.get("numero_asiento")), 30, PRIMARIO, "Helvetica-Bold")
-    _txt(c, M + 90 * mm, y, f"S/ {float(t.get('precio_pagado') or 0):.2f}", 22, TINTA, "Helvetica-Bold")
-    y -= 16 * mm
+    _mono(c, TX, y, "-" * 32, 9)
+    y -= 13
+    _mono(c, centro, y, "DETALLE", 9, MONO_NEGRITA, centrado=True)
+    y -= 13
+    _mono(c, TX, y, "-" * 32, 9)
+    y -= 18
 
-    c.setStrokeColor(LINEA)
-    c.line(M, y + 6 * mm, ANCHO - M, y + 6 * mm)
-    y -= 2 * mm
+    filas = [
+        ("ORIGEN", t.get("origen") or "-"),
+        ("DESTINO", t.get("destino") or "-"),
+        ("FECHA", _fecha(t.get("fecha_salida"))),
+        ("HORA", t.get("hora_salida") or "-"),
+        ("ASIENTO", f"{t.get('numero_asiento')} (Piso {t.get('piso')})"),
+        ("IMPORTE", f"S/ {float(t.get('precio_pagado') or 0):.2f}"),
+    ]
+    for etiqueta, valor in filas:
+        _mono(c, TX, y, f"{etiqueta:<10}: {valor}", 9)
+        y -= 13
+    y -= 6
 
-    _dato(c, M, y, "Pasajero", t.get("pasajero_nombre") or "Pasajero")
-    _dato(c, M + 80 * mm, y, "DNI", _mascarar_dni(t.get("pasajero_dni")))
-    y -= 18 * mm
+    for linea in _envuelve("Cubierto por póliza de seguros RIMAC N° 0000123456", 34):
+        _mono(c, TX, y, linea, 8)
+        y -= 11
+    y -= 14
 
-    _dato(c, M, y, "Bus", f"{t.get('bus_placa') or '-'}  ({t.get('bus_modelo') or '-'})")
-    _dato(c, M + 80 * mm, y, "Tipo de servicio", t.get("bus_tipo") or "-")
-    y -= 20 * mm
-
-    valor_qr = f"{MARCA}|{t.get('id') or ''}|{t.get('codigo_reserva') or ''}"
-    _qr(c, valor_qr, M, 22 * mm, 30 * mm)
-    renderPDF.draw(
-        createBarcodeDrawing("Code128", value=t.get("numero_boleto") or "-", barHeight=12 * mm, barWidth=0.7 * mm),
-        c,
-        M + 42 * mm,
-        24 * mm,
-    )
-    _txt(c, M + 42 * mm, 20 * mm, t.get("numero_boleto") or "-", 7, GRIS, "Helvetica-Bold")
-    _pie(c, "Presenta este boleto en la boleteria al abordar. No es transferible.")
+    qr = createBarcodeDrawing("QR", value=f"https://lux.com/terminos?reserva={codigo}&ticket={t.get('id') or ''}")
+    renderPDF.draw(qr, c, centro - qr.width / 2, y - qr.height)
+    y -= qr.height + 12
+    _mono(c, centro, y, "Escanea para términos y condiciones", 7, MONO, centrado=True)
 
 
 def generar_pdf_boletos(datos: dict) -> bytes:
-    """Arma el PDF (portada + un boleto por pasajero) y devuelve los bytes."""
+    """Arma el PDF (portada + un ticket por pasajero) y devuelve los bytes."""
     tickets = datos.get("tickets") or []
+    codigo = datos.get("codigo") or "-"
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=A4)
 
     _portada(c, datos, tickets)
     c.showPage()
     for t in tickets:
-        _boleto(c, t)
+        _ticket(c, t, codigo)
         c.showPage()
 
     c.save()

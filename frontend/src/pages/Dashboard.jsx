@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { TrendingUp, Bus, MapPin } from 'lucide-react'
 import { getBuses, getRoutes, getSalesSummary } from '../services/api.js'
 
+const MAX_FILAS = 100  // el panel no renderiza miles de filas: muestra las salidas mas proximas
+
 export default function Dashboard() {
   const [buses, setBuses] = useState([])
   const [rutas, setRutas] = useState([])
@@ -122,7 +124,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="text-navy dark:text-stone-200">
-                  {rutas.map(r => (
+                  {rutas.slice(0, MAX_FILAS).map(r => (
                     <tr key={r.id} className="border-t border-line dark:border-stone-700">
                       <td className="px-4 py-2 font-semibold">{r.origen} → {r.destino}</td>
                       <td className="px-4 py-2">{new Date(r.fecha_salida).toLocaleDateString('es-PE')} - {r.hora_salida}</td>
@@ -133,6 +135,11 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </div>
+          )}
+          {rutas.length > MAX_FILAS && (
+            <p className="px-4 py-2 text-xs text-muted dark:text-stone-400 border-t border-line dark:border-stone-700">
+              Mostrando las {MAX_FILAS} salidas más próximas de {rutas.length}.
+            </p>
           )}
         </div>
       </div>

@@ -11,9 +11,11 @@ const formatoFecha = (iso) => {
 }
 
 const ESTADO_BADGE = {
-  PAGADO: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+  VENDIDO: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
   RESERVADO: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
   CANCELADO: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+  USADO: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+  DISPONIBLE: 'bg-slate-100 text-slate-700 dark:bg-stone-800 dark:text-stone-300',
 }
 
 export default function MisPasajes() {

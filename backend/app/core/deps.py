@@ -48,3 +48,13 @@ def require_admin(user: User = Depends(get_current_user)) -> User:
             detail="Esta acción requiere rol de administrador.",
         )
     return user
+
+
+def require_staff(user: User = Depends(get_current_user)) -> User:
+    """Operacion en boleteria o a bordo: administrador o vendedor."""
+    if user.rol not in (RolUsuario.ADMIN, RolUsuario.VENDEDOR):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Esta acción requiere rol de administrador o vendedor.",
+        )
+    return user

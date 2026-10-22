@@ -13,7 +13,9 @@ const DESTINOS = [
   { ciudad: 'Puno', imagen: 'puno-titicaca.jpg' },
 ]
 
-export default function DestinationGrid({ onSelect }) {
+export default function DestinationGrid({ onSelect, exclude = '' }) {
+  const ex = exclude.trim().toLowerCase()
+  const destinos = DESTINOS.filter(d => d.ciudad.toLowerCase() !== ex)
   return (
     <section className="mt-10" aria-labelledby="destinos-titulo">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -31,7 +33,7 @@ export default function DestinationGrid({ onSelect }) {
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {DESTINOS.map(({ ciudad, imagen }) => {
+        {destinos.map(({ ciudad, imagen }) => {
           const src = IMAGENES[`../assets/routes/${imagen}`]
 
           return (

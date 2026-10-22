@@ -1,13 +1,21 @@
-export const CIUDADES = [
-  'Lima', 'Callao', 'Arequipa', 'Cusco', 'Trujillo', 'Chiclayo', 'Piura',
-  'Huancayo', 'Iquitos', 'Puno', 'Tacna', 'Ayacucho', 'Cajamarca', 'Huaraz',
-  'Ica', 'Chimbote', 'Tarapoto', 'Pucallpa', 'Tumbes', 'Moquegua', 'Abancay',
-  'Juliaca', 'Puerto Maldonado', 'Huánuco', 'Cerro de Pasco', 'Huancavelica',
-  'Chachapoyas', 'Jaén', 'Yurimaguas', 'Ilo', 'Sullana', 'Talara',
-  'Lambayeque', 'Pacasmayo', 'Chepén', 'Barranca', 'Huacho', 'Cañete',
-  'Nazca', 'Camaná', 'Mollendo', 'Oxapampa', 'Quillabamba', 'Andahuaylas',
-  'Pisco', 'Chincha', 'Satipo', 'La Merced', 'Tingo María', 'Moyobamba',
-  'Zarumilla', 'Aguas Verdes', 'Zorritos', 'Máncora', 'Paita', 'Sechura',
-  'Chulucanas', 'Eten', 'Salaverry', 'Virú', 'Huarmey', 'Casma', 'Nepeña',
-  'Chilca', 'Quilca', 'Islay', 'Punta de Bombón',
-]
+import { getCiudades } from '../../services/api.js'
+
+let cache = null
+
+// Las ciudades con rutas disponibles las expone el backend: la base de datos es la
+// unica fuente de verdad, asi el autocompletado nunca ofrece una ciudad sin buses.
+export function cargarCiudades() {
+  if (!cache) {
+    cache = getCiudades().then(r => r.data).catch(() => [])
+  }
+  return cache
+}
+
+// Autocompletado: filtra por lo que se escribe y saca la ciudad ya elegida en el otro lado.
+export function filtrarCiudades(ciudades, query, exclude = '') {
+  const q = query.trim().toLowerCase()
+  const ex = exclude.trim().toLowerCase()
+  return ciudades
+    .filter(c => c.toLowerCase().includes(q) && c.toLowerCase() !== ex)
+    .slice(0, 8)
+}

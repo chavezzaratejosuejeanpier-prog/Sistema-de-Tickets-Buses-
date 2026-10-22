@@ -39,6 +39,76 @@ RUTAS = [
     ("Arequipa", "Moquegua", 3, 45.0, None),
 ]
 
+# Catalogo de ciudades que operamos: (ciudad, km por carretera desde Lima, region).
+# La distancia entre dos ciudades se calcula segun la region: si comparten region
+# se van por el mismo corredor (diferencia de km a Lima), si no, se pasa por Lima (suma).
+CATALOGO = [
+    ("Lima", 0, "costa"), ("Callao", 15, "costa"), ("Arequipa", 780, "sierra"),
+    ("Cusco", 1150, "sierra"), ("Trujillo", 560, "costa"), ("Chiclayo", 1010, "costa"),
+    ("Piura", 1780, "costa"), ("Huancayo", 350, "sierra"), ("Iquitos", 1000, "selva"),
+    ("Puno", 1300, "sierra"), ("Tacna", 980, "costa"), ("Ayacucho", 570, "sierra"),
+    ("Cajamarca", 800, "sierra"), ("Huaraz", 380, "sierra"), ("Ica", 340, "costa"),
+    ("Chimbote", 610, "costa"), ("Tarapoto", 1300, "selva"), ("Pucallpa", 850, "selva"),
+    ("Tumbes", 1030, "costa"), ("Moquegua", 900, "costa"), ("Abancay", 900, "sierra"),
+    ("Juliaca", 1000, "sierra"), ("Puerto Maldonado", 1600, "selva"), ("Huánuco", 400, "sierra"),
+    ("Cerro de Pasco", 300, "sierra"), ("Huancavelica", 400, "sierra"), ("Chachapoyas", 900, "selva"),
+    ("Jaén", 800, "selva"), ("Yurimaguas", 900, "selva"), ("Ilo", 950, "costa"),
+    ("Sullana", 1000, "costa"), ("Talara", 1100, "costa"), ("Lambayeque", 1010, "costa"),
+    ("Pacasmayo", 850, "costa"), ("Chepén", 870, "costa"), ("Barranca", 180, "costa"),
+    ("Huacho", 130, "costa"), ("Cañete", 120, "costa"), ("Nazca", 570, "costa"),
+    ("Camaná", 560, "costa"), ("Mollendo", 530, "costa"), ("Oxapampa", 350, "sierra"),
+    ("Quillabamba", 570, "sierra"), ("Andahuaylas", 450, "sierra"), ("Pisco", 570, "costa"),
+    ("Chincha", 130, "costa"), ("Satipo", 600, "selva"), ("La Merced", 400, "selva"),
+    ("Tingo María", 600, "selva"), ("Moyobamba", 900, "selva"), ("Zarumilla", 950, "costa"),
+    ("Aguas Verdes", 1050, "costa"), ("Zorritos", 1030, "costa"), ("Máncora", 1020, "costa"),
+    ("Paita", 1000, "costa"), ("Sechura", 1000, "costa"), ("Chulucanas", 900, "costa"),
+    ("Eten", 1020, "costa"), ("Salaverry", 570, "costa"), ("Virú", 590, "costa"),
+    ("Huarmey", 350, "costa"), ("Casma", 330, "costa"), ("Nepeña", 300, "costa"),
+    ("Chilca", 45, "costa"), ("Quilca", 70, "costa"), ("Islay", 520, "costa"),
+    ("Punta de Bombón", 530, "costa"),
+]
+
+# Ciudades con salidas entre si (ademas de Lima, que conecta con todas).
+HUBS = ["Arequipa", "Cusco", "Trujillo", "Chiclayo", "Piura", "Huaraz", "Ica", "Puno"]
+
+DIAS_SALIDA = 14  # salidas diarias por par
+
+KM = {ciudad: (km, region) for ciudad, km, region in CATALOGO}
+
+
+def _pares():
+    """Pares (origen, destino) que operamos. Cada par sale en ambos sentidos."""
+    pares = set()
+    for ciudad, _, _ in CATALOGO:
+        if ciudad != "Lima":
+            pares.add(("Lima", ciudad))
+    hubs = ["Lima"] + HUBS
+    for i, a in enumerate(hubs):
+        for b in hubs[i + 1:]:
+            pares.add((a, b))
+    for o, d, *_ in RUTAS:
+        pares.add((o, d))
+    return sorted(pares)
+
+
+def _distancia(o, d):
+    """Km aproximados entre dos ciudades del catalogo."""
+    km_o, reg_o = KM[o]
+    km_d, reg_d = KM[d]
+    return abs(km_o - km_d) if reg_o == reg_d else km_o + km_d
+
+
+def _montos(o, d):
+    """(duracion_h, precio_base, precio_vip) de un par. Los datos curados ganan."""
+    for oo, dd, dur, precio, vip in RUTAS:
+        if {oo, dd} == {o, d}:
+            return dur, precio, vip
+    km = _distancia(o, d)
+    dur = round(km / 70 + 0.5, 1)
+    precio = float(max(25, round(km * 0.09 / 5) * 5))
+    vip = float(round(precio * 1.5 / 5) * 5)
+    return dur, precio, vip
+
 
 def _reconstruir_tickets(con, conservar_datos=True):
     """Reconstruye la tabla tickets con el esquema actual del modelo.
@@ -152,29 +222,44 @@ def main():
 
         buses = db.query(Bus).order_by(Bus.id).all()
 
-        base = datetime.utcnow().replace(minute=0, second=0, microsecond=0)
+        base = datetime.now().replace(hour=8, minute=0, second=0, microsecond=0)
+        # Rutas ya sembradas, indexadas por (origen, destino, dia) para no duplicar salidas
+        existentes = {
+            (r.origen, r.destino, r.fecha_salida.date().isoformat()): r
+            for r in db.query(Route).all()
+        }
+        nuevas = []
         creadas = actualizadas = 0
-        for i, (origen, destino, duracion, precio, vip) in enumerate(RUTAS):
-            ruta = db.query(Route).filter(
-                Route.origen == origen, Route.destino == destino
-            ).first()
-            if ruta:
-                ruta.duracion_horas = float(duracion)
-                ruta.precio_base = precio
-                ruta.precio_vip = vip
-                ruta.fecha_salida = base + timedelta(days=i + 1)
-                ruta.hora_salida = f"{8 + i:02d}:00"
-                actualizadas += 1
-            else:
-                db.add(Route(
-                    origen=origen, destino=destino,
-                    fecha_salida=base + timedelta(days=i + 1),
-                    hora_salida=f"{8 + i:02d}:00",
-                    duracion_horas=float(duracion),
-                    precio_base=precio, precio_vip=vip,
-                    bus_id=buses[i % len(buses)].id
-                ))
-                creadas += 1
+        n = 0
+        for o, d in _pares():
+            # Cada par sale en ambos sentidos ( ida y vuelta ).
+            for origen, destino in ((o, d), (d, o)):
+                duracion, precio, vip = _montos(origen, destino)
+                hora = f"{6 + n % 14:02d}:00"
+                bus_id = buses[n % len(buses)].id
+                n += 1
+                for dia in range(DIAS_SALIDA):
+                    fecha = base + timedelta(days=dia)
+                    clave = (origen, destino, fecha.date().isoformat())
+                    ruta = existentes.get(clave)
+                    if ruta:
+                        ruta.fecha_salida = fecha
+                        ruta.hora_salida = hora
+                        ruta.duracion_horas = duracion
+                        ruta.precio_base = precio
+                        ruta.precio_vip = vip
+                        ruta.bus_id = bus_id
+                        actualizadas += 1
+                    else:
+                        nuevas.append(Route(
+                            origen=origen, destino=destino,
+                            fecha_salida=fecha, hora_salida=hora,
+                            duracion_horas=duracion,
+                            precio_base=precio, precio_vip=vip,
+                            bus_id=bus_id
+                        ))
+                        creadas += 1
+        db.bulk_save_objects(nuevas)
         print(f" rutas: {creadas} nuevas, {actualizadas} actualizadas")
 
         if db.query(User).count() == 0:

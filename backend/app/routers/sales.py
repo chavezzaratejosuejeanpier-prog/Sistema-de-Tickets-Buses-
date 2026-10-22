@@ -7,8 +7,9 @@ from datetime import datetime, time, timedelta, timezone
 from ..database import get_db
 from ..models.ticket import Ticket, EstadoTicket
 from ..models.route import Route
+from ..models.reserva import Reserva
 from ..schemas.ticket_schema import CheckoutRequest, CheckoutResponse, VentaResumen
-from ..services.ticket_service import verificar_disponibilidad, calcularPrecioTotal
+from ..services.ticket_service import verificar_disponibilidad, calcularMontos, ESTADOS_VENDIDOS
 from ..services.boleto_pdf import generar_pdf_boletos
 from ..core.deps import require_admin
 from ..models.user import User
@@ -28,7 +29,8 @@ def _cargar_reserva(db: Session, codigo: str):
 
 @router.get("/", response_model=VentaResumen)
 def resumen_ventas(db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
-    vendido = Ticket.estado == EstadoTicket.VENDIDO
+    # VENDIDO o USADO: el ticket sigue vendido aunque el pasajero ya haya abordar.
+    vendido = Ticket.estado.in_(ESTADOS_VENDIDOS)
     # "Hoy" en hora de Peru (UTC-5). creado_en se guarda en UTC naive.
     hoy_peru = (datetime.now(timezone.utc) - timedelta(hours=5)).date()
     inicio_hoy = datetime.combine(hoy_peru, time.min) + timedelta(hours=5)
@@ -66,6 +68,18 @@ def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):
             raise HTTPException(400, f"Asiento {pasajero.numero_asiento} fuera del bus")
 
     codigo = f"BC-{uuid.uuid4().hex[:8].upper()}"
+    precio_unitario, subtotal, igv, total = calcularMontos(ruta.precio_base, len(data.pasajeros))
+
+    db.add(Reserva(
+        codigo=codigo,
+        email=data.email,
+        subtotal=subtotal,
+        igv=igv,
+        total_pagado=total,
+        cantidad_asientos=len(data.pasajeros),
+        estado="PAGADA",
+    ))
+
     for pasajero in data.pasajeros:
         db.add(Ticket(
             route_id=data.route_id,
@@ -73,7 +87,7 @@ def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):
             piso=1 if pasajero.numero_asiento <= (ruta.bus.capacidad_piso1 or 0) else 2,
             pasajero_nombre=pasajero.nombre.strip(),
             pasajero_dni=pasajero.dni.strip(),
-            precio_pagado=ruta.precio_base,
+            precio_pagado=precio_unitario,
             estado=EstadoTicket.VENDIDO,
             codigo_reserva=codigo
         ))
@@ -89,7 +103,7 @@ def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):
         "codigo_reserva": codigo,
         "email": data.email,
         "asientos": [p.numero_asiento for p in data.pasajeros],
-        "total": calcularPrecioTotal(ruta.precio_base, len(data.pasajeros))
+        "total": total
     }
 
 @router.get("/tickets/{codigo}")
@@ -125,9 +139,10 @@ def pdf_ticket(codigo: str, db: Session = Depends(get_db)):
     if not tickets:
         raise HTTPException(404, "Reserva no encontrada")
 
+    reserva = db.query(Reserva).filter(Reserva.codigo == codigo).first()
     datos = {
         "codigo": codigo,
-        "email": None,  # el email del comprador no se guarda (se descarta en checkout)
+        "email": reserva.email if reserva else None,
         "total": sum(float(t.precio_pagado or 0) for t in tickets),
         "tickets": [
             {

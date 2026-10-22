@@ -1,18 +1,20 @@
-import { useId, useState, useMemo } from 'react'
+import { useId, useState, useMemo, useEffect } from 'react'
 import { MapPin, ChevronDown } from 'lucide-react'
-import { CIUDADES } from './ciudades.js'
-
-function getFiltered(query, exclude) {
-  const q = query.trim().toLowerCase()
-  return CIUDADES.filter(c => c.toLowerCase().includes(q) && c.toLowerCase() !== exclude.toLowerCase()).slice(0, 8)
-}
+import { cargarCiudades, filtrarCiudades } from './ciudades.js'
 
 export default function CityField({ label, value, onChange, placeholder, exclude = '', variant = 'default' }) {
   const id = useId()
   const [abierto, setAbierto] = useState(false)
-  const filtered = useMemo(() => getFiltered(value, exclude), [value, exclude])
+  const [ciudades, setCiudades] = useState([])
+  const filtered = useMemo(() => filtrarCiudades(ciudades, value, exclude), [ciudades, value, exclude])
   const showList = abierto && filtered.length > 0
   const pill = variant === 'pill'
+
+  useEffect(() => {
+    let vivo = true
+    cargarCiudades().then(c => { if (vivo) setCiudades(c) })
+    return () => { vivo = false }
+  }, [])
 
   return (
     <div className="relative">

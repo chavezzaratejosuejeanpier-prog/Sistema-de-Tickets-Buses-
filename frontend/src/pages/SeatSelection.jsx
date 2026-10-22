@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { getRouteSeats, getRoutes } from '../services/api.js'
 import BusMap from '../components/bus/BusMap.jsx'
 import Button from '../components/common/Button.jsx'
+import { totalConIGV } from '../utils/precios.js'
 
 export default function SeatSelection() {
   const { routeId } = useParams()
@@ -18,7 +19,7 @@ export default function SeatSelection() {
   })
 
   const info = location.state || {}
-  const total = seleccionados.length * Number(precio ?? 0)
+  const total = totalConIGV(precio, seleccionados.length)
 
   useEffect(() => {
     let vivo = true

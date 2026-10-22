@@ -4,6 +4,7 @@ import { Timer, Download } from 'lucide-react'
 import Swal from 'sweetalert2'
 import Button from '../components/common/Button.jsx'
 import { checkout, getPdfUrl } from '../services/api.js'
+import { totalConIGV } from '../utils/precios.js'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -50,7 +51,7 @@ const Checkout = () => {
 
   const rutaId = inicial?.rutaId
   const precioPorAsiento = Number(inicial?.precio ?? 0)
-  const total = pasajeros.length * precioPorAsiento
+  const total = totalConIGV(precioPorAsiento, pasajeros.length)
 
   useEffect(() => {
     if (!rutaId) navigate('/buscar', { replace: true })

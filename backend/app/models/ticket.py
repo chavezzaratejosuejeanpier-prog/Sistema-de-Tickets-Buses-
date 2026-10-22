@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, DateTime, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, DateTime, Index, text
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from ..database import Base
@@ -15,11 +15,22 @@ class EstadoTicket(str, enum.Enum):
     RESERVADO = "RESERVADO"
     VENDIDO = "VENDIDO"
     CANCELADO = "CANCELADO"
+    USADO = "USADO"
 
 class Ticket(Base):
     __tablename__ = "tickets"
-    # Impide vender dos veces el mismo asiento de una ruta (race condition)
-    __table_args__ = (UniqueConstraint("route_id", "numero_asiento", name="uq_ticket_ruta_asiento"),)
+    # Impide vender dos veces el mismo asiento de una ruta (race condition).
+    # Los tickets CANCELADOS quedan fuera del indice: al cancelar, el asiento
+    # se libera y otro pasajero puede comprarlo.
+    __table_args__ = (
+        Index(
+            "uq_ticket_ruta_asiento",
+            "route_id",
+            "numero_asiento",
+            unique=True,
+            sqlite_where=text("estado != 'CANCELADO'"),
+        ),
+    )
     id = Column(Integer, primary_key=True, index=True)
     route_id = Column(Integer, ForeignKey("routes.id"), nullable=False)
     numero_asiento = Column(Integer, nullable=False)

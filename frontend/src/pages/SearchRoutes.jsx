@@ -62,6 +62,9 @@ export default function SearchRoutes() {
   }
 
   const elegirDestino = (ciudad) => {
+    // Los viajes de la grilla salen desde Lima ( asi lo dice cada tarjeta ).
+    // No se ofrece una ciudad que ya esta elegida como origen.
+    if (ciudad.toLowerCase() === origen.trim().toLowerCase()) return
     setOrigen('Lima')
     setDestino(ciudad)
     setFecha(hoy)
@@ -133,7 +136,7 @@ export default function SearchRoutes() {
 
       <div className="mt-6" aria-live="polite" aria-busy={loading}>
         {!hasSearched ? (
-          <DestinationGrid onSelect={elegirDestino} />
+          <DestinationGrid onSelect={elegirDestino} exclude={origen} />
         ) : loading ? (
           <div className="grid gap-4">
             {[1,2,3].map(i => (

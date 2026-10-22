@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
 from .database import get_db
-from .routers import buses, routes, sales, auth
+from .routers import buses, routes, sales, auth, reservas
+from .models import Reserva  # noqa: F401  (registra la tabla en Base.metadata)
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from fastapi import Depends
@@ -27,6 +28,7 @@ app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(buses.router, prefix="/api/buses", tags=["Buses"])
 app.include_router(routes.router, prefix="/api/routes", tags=["Rutas/Viajes"])
 app.include_router(sales.router, prefix="/api/sales", tags=["Ventas"])
+app.include_router(reservas.router, prefix="/api/reservas", tags=["Reservas/Check-in"])
 
 @app.get("/")
 def root():
