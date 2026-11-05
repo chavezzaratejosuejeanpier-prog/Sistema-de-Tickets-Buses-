@@ -8,6 +8,11 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  @keyframes busMove {
+    0% { left: -8%; }
+    100% { left: 108%; }
+  }
+
   html.dark { color-scheme: dark; }
   body, a, button, input, select, textarea, [role="button"], summary { @apply transition-colors duration-200; }
 
@@ -16,9 +21,18 @@
     letter-spacing: -0.01em;
   }
 
+  h1, h2, h3 {
+    @apply font-display tracking-tight;
+  }
+
   html.dark body {
     @apply bg-stone-950 text-stone-100;
   }
+
+  html.hc body { @apply bg-black text-white; }
+  html.hc .card { @apply border-2 border-white bg-black; }
+  html.hc .btn-primary { @apply border-2 border-white; }
+  html.hc input, html.hc select, html.hc textarea { @apply border-2 border-white bg-black text-white; }
 
   ::selection {
     background: rgba(234, 88, 12, 0.35);
@@ -52,6 +66,15 @@
     -webkit-text-fill-color: #ffffff;
   }
 
+  @media print {
+    header, footer, nav, .no-print { display: none !important; }
+    body { background: #fff !important; color: #000 !important; }
+    .print-only { display: block !important; }
+    .card { box-shadow: none !important; border: 1px solid #000 !important; }
+  }
+
+  .print-only { display: none; }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     *, *::before, *::after {
@@ -65,7 +88,7 @@
 
 @layer components {
   .card {
-    @apply bg-white dark:bg-stone-900 rounded-xl border border-line dark:border-stone-800 shadow-soft;
+    @apply bg-white/95 dark:bg-stone-900/80 dark:backdrop-blur-sm rounded-xl border border-line dark:border-stone-800 shadow-soft transition-colors duration-200;
   }
 
   .btn-primary {

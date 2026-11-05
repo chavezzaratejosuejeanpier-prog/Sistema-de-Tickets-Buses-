@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import { Timer, Download } from 'lucide-react'
+import { Timer, Download, Check } from 'lucide-react'
 import Swal from 'sweetalert2'
+import confetti from 'canvas-confetti'
 import Button from '../components/common/Button.jsx'
 import { checkout, getPdfUrl } from '../services/api.js'
 import { totalConIGV } from '../utils/precios.js'
@@ -214,6 +215,7 @@ const Checkout = () => {
         confirmButtonColor: '#10b981'
       })
       setResult(data)
+      try { confetti({ particleCount: 140, spread: 80, origin: { y: 0.6 } }) } catch {}
     } catch (error) {
       const detalle = error.response?.data?.detail
       const status = error.response?.status
@@ -237,8 +239,27 @@ const Checkout = () => {
 
   const urgente = timeLeft <= 60
 
+  const PASOS = ['Búsqueda', 'Asientos', 'Pago', 'Confirmación']
+  const pasoActual = result ? 4 : 3
+
   return (
     <div className="w-full md:w-[70%] mx-auto">
+      <ol className="mb-6 flex items-center justify-between gap-2">
+        {PASOS.map((p, i) => {
+          const n = i + 1
+          const done = n < pasoActual
+          const active = n === pasoActual
+          return (
+            <li key={p} className="flex flex-1 items-center gap-2">
+              <span className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold border-2 transition-colors ${done ? 'bg-primary border-primary text-white' : active ? 'border-primary text-primary bg-white dark:bg-stone-900' : 'border-line dark:border-stone-700 text-muted'}`}>
+                {done ? <Check size={16} /> : n}
+              </span>
+              <span className={`hidden sm:block text-xs font-semibold ${active ? 'text-navy dark:text-white' : 'text-muted'}`}>{p}</span>
+              {i < PASOS.length - 1 && <span className={`h-0.5 flex-1 ${done ? 'bg-primary' : 'bg-line dark:bg-stone-700'}`} />}
+            </li>
+          )
+        })}
+      </ol>
       <div className="card overflow-hidden">
         <div className="bg-navy text-white p-6 flex justify-between items-center gap-4">
           <div>

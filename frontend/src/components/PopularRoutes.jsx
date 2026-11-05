@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { FILTROS, POPULAR_ROUTES } from '../data/popularRoutes.js'
+import { getRoutes } from '../services/api.js'
 import RouteCard from './RouteCard.jsx'
+import Skeleton from './common/Skeleton.jsx'
 
 const filtrarRutas = (rutas, filtro) => {
   if (filtro === 'todas') return rutas
@@ -12,7 +14,35 @@ const filtrarRutas = (rutas, filtro) => {
 
 export default function PopularRoutes() {
   const [filtro, setFiltro] = useState('todas')
-  const rutas = filtrarRutas(POPULAR_ROUTES, filtro)
+  const [rutasData, setRutasData] = useState(POPULAR_ROUTES)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let vivo = true
+    getRoutes()
+      .then(({ data }) => {
+        if (!vivo) return
+        const lista = Array.isArray(data?.rutas) ? data.rutas : Array.isArray(data) ? data : []
+        if (lista.length === 0) { setRutasData(POPULAR_ROUTES); return }
+        setRutasData(lista.slice(0, 9).map(r => ({
+          id: r.id,
+          origen: r.origen,
+          destino: r.destino,
+          imagen: null,
+          alt: `${r.origen} a ${r.destino}`,
+          badge: null,
+          precioDesde: Number(r.precio_base || 0).toFixed(0),
+          duracion: `${r.duracion_horas ?? '?'} h`,
+          top: false,
+          region: 'todas',
+        })))
+      })
+      .catch(() => { if (vivo) setRutasData(POPULAR_ROUTES) })
+      .finally(() => { if (vivo) setLoading(false) })
+    return () => { vivo = false }
+  }, [])
+
+  const rutas = filtrarRutas(rutasData, filtro)
 
   return (
     <section aria-labelledby="rutas-populares-titulo">
@@ -64,9 +94,11 @@ export default function PopularRoutes() {
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {rutas.map(ruta => (
-          <RouteCard key={ruta.id} ruta={ruta} />
-        ))}
+        {loading
+          ? [1,2,3,4,5,6].map(i => <Skeleton key={i} className="aspect-[4/3] w-full" />)
+          : rutas.map(ruta => (
+            <RouteCard key={ruta.id} ruta={ruta} />
+          ))}
       </div>
     </section>
   )

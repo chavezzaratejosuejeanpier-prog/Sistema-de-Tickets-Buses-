@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowUpRight } from 'lucide-react'
 
@@ -5,13 +6,36 @@ const IMAGENES = import.meta.glob('../assets/routes/*.{jpg,jpeg,webp,png}', { ea
 
 export default function RouteCard({ ruta }) {
   const src = IMAGENES[`../assets/routes/${ruta.imagen}`]
+  const [tilt, setTilt] = useState({ x: 0, y: 0, on: false })
+  const hue = (str) => {
+    let h = 0
+    for (let i = 0; i < (str || '').length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0
+    return h % 360
+  }
+  const routeHue = hue(ruta.destino || ruta.origen)
+
+  const onMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const px = (e.clientX - rect.left) / rect.width - 0.5
+    const py = (e.clientY - rect.top) / rect.height - 0.5
+    setTilt({ x: py * -8, y: px * 8, on: true })
+  }
+  const onLeave = () => setTilt({ x: 0, y: 0, on: false })
 
   return (
     <Link
       to="/buscar"
       state={{ origen: ruta.origen, destino: ruta.destino, fecha: '' }}
       aria-label={`Buscar pasajes de ${ruta.origen} a ${ruta.destino}`}
-      className="group relative block aspect-[4/3] overflow-hidden rounded-2xl bg-navy shadow-[0_18px_40px_-20px_rgba(2,6,23,0.55)] ring-1 ring-black/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-20px_rgba(2,6,23,0.65)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-navy motion-reduce:transition-none motion-reduce:hover:translate-y-0 dark:ring-white/10 dark:focus-visible:ring-offset-stone-950"
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      style={{
+        transform: tilt.on
+          ? `perspective(900px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateZ(4px)`
+          : 'perspective(900px) rotateX(0) rotateY(0)',
+        transition: tilt.on ? 'transform 120ms ease-out' : 'transform 400ms ease-out',
+      }}
+      className="group relative block aspect-[4/3] overflow-hidden rounded-2xl bg-navy shadow-[0_18px_40px_-20px_rgba(2,6,23,0.55)] ring-1 ring-black/5 transition-shadow duration-300 hover:shadow-[0_28px_60px_-20px_rgba(234,88,12,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-navy motion-reduce:transform-none motion-reduce:transition-none dark:ring-white/10 dark:focus-visible:ring-offset-stone-950"
     >
       {src ? (
         <img
@@ -37,12 +61,12 @@ export default function RouteCard({ ruta }) {
       <span className="absolute inset-x-3 bottom-3 rounded-xl border border-white/20 bg-white/15 p-3 shadow-lg backdrop-blur-md transition-colors group-hover:bg-white/20">
         <span className="flex items-center justify-between gap-2">
           <span className="text-base font-extrabold leading-tight text-white sm:text-lg">
-            {ruta.origen} <span className="text-orange-300">→</span> {ruta.destino}
+            {ruta.origen} <span style={{ color: `hsl(${routeHue}, 75%, 65%)` }}>→</span> {ruta.destino}
           </span>
           <ArrowUpRight size={18} className="shrink-0 text-white/80" aria-hidden="true" />
         </span>
         <span className="mt-1 block text-[11px] text-white/85 sm:text-xs">
-          Desde <span className="font-bold text-white">S/ {ruta.precioDesde}</span> · {ruta.duracion}
+          Desde <span className="font-bold" style={{ color: `hsl(${routeHue}, 75%, 65%)` }}>S/ {ruta.precioDesde}</span> · {ruta.duracion}
         </span>
       </span>
     </Link>

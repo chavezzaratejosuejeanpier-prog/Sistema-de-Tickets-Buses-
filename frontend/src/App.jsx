@@ -1,9 +1,12 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Toaster } from 'sonner'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
 import ScrollToTop from './components/common/ScrollToTop'
 import ProtectedRoute from './components/common/ProtectedRoute'
+import CommandPalette from './components/common/CommandPalette.jsx'
 
 import About from './pages/About'
 import Nosotros from './pages/Nosotros'
@@ -61,14 +64,22 @@ function Layout() {
         id="main"
         className={claseMain}
       >
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center gap-3 py-20 text-muted dark:text-stone-400">
-              <span className="spinner" aria-hidden="true" /> Cargando...
-            </div>
-          }
-        >
-          <Routes>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+          >
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center gap-3 py-20 text-muted dark:text-stone-400">
+                  <span className="spinner" aria-hidden="true" /> Cargando...
+                </div>
+              }
+            >
+              <Routes>
             <Route path="/" element={<About />} />
             <Route path="/buscar" element={<SearchRoutes />} />
             <Route path="/nosotros" element={<Nosotros />} />
@@ -87,7 +98,9 @@ function Layout() {
             />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </Suspense>
+            </Suspense>
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       <Footer />
@@ -101,6 +114,8 @@ function App() {
       <ScrollToTop />
       <TituloRuta />
       <Layout />
+      <CommandPalette />
+      <Toaster richColors position="top-right" />
     </Router>
   )
 }

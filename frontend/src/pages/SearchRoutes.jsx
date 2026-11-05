@@ -6,6 +6,7 @@ import Button from '../components/common/Button.jsx'
 import CityField from '../components/common/CityField.jsx'
 import DateField from '../components/common/DateField.jsx'
 import DestinationGrid from '../components/DestinationGrid.jsx'
+import Skeleton from '../components/common/Skeleton.jsx'
 
 export default function SearchRoutes() {
   const hoy = new Date().toLocaleDateString('en-CA')
@@ -16,6 +17,11 @@ export default function SearchRoutes() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [hasSearched, setHasSearched] = useState(false)
+  const [filtroHorario, setFiltroHorario] = useState('todos')
+  const [filtroTipo, setFiltroTipo] = useState('todos')
+  const [recientes, setRecientes] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('busquedasRecientes') || '[]') } catch { return [] }
+  })
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -28,9 +34,19 @@ export default function SearchRoutes() {
 
   const ejecutar = async (o, d, f) => {
     setLoading(true); setError(''); setHasSearched(true)
+    setFiltroHorario('todos'); setFiltroTipo('todos')
     try {
       const { data } = await searchRoutes(o.trim(), d.trim(), f || undefined)
       setResultados(data)
+      if (data.length > 0) {
+        setRecientes(prev => {
+          const item = { origen: o.trim(), destino: d.trim() }
+          const filtrado = prev.filter(r => !(r.origen === item.origen && r.destino === item.destino))
+          const nuevo = [item, ...filtrado].slice(0, 5)
+          try { localStorage.setItem('busquedasRecientes', JSON.stringify(nuevo)) } catch {}
+          return nuevo
+        })
+      }
       if (data.length === 0) setError('No se encontraron viajes para esa combinación. Prueba otra fecha o ciudades cercanas.')
     } catch (err) {
       setError(err.response?.data?.detail || 'No se pudo conectar con el backend. Verifica que esté corriendo en :8000')
@@ -43,7 +59,7 @@ export default function SearchRoutes() {
   useEffect(() => {
     const entrada = location.state
     if (!entrada) return
-    const fechaEntrada = entrada.fecha ?? hoy
+    const fechaEntrada = entrada.fecha ?? new Date().toLocaleDateString('en-CA')
     setOrigen(entrada.origen); setDestino(entrada.destino); setFecha(fechaEntrada)
     ejecutar(entrada.origen, entrada.destino, fechaEntrada)
   }, [location.state])
@@ -71,6 +87,16 @@ export default function SearchRoutes() {
     setHasSearched(false)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
+  const resultadosFiltrados = resultados.filter(r => {
+    const hora = parseInt((r.hora_salida || '0').split(':')[0], 10)
+    if (filtroHorario === 'manana' && !(hora < 12)) return false
+    if (filtroHorario === 'tarde' && !(hora >= 12 && hora < 18)) return false
+    if (filtroHorario === 'noche' && !(hora >= 18)) return false
+    if (filtroTipo !== 'todos' && r.bus_tipo !== filtroTipo) return false
+    return true
+  })
+  const tiposDisponibles = [...new Set(resultados.map(r => r.bus_tipo).filter(Boolean))]
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -126,6 +152,29 @@ export default function SearchRoutes() {
         </div>
       </form>
 
+      {recientes.length > 0 && (
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted dark:text-stone-400">Recientes:</span>
+          {recientes.map((r, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => { setOrigen(r.origen); setDestino(r.destino); setFecha(hoy); ejecutar(r.origen, r.destino, hoy) }}
+              className="inline-flex items-center gap-1.5 rounded-full border border-line dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-1.5 text-xs font-medium text-navy dark:text-stone-200 hover:border-primary hover:text-primary transition-colors"
+            >
+              {r.origen} → {r.destino}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => { setRecientes([]); try { localStorage.removeItem('busquedasRecientes') } catch {} }}
+            className="text-xs text-muted hover:text-red-600 dark:hover:text-red-400"
+          >
+            Limpiar
+          </button>
+        </div>
+      )}
+
       {error && (
         <div className={`mt-5 rounded-xl px-4 py-3 text-sm font-medium border ${resultados.length > 0 ? 'bg-gray-50 dark:bg-stone-800 border-black/5 dark:border-stone-700 text-stone-600 dark:text-stone-300' : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900 text-red-700 dark:text-red-300'}`}>
           {error}
@@ -138,18 +187,37 @@ export default function SearchRoutes() {
         ) : loading ? (
           <div className="grid gap-4">
             {[1,2,3].map(i => (
-              <div key={i} className="bg-white dark:bg-stone-800 rounded-xl border border-black/5 dark:border-stone-700 p-5 animate-pulse">
-                <div className="h-4 bg-gray-50 dark:bg-stone-700 rounded w-1/3" />
-                <div className="h-3 bg-gray-50 dark:bg-stone-700 rounded w-2/3 mt-3" />
-                <div className="h-3 bg-gray-50 dark:bg-stone-700 rounded w-1/4 mt-3" />
+              <div key={i} className="card p-5">
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-3 w-2/3 mt-3" />
+                <Skeleton className="h-3 w-1/4 mt-3" />
               </div>
             ))}
           </div>
         ) : resultados.length > 0 ? (
           <>
-            <p className="text-xs font-bold tracking-widest text-stone-400 dark:text-stone-500 uppercase mb-3">{resultados.length} resultado(s) {fecha && `• ${new Date(fecha).toLocaleDateString()}`}</p>
+            <p className="text-xs font-bold tracking-widest text-stone-400 dark:text-stone-500 uppercase mb-3">{resultadosFiltrados.length} de {resultados.length} resultado(s) {fecha && `• ${new Date(fecha).toLocaleDateString()}`}</p>
+            {resultados.length > 0 && (
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted dark:text-stone-400">Horario:</span>
+                {['todos','manana','tarde','noche'].map(h => (
+                  <button key={h} type="button" onClick={() => setFiltroHorario(h)} className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${filtroHorario === h ? 'bg-primary text-white border-primary' : 'border-line dark:border-stone-700 text-navy dark:text-stone-200 hover:border-primary'}`}>
+                    {h === 'todos' ? 'Todos' : h === 'manana' ? 'Mañana' : h === 'tarde' ? 'Tarde' : 'Noche'}
+                  </button>
+                ))}
+                {tiposDisponibles.length > 1 && (
+                  <>
+                    <span className="ml-2 text-xs font-semibold uppercase tracking-wide text-muted dark:text-stone-400">Bus:</span>
+                    <button type="button" onClick={() => setFiltroTipo('todos')} className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${filtroTipo === 'todos' ? 'bg-primary text-white border-primary' : 'border-line dark:border-stone-700 text-navy dark:text-stone-200 hover:border-primary'}`}>Todos</button>
+                    {tiposDisponibles.map(t => (
+                      <button key={t} type="button" onClick={() => setFiltroTipo(t)} className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${filtroTipo === t ? 'bg-primary text-white border-primary' : 'border-line dark:border-stone-700 text-navy dark:text-stone-200 hover:border-primary'}`}>{t}</button>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
             <div className="grid gap-4">
-              {resultados.map(r => (
+              {resultadosFiltrados.map(r => (
                 <div key={r.id} className="bg-white dark:bg-stone-800 rounded-xl border border-black/5 dark:border-stone-700 shadow-soft hover:shadow-lift hover:-translate-y-0.5 transition-all p-5 flex flex-col sm:flex-row justify-between gap-4">
                   <div className="min-w-0">
                     <p className="font-extrabold text-navy dark:text-white text-base flex items-center gap-2">
@@ -178,6 +246,9 @@ export default function SearchRoutes() {
                 </div>
               ))}
             </div>
+            {hasSearched && !loading && resultados.length > 0 && resultadosFiltrados.length === 0 && (
+              <div className="empty-state mt-4">Ningún resultado con esos filtros. Prueba otros.</div>
+            )}
           </>
         ) : null}
       </div>

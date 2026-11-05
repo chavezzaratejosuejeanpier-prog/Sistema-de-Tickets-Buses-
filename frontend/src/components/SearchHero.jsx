@@ -1,4 +1,4 @@
-import { ArrowLeftRight, Search, ShieldCheck, Armchair, Wifi } from 'lucide-react'
+import { ArrowLeftRight, Search, ShieldCheck, Armchair, Wifi, Bus } from 'lucide-react'
 import CityField from './common/CityField.jsx'
 import DateField from './common/DateField.jsx'
 import fondo from '../assets/plaza-armas-cusco.jpeg'
@@ -42,6 +42,11 @@ export default function SearchHero({
                 {texto}
               </span>
             ))}
+          </div>
+
+          <div className="relative mt-6 h-6 overflow-hidden" aria-hidden="true">
+            <div className="absolute inset-x-0 top-1/2 border-t-2 border-dashed border-white/40" />
+            <Bus size={22} className="absolute top-1/2 -translate-y-1/2 text-orange-400 animate-[busMove_6s_linear_infinite] motion-reduce:animate-none" />
           </div>
         </div>
       </div>
