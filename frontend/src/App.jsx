@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
+import { Eye } from 'lucide-react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Toaster } from 'sonner'
@@ -8,6 +9,8 @@ import ScrollToTop from './components/common/ScrollToTop'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import CommandPalette from './components/common/CommandPalette.jsx'
 import Onboarding from './components/common/Onboarding.jsx'
+import AmbientStationSound from './components/common/AmbientStationSound.jsx'
+import AccessibilityPanel from './components/common/AccessibilityPanel.jsx'
 
 import About from './pages/About'
 import Nosotros from './pages/Nosotros'
@@ -113,6 +116,7 @@ function App() {
   const [mostrarOnboarding, setMostrarOnboarding] = useState(() => {
     return localStorage.getItem('lux_onboarding') !== '1'
   })
+  const [accesoAbierto, setAccesoAbierto] = useState(false)
 
   return (
     <Router>
@@ -121,9 +125,20 @@ function App() {
       <Layout />
       <CommandPalette />
       <Toaster richColors position="top-right" />
+      <AmbientStationSound />
       {mostrarOnboarding && (
         <Onboarding onFinish={() => setMostrarOnboarding(false)} />
       )}
+      <AccessibilityPanel open={accesoAbierto} onClose={() => setAccesoAbierto(false)} />
+      <button
+        type="button"
+        onClick={() => setAccesoAbierto(o => !o)}
+        aria-label={accesoAbierto ? 'Cerrar panel de accesibilidad' : 'Abrir panel de accesibilidad'}
+        className="fixed bottom-4 left-4 z-[90] flex items-center justify-center w-10 h-10 rounded-full border border-line dark:border-stone-700 bg-white dark:bg-stone-800 shadow-soft hover:bg-primary hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      >
+        <Eye size={18} className="text-navy dark:text-white" />
+        <span className="sr-only">Accesibilidad</span>
+      </button>
     </Router>
   )
 }

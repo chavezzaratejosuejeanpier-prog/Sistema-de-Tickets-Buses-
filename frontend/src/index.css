@@ -176,6 +176,47 @@
   .cine-panel {
     @apply relative z-[61] max-w-4xl w-full bg-stone-950 border border-stone-800 rounded-2xl shadow-2xl p-6 md:p-8;
   }
+
+  /* --- Estrellas y luna en modo noche --- */
+  html.night-mode .stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+  }
+  html.night-mode .star {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 50%;
+    opacity: 0.7;
+    animation: parpadeo 4s ease-in-out infinite;
+  }
+  html.night-mode .moon {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    box-shadow: 15px 0 0 0 #d1d5db;
+    opacity: 0.9;
+    animation: flotar 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px rgba(243,244,246,0.4));
+  }
+
+  @keyframes parpadeo {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+  @keyframes flotar {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  /* --- Accesibilidad: escala de fuente --- */
+  .font-scale {
+    transition: font-size 0.2s ease;
+  }
 }
 
 @layer components {

@@ -1,4 +1,5 @@
 import React, { memo } from 'react'
+import { useHaptic } from '../common/useHaptic.js'
 
 const ESTADOS = {
   ocupado: 'bg-gray-100 text-stone-400 border-black/5 cursor-not-allowed dark:bg-stone-800 dark:text-stone-600 dark:border-white/5',
@@ -8,6 +9,7 @@ const ESTADOS = {
 }
 
 const Seat = memo(function Seat({ numero, estado = 'libre', selected = false, onClick, neumorphic = false, heat = 0 }) {
+  const { haptico } = useHaptic()
   const estadoVisual = selected ? 'seleccionado' : estado
 
   return (
@@ -17,7 +19,12 @@ const Seat = memo(function Seat({ numero, estado = 'libre', selected = false, on
       aria-pressed={selected}
       aria-label={`Asiento ${numero} - ${estadoVisual}`}
       title={`Asiento ${numero} - ${estadoVisual}`}
-      onClick={() => onClick?.(numero)}
+      onClick={() => {
+        if (estadoVisual !== 'ocupado' && estadoVisual !== 'reservado') {
+          haptico('click')
+        }
+        onClick?.(numero)
+      }}
       className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-t-xl rounded-b-md border-2 font-bold text-sm
         transition-colors duration-200 flex items-center justify-center select-none
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
