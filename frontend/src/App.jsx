@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Toaster } from 'sonner'
@@ -7,6 +7,7 @@ import Footer from './components/layout/Footer'
 import ScrollToTop from './components/common/ScrollToTop'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import CommandPalette from './components/common/CommandPalette.jsx'
+import Onboarding from './components/common/Onboarding.jsx'
 
 import About from './pages/About'
 import Nosotros from './pages/Nosotros'
@@ -109,6 +110,10 @@ function Layout() {
 }
 
 function App() {
+  const [mostrarOnboarding, setMostrarOnboarding] = useState(() => {
+    return localStorage.getItem('lux_onboarding') !== '1'
+  })
+
   return (
     <Router>
       <ScrollToTop />
@@ -116,6 +121,9 @@ function App() {
       <Layout />
       <CommandPalette />
       <Toaster richColors position="top-right" />
+      {mostrarOnboarding && (
+        <Onboarding onFinish={() => setMostrarOnboarding(false)} />
+      )}
     </Router>
   )
 }

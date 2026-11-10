@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { ArrowLeftRight, Search, ShieldCheck, Armchair, Wifi, Bus } from 'lucide-react'
 import CityField from './common/CityField.jsx'
 import DateField from './common/DateField.jsx'
@@ -15,13 +16,30 @@ export default function SearchHero({
 }) {
   const hoy = new Date().toLocaleDateString('en-CA')
   const valido = origen.trim().length >= 2 && destino.trim().length >= 2 && origen.trim().toLowerCase() !== destino.trim().toLowerCase()
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+
+  useEffect(() => {
+    const onMove = (e) => {
+      setMousePos({ x: e.clientX / window.innerWidth - 0.5, y: e.clientY / window.innerHeight - 0.5 })
+    }
+    window.addEventListener('mousemove', onMove)
+    return () => window.removeEventListener('mousemove', onMove)
+  }, [])
+
+  const parallax = (factor) => ({
+    transform: `translate(${mousePos.x * factor * 20}px, ${mousePos.y * factor * 20}px)`,
+  })
 
   return (
-    <section className="relative min-h-[760px] w-full md:min-h-[80vh]">
+    <section className="relative min-h-[760px] w-full md:min-h-[80vh]" style={{ overflow: 'hidden' }}>
+      <div className="mesh-orb mesh-orb-1" style={parallax(0.4)} />
+      <div className="mesh-orb mesh-orb-2" style={parallax(0.6)} />
+      <div className="mesh-orb mesh-orb-3" style={parallax(0.8)} />
       <img
         src={fondo}
         alt="Plaza de Armas del Cusco - LUX Líneas Únicas Xpress"
         className="absolute inset-0 h-full w-full object-cover object-center"
+        style={parallax(0.3)}
       />
       <div className="absolute inset-0 bg-gradient-to-l from-orange-950/95 via-orange-900/50 to-transparent" />
 

@@ -7,7 +7,7 @@ const ESTADOS = {
   libre: 'bg-white text-emerald-700 border-success/50 hover:bg-navy hover:text-white hover:border-navy cursor-pointer dark:bg-stone-900 dark:text-emerald-300 dark:border-success/50 dark:hover:bg-primary dark:hover:text-white dark:hover:border-primary',
 }
 
-const Seat = memo(function Seat({ numero, estado = 'libre', selected = false, onClick, neumorphic = false }) {
+const Seat = memo(function Seat({ numero, estado = 'libre', selected = false, onClick, neumorphic = false, heat = 0 }) {
   const estadoVisual = selected ? 'seleccionado' : estado
 
   return (
@@ -21,7 +21,7 @@ const Seat = memo(function Seat({ numero, estado = 'libre', selected = false, on
       className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-t-xl rounded-b-md border-2 font-bold text-sm
         transition-colors duration-200 flex items-center justify-center select-none
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
-        disabled:focus-visible:ring-0 ${ESTADOS[estadoVisual] || ESTADOS.libre} ${neumorphic ? 'seat-neumorphic' : ''}`}
+        disabled:focus-visible:ring-0 ${ESTADOS[estadoVisual] || ESTADOS.libre} ${neumorphic ? 'seat-neumorphic' : ''} ${heat > 0 ? `seat-heat-${Math.min(5, Math.floor(heat / 20))}` : ''}`}
     >
       <span className="relative z-10">{numero}</span>
       <span className="absolute top-0 inset-x-0 h-1.5 bg-black/10 rounded-t-xl pointer-events-none" aria-hidden />

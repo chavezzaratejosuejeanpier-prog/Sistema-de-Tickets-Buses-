@@ -25,6 +25,15 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
     })
   }
 
+  const calcularHeat = (numero, fila, _total) => {
+    const col = ((numero - 1) % 4) + 1
+    const centro = col === 2 || col === 3 ? 30 : 0
+    const frente = Math.max(0, 20 - fila * 3)
+    const ventana = col === 1 || col === 4 ? -10 : 0
+    const heat = Math.min(100, Math.max(0, centro + frente + ventana + Math.floor(Math.random() * 20)))
+    return heat
+  }
+
   return (
     <section
       aria-label={`Mapa de asientos piso ${piso} ${labelServicio}`}
@@ -78,6 +87,7 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
                         estado={ocupados.includes(nums[0]) ? 'ocupado' : 'libre'}
                         selected={seleccionados.includes(nums[0])}
                         onClick={() => toggle(nums[0])}
+                        heat={calcularHeat(nums[0], row, total)}
                       />
                     )}
                   </div>
@@ -88,6 +98,7 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
                         estado={ocupados.includes(nums[1]) ? 'ocupado' : 'libre'}
                         selected={seleccionados.includes(nums[1])}
                         onClick={() => toggle(nums[1])}
+                        heat={calcularHeat(nums[1], row, total)}
                       />
                     )}
                   </div>
@@ -101,6 +112,7 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
                         estado={ocupados.includes(nums[2]) ? 'ocupado' : 'libre'}
                         selected={seleccionados.includes(nums[2])}
                         onClick={() => toggle(nums[2])}
+                        heat={calcularHeat(nums[2], row, total)}
                       />
                     )}
                   </div>
@@ -111,6 +123,7 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
                         estado={ocupados.includes(nums[3]) ? 'ocupado' : 'libre'}
                         selected={seleccionados.includes(nums[3])}
                         onClick={() => toggle(nums[3])}
+                        heat={calcularHeat(nums[3], row, total)}
                       />
                     )}
                   </div>

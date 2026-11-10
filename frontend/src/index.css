@@ -13,6 +13,51 @@
     100% { left: 108%; }
   }
 
+  /* --- Gradientes mesh animados (hero) --- */
+  @keyframes mesh-move {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 40px) scale(0.9); }
+    100% { transform: translate(0, 0) scale(1); }
+  }
+
+  .mesh-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.45;
+    animation: mesh-move 14s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .mesh-orb-1 {
+    top: 10%;
+    left: 10%;
+    width: 600px;
+    height: 600px;
+    background: #f97316;
+    animation-delay: 0s;
+  }
+
+  .mesh-orb-2 {
+    bottom: 15%;
+    right: 10%;
+    width: 500px;
+    height: 500px;
+    background: #00f2ff;
+    animation-delay: -5s;
+  }
+
+  .mesh-orb-3 {
+    top: 40%;
+    left: 50%;
+    width: 400px;
+    height: 400px;
+    background: #ea580c;
+    animation-delay: -10s;
+  }
+
   html.dark { color-scheme: dark; }
   body, a, button, input, select, textarea, [role="button"], summary { @apply transition-colors duration-200; }
 
@@ -97,7 +142,8 @@
     @apply bg-[#0a0a12] border-stone-800/50;
   }
   html.night-mode .btn-primary {
-    @apply bg-night-accent text-black hover:bg-cyan-400;
+    @apply text-black hover:bg-cyan-400;
+    background-color: #00f2ff;
   }
   html.night-mode .input {
     @apply bg-stone-900 border-stone-700 text-white;
@@ -110,6 +156,18 @@
   .seat-neumorphic:active {
     @apply shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5)] bg-stone-900;
   }
+
+  /* --- Mapa de calor de asientos --- */
+  .seat-heat-1 { background-color: #fef3c7 !important; }
+  .seat-heat-2 { background-color: #fde047 !important; }
+  .seat-heat-3 { background-color: #facc15 !important; }
+  .seat-heat-4 { background-color: #f59e0b !important; }
+  .seat-heat-5 { background-color: #ef4444 !important; }
+  html.dark .seat-heat-1 { background-color: #92400e !important; }
+  html.dark .seat-heat-2 { background-color: #78350f !important; }
+  html.dark .seat-heat-3 { background-color: #713f12 !important; }
+  html.dark .seat-heat-4 { background-color: #b45309 !important; }
+  html.dark .seat-heat-5 { background-color: #7f1d1d !important; }
 
   /* --- Modo Cine overlay --- */
   .cine-overlay {

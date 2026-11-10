@@ -6,7 +6,6 @@ import Button from '../components/common/Button.jsx'
 import CityField from '../components/common/CityField.jsx'
 import DateField from '../components/common/DateField.jsx'
 import DestinationGrid from '../components/DestinationGrid.jsx'
-import Skeleton from '../components/common/Skeleton.jsx'
 import RouteLoadingLine from '../components/common/RouteLoadingLine.jsx'
 
 export default function SearchRoutes() {
