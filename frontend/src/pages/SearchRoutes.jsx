@@ -7,6 +7,7 @@ import CityField from '../components/common/CityField.jsx'
 import DateField from '../components/common/DateField.jsx'
 import DestinationGrid from '../components/DestinationGrid.jsx'
 import Skeleton from '../components/common/Skeleton.jsx'
+import RouteLoadingLine from '../components/common/RouteLoadingLine.jsx'
 
 export default function SearchRoutes() {
   const hoy = new Date().toLocaleDateString('en-CA')
@@ -22,6 +23,7 @@ export default function SearchRoutes() {
   const [recientes, setRecientes] = useState(() => {
     try { return JSON.parse(localStorage.getItem('busquedasRecientes') || '[]') } catch { return [] }
   })
+  const [modoCine, setModoCine] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -101,7 +103,9 @@ export default function SearchRoutes() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white tracking-tight">Buscar Viajes</h1>
+        <h1 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white tracking-tight">
+          {new Date().getHours() < 12 ? 'Buenos días, señor' : 'Buenas tardes, señor'} · Buscar Viajes
+        </h1>
         <p className="text-stone-500 dark:text-stone-400 mt-2 text-sm md:text-base">Elige origen, destino y fecha. Resultados en tiempo real con asientos disponibles.</p>
       </div>
 
@@ -130,7 +134,7 @@ export default function SearchRoutes() {
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <Button type="submit" disabled={!canSearch || loading} className="disabled:opacity-50 disabled:cursor-not-allowed min-w-[150px] flex items-center justify-center gap-2">
             {loading ? (
               <>
@@ -146,6 +150,13 @@ export default function SearchRoutes() {
           <Button type="button" variant="outline" onClick={limpiar}>
             Limpiar
           </Button>
+          <button
+            type="button"
+            onClick={() => setModoCine(!modoCine)}
+            className="text-xs font-semibold uppercase tracking-wider text-primary hover:text-primary/80 transition-colors"
+          >
+            {modoCine ? 'Salir del modo cine' : 'Modo cine'}
+          </button>
           {!canSearch && origen && destino && (
             <span className="self-center text-xs font-semibold text-primary bg-gray-50 dark:bg-stone-800 border border-black/5 dark:border-stone-700 px-3 py-1.5 rounded-full">Origen ≠ Destino</span>
           )}
@@ -185,17 +196,12 @@ export default function SearchRoutes() {
         {!hasSearched ? (
           <DestinationGrid onSelect={elegirDestino} exclude={origen} />
         ) : loading ? (
-          <div className="grid gap-4">
-            {[1,2,3].map(i => (
-              <div key={i} className="card p-5">
-                <Skeleton className="h-4 w-1/3" />
-                <Skeleton className="h-3 w-2/3 mt-3" />
-                <Skeleton className="h-3 w-1/4 mt-3" />
-              </div>
-            ))}
-          </div>
-        ) : resultados.length > 0 ? (
           <>
+            <RouteLoadingLine activo />
+            <p className="text-stone-400 text-sm text-center">Trazando rutas disponibles…</p>
+          </>
+        ) : resultados.length > 0 ? (
+          <div className="space-y-6">
             <p className="text-xs font-bold tracking-widest text-stone-400 dark:text-stone-500 uppercase mb-3">{resultadosFiltrados.length} de {resultados.length} resultado(s) {fecha && `• ${new Date(fecha).toLocaleDateString()}`}</p>
             {resultados.length > 0 && (
               <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -216,40 +222,59 @@ export default function SearchRoutes() {
                 )}
               </div>
             )}
-            <div className="grid gap-4">
-              {resultadosFiltrados.map(r => (
-                <div key={r.id} className="bg-white dark:bg-stone-800 rounded-xl border border-black/5 dark:border-stone-700 shadow-soft hover:shadow-lift hover:-translate-y-0.5 transition-all p-5 flex flex-col sm:flex-row justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="font-extrabold text-navy dark:text-white text-base flex items-center gap-2">
-                      {r.origen} <span className="text-primary">→</span> {r.destino}
-                    </p>
-                    <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">
-                      {r.fecha_salida ? new Date(r.fecha_salida).toLocaleDateString('es-PE', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) : 'Fecha por confirmar'} • {r.hora_salida} • {r.duracion_horas} h • Bus {r.bus_placa} <span className="inline-block bg-gray-50 dark:bg-stone-700 border border-black/10 dark:border-stone-600 dark:text-stone-200 px-2 py-0.5 rounded-full text-xs font-bold ml-1">{r.bus_tipo}</span>
-                    </p>
-                    <p className="text-sm mt-2">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${r.asientos_disponibles > 10 ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-300' : r.asientos_disponibles > 0 ? 'bg-gray-50 dark:bg-stone-800 border-black/5 dark:border-stone-700 text-stone-600 dark:text-stone-300' : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900 text-red-700 dark:text-red-300'}`}>
-                        <span className={`w-2 h-2 rounded-full ${r.asientos_disponibles > 10 ? 'bg-emerald-500' : r.asientos_disponibles > 0 ? 'bg-amber-500' : 'bg-red-500'}`} />
-                        {r.asientos_disponibles} asientos libres
-                      </span>
-                    </p>
-                  </div>
-                  <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 sm:text-right shrink-0">
-                    <p className="text-2xl font-extrabold text-navy dark:text-white">S/ {Number(r.precio_base).toFixed(2)}</p>
-                    <Button
-                      onClick={() => navigate(`/asientos/${r.id}`, { state: { precio: r.precio_base, origen: r.origen, destino: r.destino, fecha: r.fecha_salida, hora: r.hora_salida, placa: r.bus_placa, tipo: r.bus_tipo } })}
-                      disabled={r.asientos_disponibles === 0}
-                      className="disabled:opacity-40"
-                    >
-                      Ver Asientos
-                    </Button>
+            {modoCine && (
+              <div className="cine-overlay">
+                <div className="cine-panel">
+                  <h2 className="text-2xl font-bold text-white mb-4">Resultados en modo cine</h2>
+                  <div className="grid gap-4">
+                    {resultadosFiltrados.map(r => (
+                      <div key={r.id} className="bg-stone-900 border border-stone-800 rounded-xl p-4">
+                        <p className="font-bold text-white">{r.origen} → {r.destino}</p>
+                        <p className="text-stone-400 text-sm">{r.fecha_salida ? new Date(r.fecha_salida).toLocaleDateString('es-PE', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) : 'Fecha por confirmar'} • {r.hora_salida}</p>
+                        <p className="text-2xl font-extrabold text-white mt-2">S/ {Number(r.precio_base).toFixed(2)}</p>
+                      </div>
+                    ))}
+                    {resultadosFiltrados.length === 0 && <p className="text-stone-400 text-sm mt-4">Ningún resultado con esos filtros. Prueba otros.</p>}
                   </div>
                 </div>
-              ))}
-            </div>
-            {hasSearched && !loading && resultados.length > 0 && resultadosFiltrados.length === 0 && (
-              <div className="empty-state mt-4">Ningún resultado con esos filtros. Prueba otros.</div>
+              </div>
             )}
-          </>
+            {!modoCine && (
+              <div className="grid gap-4">
+                {resultadosFiltrados.map(r => (
+                  <div key={r.id} className="bg-white dark:bg-stone-800 rounded-xl border border-black/5 dark:border-stone-700 shadow-soft hover:shadow-lift hover:-translate-y-0.5 transition-all p-5 flex flex-col sm:flex-row justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="font-extrabold text-navy dark:text-white text-base flex items-center gap-2">
+                        {r.origen} <span className="text-primary">→</span> {r.destino}
+                      </p>
+                      <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">
+                        {r.fecha_salida ? new Date(r.fecha_salida).toLocaleDateString('es-PE', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) : 'Fecha por confirmar'} • {r.hora_salida} • {r.duracion_horas} h • Bus {r.bus_placa} <span className="inline-block bg-gray-50 dark:bg-stone-700 border border-black/10 dark:border-stone-600 dark:text-stone-200 px-2 py-0.5 rounded-full text-xs font-bold ml-1">{r.bus_tipo}</span>
+                      </p>
+                      <p className="text-sm mt-2">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${r.asientos_disponibles > 10 ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-300' : r.asientos_disponibles > 0 ? 'bg-gray-50 dark:bg-stone-800 border-black/5 dark:border-stone-700 text-stone-600 dark:text-stone-300' : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900 text-red-700 dark:text-red-300'}`}>
+                          <span className={`w-2 h-2 rounded-full ${r.asientos_disponibles > 10 ? 'bg-emerald-500' : r.asientos_disponibles > 0 ? 'bg-amber-500' : 'bg-red-500'}`} />
+                          {r.asientos_disponibles} asientos libres
+                        </span>
+                      </p>
+                    </div>
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 sm:text-right shrink-0">
+                      <p className="text-2xl font-extrabold text-navy dark:text-white">S/ {Number(r.precio_base).toFixed(2)}</p>
+                      <Button
+                        onClick={() => navigate(`/asientos/${r.id}`, { state: { precio: r.precio_base, origen: r.origen, destino: r.destino, fecha: r.fecha_salida, hora: r.hora_salida, placa: r.bus_placa, tipo: r.bus_tipo } })}
+                        disabled={r.asientos_disponibles === 0}
+                        className="disabled:opacity-40"
+                      >
+                        Ver Asientos
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {hasSearched && !loading && resultados.length > 0 && resultadosFiltrados.length === 0 && (
+                  <div className="empty-state mt-4">Ningún resultado con esos filtros. Prueba otros.</div>
+                )}
+              </div>
+            )}
+          </div>
         ) : null}
       </div>
     </div>

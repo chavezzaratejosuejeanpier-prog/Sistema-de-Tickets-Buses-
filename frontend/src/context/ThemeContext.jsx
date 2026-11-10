@@ -12,9 +12,15 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     const root = document.documentElement
-    root.classList.remove('dark', 'hc')
+    root.classList.remove('dark', 'hc', 'night-mode')
     if (theme === 'dark' || theme === 'hc') root.classList.add('dark')
     if (theme === 'hc') root.classList.add('hc')
+
+    // Modo nocturno automático: 20:00 - 06:00
+    const hora = new Date().getHours()
+    const esNoche = hora >= 20 || hora < 6
+    if (esNoche && theme === 'dark') root.classList.add('night-mode')
+
     localStorage.setItem('theme', theme)
   }, [theme])
 

@@ -29,7 +29,7 @@ export default function SearchHero({
         <div className="max-w-xl text-right text-white">
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-white/80">LUX · Líneas Únicas Xpress</p>
           <h1 className="mt-3 text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
-            Hasta 30% de descuento
+            {new Date().getHours() < 12 ? 'Buenos días, señor' : 'Buenas tardes, señor'} · Hasta 30% de descuento
           </h1>
           <p className="ml-auto mt-4 max-w-md text-base text-white/90 sm:text-lg">
             Viaja nivel premium con LUX. Encuentra los mejores pasajes a nivel nacional.

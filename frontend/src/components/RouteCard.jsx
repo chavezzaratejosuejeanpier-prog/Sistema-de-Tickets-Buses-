@@ -35,7 +35,7 @@ export default function RouteCard({ ruta }) {
           : 'perspective(900px) rotateX(0) rotateY(0)',
         transition: tilt.on ? 'transform 120ms ease-out' : 'transform 400ms ease-out',
       }}
-      className="group relative block aspect-[4/3] overflow-hidden rounded-2xl bg-navy shadow-[0_18px_40px_-20px_rgba(2,6,23,0.55)] ring-1 ring-black/5 transition-shadow duration-300 hover:shadow-[0_28px_60px_-20px_rgba(234,88,12,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-navy motion-reduce:transform-none motion-reduce:transition-none dark:ring-white/10 dark:focus-visible:ring-offset-stone-950"
+      className="group relative block aspect-[4/3] overflow-hidden rounded-2xl bg-navy shadow-[0_18px_40px_-20px_rgba(2,6,23,0.55)] ring-1 ring-black/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_60px_-20px_rgba(234,88,12,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-navy motion-reduce:transform-none motion-reduce:transition-none dark:ring-white/10 dark:focus-visible:ring-offset-stone-950"
     >
       {src ? (
         <img
@@ -44,7 +44,7 @@ export default function RouteCard({ ruta }) {
           loading="lazy"
           decoding="async"
           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-          className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105 motion-reduce:group-hover:scale-100"
+          className="absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 group-hover:scale-105 group-hover:blur-[1px] motion-reduce:group-hover:scale-100"
         />
       ) : (
         <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-br from-navy to-stone-900" />

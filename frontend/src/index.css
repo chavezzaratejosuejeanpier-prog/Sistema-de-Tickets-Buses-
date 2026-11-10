@@ -84,6 +84,40 @@
       scroll-behavior: auto !important;
     }
   }
+
+  /* --- Modo viaje nocturno --- */
+  html.night-mode {
+    --night-accent: #00f2ff;
+    --night-surface: #050508;
+  }
+  html.night-mode body {
+    @apply bg-[#050508] text-stone-100;
+  }
+  html.night-mode .card {
+    @apply bg-[#0a0a12] border-stone-800/50;
+  }
+  html.night-mode .btn-primary {
+    @apply bg-night-accent text-black hover:bg-cyan-400;
+  }
+  html.night-mode .input {
+    @apply bg-stone-900 border-stone-700 text-white;
+  }
+
+  /* --- Asiento neumorfismo --- */
+  .seat-neumorphic {
+    @apply relative rounded-lg border-0 shadow-[inset_4px_4px_8px_rgba(0,0,0,0.3),inset_-4px_-4px_8px_rgba(255,255,255,0.05)] bg-stone-800 text-stone-300;
+  }
+  .seat-neumorphic:active {
+    @apply shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5)] bg-stone-900;
+  }
+
+  /* --- Modo Cine overlay --- */
+  .cine-overlay {
+    @apply fixed inset-0 z-[60] bg-black/85 backdrop-blur-sm flex items-center justify-center;
+  }
+  .cine-panel {
+    @apply relative z-[61] max-w-4xl w-full bg-stone-950 border border-stone-800 rounded-2xl shadow-2xl p-6 md:p-8;
+  }
 }
 
 @layer components {
