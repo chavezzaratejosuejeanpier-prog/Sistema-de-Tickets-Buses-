@@ -11,6 +11,7 @@ import CommandPalette from './components/common/CommandPalette.jsx'
 import Onboarding from './components/common/Onboarding.jsx'
 import AmbientStationSound from './components/common/AmbientStationSound.jsx'
 import AccessibilityPanel from './components/common/AccessibilityPanel.jsx'
+import VoiceAssistant from './components/common/VoiceAssistant.jsx'
 
 import About from './pages/About'
 import Nosotros from './pages/Nosotros'
@@ -139,6 +140,7 @@ function App() {
         <Eye size={18} className="text-navy dark:text-white" />
         <span className="sr-only">Accesibilidad</span>
       </button>
+      <VoiceAssistant />
     </Router>
   )
 }
