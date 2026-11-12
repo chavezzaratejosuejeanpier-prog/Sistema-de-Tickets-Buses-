@@ -79,6 +79,12 @@
   html.hc .btn-primary { @apply border-2 border-white; }
   html.hc input, html.hc select, html.hc textarea { @apply border-2 border-white bg-black text-white; }
 
+  /* --- Tema automático por luz ambiental --- */
+  html.ambient-dark body { @apply bg-stone-950 text-stone-100; }
+  html.ambient-dark .card { @apply bg-stone-900 border-stone-800; }
+  html.ambient-light body { @apply bg-stone-50 text-stone-900; }
+  html.ambient-light .card { @apply bg-white border-line; }
+
   ::selection {
     background: rgba(234, 88, 12, 0.35);
     color: inherit;
@@ -112,10 +118,13 @@
   }
 
   @media print {
-    header, footer, nav, .no-print { display: none !important; }
+    header, footer, nav, .no-print, .voice-assistant, .accessibility-btn, .command-palette, .toaster { display: none !important; }
     body { background: #fff !important; color: #000 !important; }
     .print-only { display: block !important; }
     .card { box-shadow: none !important; border: 1px solid #000 !important; }
+    #main { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+    .boleto-termico { border: 2px solid #000 !important; page-break-inside: avoid; }
+    .no-print, .voice-assistant { display: none !important; }
   }
 
   .print-only { display: none; }

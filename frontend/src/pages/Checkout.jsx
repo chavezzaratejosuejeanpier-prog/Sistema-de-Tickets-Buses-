@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import { Timer, Download, Check } from 'lucide-react'
+import { Timer, Check } from 'lucide-react'
 import Swal from 'sweetalert2'
 import confetti from 'canvas-confetti'
 import Button from '../components/common/Button.jsx'
 import { checkout, getPdfUrl } from '../services/api.js'
 import { totalConIGV } from '../utils/precios.js'
+import BoletoTermico from '../components/common/BoletoTermico.jsx'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const HOY_ISO = new Date().toISOString().slice(0, 10)
@@ -145,17 +146,26 @@ const Checkout = () => {
           <h2 className="text-2xl font-bold text-green-600">¡Compra Exitosa!</h2>
           <p className="mt-2">Código: <span className="font-mono font-bold">{result.codigo_reserva}</span></p>
           <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">Ruta #{rutaId} • Asientos: {result.asientos.join(', ')} • Total: S/ {Number(result.total).toFixed(2)}</p>
-          <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href={getPdfUrl(result.codigo_reserva)}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-6 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
-            >
-              <Download size={18} aria-hidden="true" />
-              Descargar boleto (PDF)
-            </a>
-            <Link to="/buscar" className="btn-outline">Volver a buscar</Link>
+
+          <div className="mt-6 card p-4">
+            <BoletoTermico
+              codigoReserva={result.codigo_reserva}
+              origen={location.state?.origen ?? 'Origen'}
+              destino={location.state?.destino ?? 'Destino'}
+              fecha={location.state?.fecha ?? ''}
+              hora={location.state?.hora ?? ''}
+              asiento={result.asientos.join(', ')}
+              precio={Number(result.total)}
+              busPlaca={location.state?.placa ?? ''}
+              pdfUrl={getPdfUrl(result.codigo_reserva)}
+              onImprimir={() => window.print()}
+            />
+          </div>
+
+          <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center">
+            <Link to="/buscar" className="btn-outline flex-1 text-center">
+              Volver a buscar
+            </Link>
             <Button onClick={() => { try { localStorage.removeItem('reserva') } catch {} navigate('/buscar') }}>Aceptar</Button>
           </div>
         </div>

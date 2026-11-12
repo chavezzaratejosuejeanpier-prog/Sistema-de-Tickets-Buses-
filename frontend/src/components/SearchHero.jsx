@@ -17,6 +17,25 @@ export default function SearchHero({
   const hoy = new Date().toLocaleDateString('en-CA')
   const valido = origen.trim().length >= 2 && destino.trim().length >= 2 && origen.trim().toLowerCase() !== destino.trim().toLowerCase()
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  const [rutasRecientes, setRutasRecientes] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('lux_rutas_recientes') || '[]') } catch { return [] }
+  })
+
+  const guardarRutaReciente = (o, d) => {
+    const entrada = { origen: o, destino: d }
+    const filtrado = rutasRecientes.filter(r => !(r.origen === o && r.destino === d))
+    const nuevo = [entrada, ...filtrado].slice(0, 5)
+    setRutasRecientes(nuevo)
+    try { localStorage.setItem('lux_rutas_recientes', JSON.stringify(nuevo)) } catch {}
+  }
+
+  const seleccionarRutaReciente = (o, d) => {
+    if (onOrigen && onDestino) {
+      onOrigen(o)
+      onDestino(d)
+    }
+    guardarRutaReciente(o, d)
+  }
 
   useEffect(() => {
     const onMove = (e) => {
@@ -52,6 +71,22 @@ export default function SearchHero({
           <p className="ml-auto mt-4 max-w-md text-base text-white/90 sm:text-lg">
             Viaja nivel premium con LUX. Encuentra los mejores pasajes a nivel nacional.
           </p>
+
+          {rutasRecientes.length > 0 && (
+            <div className="ml-auto mt-6 flex flex-wrap gap-2">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70 block mb-1.5">Tus rutas recientes:</span>
+              {rutasRecientes.map((r, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => seleccionarRutaReciente(r.origen, r.destino)}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/20 transition-colors"
+                >
+                  {r.origen} → {r.destino}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="mt-8 flex flex-wrap justify-end gap-3">
             {BENEFICIOS.map(({ Icono, texto }) => (

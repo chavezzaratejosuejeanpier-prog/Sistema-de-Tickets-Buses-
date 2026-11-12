@@ -83,7 +83,7 @@ export default function VoiceAssistant({ className = '' }) {
   const estaActivo = estado === 'listening' || estado === 'speaking' || estado === 'processing'
 
   return (
-    <div className={`fixed bottom-4 right-4 z-[95] flex flex-col items-end gap-2 ${className}`}>
+    <div className={`voice-assistant fixed bottom-4 right-4 z-[95] flex flex-col items-end gap-2 ${className}`}>
       {/* Panel de chat */}
       <div
         className={`w-80 max-w-xs rounded-2xl border border-line dark:border-stone-700 bg-white dark:bg-stone-900 shadow-2xl overflow-hidden flex flex-col transition-all duration-300 ${
