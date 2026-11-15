@@ -106,10 +106,31 @@ const Checkout = () => {
   const [enviando, setEnviando] = useState(false)
   const [result, setResult] = useState(null)
   const [firma, setFirma] = useState(null)
+  const [cantidadPasajeros, setCantidadPasajeros] = useState(pasajeros.length)
+  const [codigoPromocional, setCodigoPromocional] = useState('')
+  const [descuentoAplicado, setDescuentoAplicado] = useState(null)
+
+  const CODIGOS_PROMO = {
+    'DESCUENTO10': 0.10,
+    'LUX2026': 0.15,
+    'PRIMERVIAJE': 0.20,
+  }
+
+  const aplicarDescuento = () => {
+    const codigo = codigoPromocional.trim().toUpperCase()
+    const desc = CODIGOS_PROMO[codigo]
+    if (desc) {
+      setDescuentoAplicado(desc)
+      Swal.fire('Descuento aplicado', `Se aplicó un ${Math.round(desc * 100)}% de descuento`, 'success')
+    } else if (codigoPromocional.trim()) {
+      Swal.fire('Código inválido', 'El código promocional no es válido', 'error')
+    }
+  }
 
   const rutaId = inicial?.rutaId
   const precioPorAsiento = Number(inicial?.precio ?? 0)
-  const total = totalConIGV(precioPorAsiento, pasajeros.length)
+  const subtotal = totalConIGV(precioPorAsiento, cantidadPasajeros)
+  const total = descuentoAplicado ? subtotal * (1 - descuentoAplicado) : subtotal
 
   useEffect(() => {
     if (!rutaId) navigate('/buscar', { replace: true })
@@ -497,6 +518,53 @@ const Checkout = () => {
                 />
               </div>
             )}
+          </div>
+
+          <div className="mt-6 rounded-lg border border-gray-200 bg-white p-6 dark:border-stone-700 dark:bg-stone-900">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-semibold text-stone-700 dark:text-stone-300">Cantidad de pasajeros:</span>
+                <button
+                  type="button"
+                  onClick={() => setCantidadPasajeros(p => Math.max(1, p - 1))}
+                  className="px-3 py-1 rounded-lg border border-line dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
+                >
+                  −
+                </button>
+                <span className="font-mono font-bold text-navy dark:text-white w-8 text-center">{cantidadPasajeros}</span>
+                <button
+                  type="button"
+                  onClick={() => setCantidadPasajeros(p => p + 1)}
+                  className="px-3 py-1 rounded-lg border border-line dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
+                >
+                  +
+                </button>
+                {cantidadPasajeros !== pasajeros.length && (
+                  <span className="text-[10px] text-orange-500 dark:text-orange-400 font-medium">*(ajustado)</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={codigoPromocional}
+                  onChange={(e) => setCodigoPromocional(e.target.value)}
+                  placeholder="Código promocional"
+                  className="input text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={aplicarDescuento}
+                  className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors text-sm font-medium"
+                >
+                  Aplicar
+                </button>
+                {descuentoAplicado && (
+                  <span className="text-xs font-bold text-green-500 dark:text-green-400">
+                    −{Math.round(descuentoAplicado * 100)}%
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="mt-8 border-t border-line dark:border-stone-700 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
