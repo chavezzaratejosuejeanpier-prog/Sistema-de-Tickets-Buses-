@@ -288,4 +288,38 @@
   .empty-state {
     @apply rounded-xl border border-dashed border-line bg-white/70 p-10 text-center text-sm text-muted;
   }
+
+  /* --- Modo Premium (acentos dorados, interfaz limpia) --- */
+  html.premium-mode .btn-primary {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+  }
+  html.premium-mode .card {
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+
+  /* --- Modo OLED (negro puro para pantallas OLED) --- */
+  html.oled-mode body {
+    @apply bg-black text-white;
+  }
+  html.oled-mode .card {
+    @apply bg-black border-stone-900;
+  }
+  html.oled-mode .input {
+    @apply bg-black text-white border-stone-800;
+  }
+
+  /* --- Modo Kiosco (botones grandes, interfaz táctil) --- */
+  html.kiosco-mode .btn-primary,
+  html.kiosco-mode .btn-outline,
+  html.kiosco-mode .btn-ghost {
+    @apply min-h-[56px] px-8 text-base;
+  }
+  html.kiosco-mode .input {
+    @apply min-h-[56px] px-8 text-base;
+  }
+
+  /* --- Boleto coleccionable efectos --- */
+  .boleto-coleccionable-sello {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+  }
 }
