@@ -226,6 +226,34 @@
   .font-scale {
     transition: font-size 0.2s ease;
   }
+
+  /* --- Modo compacto / modo cómodo --- */
+  html.modo-compacto .card { @apply p-3; }
+  html.modo-compacto .btn-primary { @apply px-4 py-2 text-xs; }
+  html.modo-compacto .input { @apply px-3 py-2 text-xs; }
+  html.modo-compacto .badge { @apply px-2 py-0.5 text-[10px]; }
+
+  /* --- Temas automáticos por ciudad de destino --- */
+  html.tema-playa .btn-primary { background-color: #0ea5e9; hover:bg-accent-hover; }
+  html.tema-montana .btn-primary { background-color: #10b981; hover:bg-accent-hover; }
+  html.tema-ciudad .btn-primary { background-color: #6366f1; hover:bg-accent-hover; }
+  html.tema-desierto .btn-primary { background-color: #f59e0b; hover:bg-accent-hover; }
+
+  /* --- Animaciones al hacer scroll --- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* --- FAB styles --- */
+  .fab-menu {
+    transition: all 0.3s ease;
+  }
 }
 
 @layer components {

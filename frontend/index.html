@@ -18,6 +18,11 @@
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="manifest" href="/manifest.json" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+    }
+  </script>
     <meta name="theme-color" content="#0F172A" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="LUX - Líneas Únicas Xpress" />

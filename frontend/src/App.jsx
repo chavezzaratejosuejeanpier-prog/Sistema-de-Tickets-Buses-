@@ -13,6 +13,7 @@ import AmbientStationSound from './components/common/AmbientStationSound.jsx'
 import AccessibilityPanel from './components/common/AccessibilityPanel.jsx'
 import VoiceAssistant from './components/common/VoiceAssistant.jsx'
 import { useAmbientLightTheme } from './components/common/useAmbientLightTheme.js'
+import Fab from './components/common/Fab.jsx'
 
 import About from './pages/About'
 import Nosotros from './pages/Nosotros'
@@ -45,7 +46,7 @@ function TituloRuta() {
   return null
 }
 
-function Layout() {
+function Layout({ _modoCompacto, _setModoCompacto, _temaCiudad, _setTemaCiudad }) {
   const { pathname } = useLocation()
   const esInicio = pathname === '/'
   const esNosotros = pathname === '/nosotros'
@@ -119,13 +120,35 @@ function App() {
     return localStorage.getItem('lux_onboarding') !== '1'
   })
   const [accesoAbierto, setAccesoAbierto] = useState(false)
+  const [modoCompacto, setModoCompacto] = useState(false)
+  const [temaCiudad, setTemaCiudad] = useState('')
   useAmbientLightTheme()
+
+  useEffect(() => {
+    const root = document.documentElement
+    if (modoCompacto) root.classList.add('modo-compacto')
+    else root.classList.remove('modo-compacto')
+    root.classList.remove('tema-playa', 'tema-montana', 'tema-ciudad', 'tema-desierto')
+    if (temaCiudad) root.classList.add(`tema-${temaCiudad}`)
+  }, [modoCompacto, temaCiudad])
+
+  useEffect(() => {
+    const observer = new window.IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible')
+        }
+      })
+    }, { threshold: 0.1 })
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <Router>
       <ScrollToTop />
       <TituloRuta />
-      <Layout />
+      <Layout _modoCompacto={modoCompacto} _setModoCompacto={setModoCompacto} _temaCiudad={temaCiudad} _setTemaCiudad={setTemaCiudad} />
       <div className="command-palette">
         <CommandPalette />
       </div>
@@ -147,6 +170,7 @@ function App() {
         <span className="sr-only">Accesibilidad</span>
       </button>
       <VoiceAssistant />
+      <Fab />
     </Router>
   )
 }

@@ -7,6 +7,7 @@ import CityField from '../components/common/CityField.jsx'
 import DateField from '../components/common/DateField.jsx'
 import DestinationGrid from '../components/DestinationGrid.jsx'
 import RouteLoadingLine from '../components/common/RouteLoadingLine.jsx'
+import ComparadorRutas from '../components/common/ComparadorRutas.jsx'
 
 export default function SearchRoutes() {
   const hoy = new Date().toLocaleDateString('en-CA')
@@ -23,6 +24,7 @@ export default function SearchRoutes() {
     try { return JSON.parse(localStorage.getItem('busquedasRecientes') || '[]') } catch { return [] }
   })
   const [modoCine, setModoCine] = useState(false)
+  const [comparadorRutas, setComparadorRutas] = useState([])
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -47,6 +49,9 @@ export default function SearchRoutes() {
           try { localStorage.setItem('busquedasRecientes', JSON.stringify(nuevo)) } catch {}
           return nuevo
         })
+        // Asignar hash de color dinámico a cada ruta
+        const conColor = data.map(r => ({ ...r, hashColor: r.id % 360 }))
+        setResultados(conColor)
       }
       if (data.length === 0) setError('No se encontraron viajes para esa combinación. Prueba otra fecha o ciudades cercanas.')
     } catch (err) {
@@ -89,6 +94,28 @@ export default function SearchRoutes() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const agregarAlComparador = (ruta) => {
+    setComparadorRutas(prev => {
+      const yaExiste = prev.find(r => r.id === ruta.id)
+      if (yaExiste) return prev
+      const nuevo = [...prev, ruta].slice(0, 2)
+      return nuevo
+    })
+  }
+
+  const quitarDelComparador = (id) => {
+    setComparadorRutas(prev => prev.filter(r => r.id !== id))
+  }
+
+  const obtenerTemaCiudad = (destino) => {
+    const d = (destino || '').toLowerCase()
+    if (d.includes('cusco') || d.includes('arequipa') || d.includes('puno')) return 'montana'
+    if (d.includes('lima') || d.includes('ica') || d.includes('tacna')) return 'ciudad'
+    if (d.includes('piura') || d.includes('tumbes') || d.includes('chiclayo')) return 'playa'
+    if (d.includes('iquitos') || d.includes('tarapoto') || d.includes('pucallpa')) return 'desierto'
+    return ''
+  }
+
   const resultadosFiltrados = resultados.filter(r => {
     const hora = parseInt((r.hora_salida || '0').split(':')[0], 10)
     if (filtroHorario === 'manana' && !(hora < 12)) return false
@@ -98,6 +125,16 @@ export default function SearchRoutes() {
     return true
   })
   const tiposDisponibles = [...new Set(resultados.map(r => r.bus_tipo).filter(Boolean))]
+
+  useEffect(() => {
+    if (destino) {
+      const tema = obtenerTemaCiudad(destino)
+      if (tema) {
+        // Emitir evento personalizado para que App.jsx lo capture
+        window.dispatchEvent(new window.CustomEvent('tema-ciudad-cambiado', { detail: { tema } }))
+      }
+    }
+  }, [destino])
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -221,6 +258,23 @@ export default function SearchRoutes() {
                 )}
               </div>
             )}
+            {comparadorRutas.length === 2 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 mb-3">Comparar rutas</h3>
+                <ComparadorRutas
+                  rutaA={comparadorRutas[0]}
+                  rutaB={comparadorRutas[1]}
+                  onSeleccionar={(r) => navigate(`/asientos/${r.id}`, { state: { precio: r.precio_base, origen: r.origen, destino: r.destino, fecha: r.fecha_salida, hora: r.hora_salida, placa: r.bus_placa, tipo: r.bus_tipo } })}
+                />
+                <button
+                  type="button"
+                  onClick={quitarDelComparador}
+                  className="text-xs text-primary underline mt-2"
+                >
+                  Cancelar comparación
+                </button>
+              </div>
+            )}
             {modoCine && (
               <div className="cine-overlay">
                 <div className="cine-panel">
@@ -240,8 +294,12 @@ export default function SearchRoutes() {
             )}
             {!modoCine && (
               <div className="grid gap-4">
-                {resultadosFiltrados.map(r => (
-                  <div key={r.id} className="bg-white dark:bg-stone-800 rounded-xl border border-black/5 dark:border-stone-700 shadow-soft hover:shadow-lift hover:-translate-y-0.5 transition-all p-5 flex flex-col sm:flex-row justify-between gap-4">
+                {resultadosFiltrados.map((r, i) => (
+                  <div
+                    key={r.id}
+                    className="reveal bg-white dark:bg-stone-800 rounded-xl border border-black/5 dark:border-stone-700 shadow-soft hover:shadow-lift hover:-translate-y-0.5 transition-all p-5 flex flex-col sm:flex-row justify-between gap-4"
+                    style={{ transitionDelay: `${i * 0.05}s` }}
+                  >
                     <div className="min-w-0">
                       <p className="font-extrabold text-navy dark:text-white text-base flex items-center gap-2">
                         {r.origen} <span className="text-primary">→</span> {r.destino}
@@ -258,13 +316,24 @@ export default function SearchRoutes() {
                     </div>
                     <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 sm:text-right shrink-0">
                       <p className="text-2xl font-extrabold text-navy dark:text-white">S/ {Number(r.precio_base).toFixed(2)}</p>
-                      <Button
-                        onClick={() => navigate(`/asientos/${r.id}`, { state: { precio: r.precio_base, origen: r.origen, destino: r.destino, fecha: r.fecha_salida, hora: r.hora_salida, placa: r.bus_placa, tipo: r.bus_tipo } })}
-                        disabled={r.asientos_disponibles === 0}
-                        className="disabled:opacity-40"
-                      >
-                        Ver Asientos
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => agregarAlComparador(r)}
+                          disabled={comparadorRutas.length >= 2 && !comparadorRutas.some(cr => cr.id === r.id)}
+                          className="p-1.5 rounded-md text-stone-400 hover:text-primary dark:hover:text-primary transition-colors"
+                          title="Agregar al comparador"
+                          aria-label={`Agregar ${r.origen} a ${r.destino} al comparador`}
+                        >
+                          <ArrowLeftRight size={14} aria-hidden="true" />
+                        </button>
+                        <Button
+                          onClick={() => navigate(`/asientos/${r.id}`, { state: { precio: r.precio_base, origen: r.origen, destino: r.destino, fecha: r.fecha_salida, hora: r.hora_salida, placa: r.bus_placa, tipo: r.bus_tipo } })}
+                          disabled={r.asientos_disponibles === 0}
+                          className="disabled:opacity-40"
+                        >
+                          Ver Asientos
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}

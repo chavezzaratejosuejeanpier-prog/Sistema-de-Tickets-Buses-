@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { Timer, Check } from 'lucide-react'
+import { motion } from 'framer-motion'
 import Swal from 'sweetalert2'
 import confetti from 'canvas-confetti'
 import Button from '../components/common/Button.jsx'
 import { checkout, getPdfUrl } from '../services/api.js'
 import { totalConIGV } from '../utils/precios.js'
 import BoletoTermico from '../components/common/BoletoTermico.jsx'
+import FirmaDigital from '../components/common/FirmaDigital.jsx'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const HOY_ISO = new Date().toISOString().slice(0, 10)
@@ -103,6 +105,7 @@ const Checkout = () => {
   const [timeLeft, setTimeLeft] = useState(300)
   const [enviando, setEnviando] = useState(false)
   const [result, setResult] = useState(null)
+  const [firma, setFirma] = useState(null)
 
   const rutaId = inicial?.rutaId
   const precioPorAsiento = Number(inicial?.precio ?? 0)
@@ -141,11 +144,22 @@ const Checkout = () => {
 
   if (result) {
     return (
-      <div className="max-w-xl mx-auto p-6 mt-10">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className="max-w-xl mx-auto p-6 mt-10"
+      >
         <div className="card p-8 text-center">
           <h2 className="text-2xl font-bold text-green-600">¡Compra Exitosa!</h2>
           <p className="mt-2">Código: <span className="font-mono font-bold">{result.codigo_reserva}</span></p>
           <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">Ruta #{rutaId} • Asientos: {result.asientos.join(', ')} • Total: S/ {Number(result.total).toFixed(2)}</p>
+
+          {!firma && (
+            <div className="mt-6">
+              <FirmaDigital onFirmaCambio={(firmado) => setFirma(firmado)} />
+            </div>
+          )}
 
           <div className="mt-6 card p-4">
             <BoletoTermico
@@ -169,7 +183,7 @@ const Checkout = () => {
             <Button onClick={() => { try { localStorage.removeItem('reserva') } catch {} navigate('/buscar') }}>Aceptar</Button>
           </div>
         </div>
-      </div>
+      </motion.div>
     )
   }
 
