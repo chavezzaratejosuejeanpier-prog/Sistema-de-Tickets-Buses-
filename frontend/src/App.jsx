@@ -14,6 +14,7 @@ import AccessibilityPanel from './components/common/AccessibilityPanel.jsx'
 import VoiceAssistant from './components/common/VoiceAssistant.jsx'
 import { useAmbientLightTheme } from './components/common/useAmbientLightTheme.js'
 import Innovacion from './pages/Innovacion.jsx'
+import Innovacion2 from './pages/Innovacion2.jsx'
 import Fab from './components/common/Fab.jsx'
 
 import About from './pages/About'
@@ -94,6 +95,7 @@ function Layout({ _modoCompacto, _setModoCompacto, _temaCiudad, _setTemaCiudad }
             <Route path="/asientos/:routeId" element={<SeatSelection />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/innovacion" element={<Innovacion />} />
+            <Route path="/innovacion2" element={<Innovacion2 />} />
             <Route path="/mis-pasajes" element={<MisPasajes />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />

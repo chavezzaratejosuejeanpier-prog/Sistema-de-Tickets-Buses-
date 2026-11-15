@@ -322,4 +322,41 @@
   .boleto-coleccionable-sello {
     box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
   }
+
+  /* --- Animaciones modo invierno (nieve) --- */
+  @keyframes caer {
+    0% { transform: translateY(-10px); }
+    100% { transform: translateY(110vh); }
+  }
+
+  /* --- Animaciones modo playa (olas) --- */
+  @keyframes olas {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-20px); }
+  }
+
+  /* --- Filtros de daltonismo --- */
+  html.filtro-protanopia { filter: url('#filtro-protanopia'); }
+  html.filtro-deuteranopia { filter: url('#filtro-deuteranopia'); }
+  html.filtro-tritanopia { filter: url('#filtro-tritanopia'); }
+
+  /* --- Temas de estación del año --- */
+  html.estacion-primavera { --estacion-accent: #22c55e; }
+  html.estacion-verano { --estacion-accent: #f97316; }
+  html.estacion-otonno { --estacion-accent: #d97706; }
+  html.estacion-invierno { --estacion-accent: #3b82f6; }
+  html.estacion-primavera .btn-primary { background-color: var(--estacion-accent); }
+  html.estacion-verano .btn-primary { background-color: var(--estacion-accent); }
+  html.estacion-otonno .btn-primary { background-color: var(--estacion-accent); }
+  html.estacion-invierno .btn-primary { background-color: var(--estacion-accent); }
+
+  /* --- Modo foco --- */
+  html.modo-foco *:not(.focus-element) { filter: grayscale(80%) opacity(40%); pointer-events: none; }
+  html.modo-foco .focus-element { filter: none !important; opacity: 1 !important; pointer-events: auto !important; }
+
+  /* --- Máquina de escribir --- */
+  @keyframes escribir-cursor {
+    0%, 100% { border-color: transparent; }
+    50% { border-color: currentColor; }
+  }
 }
