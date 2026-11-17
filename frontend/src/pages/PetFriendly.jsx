@@ -11,17 +11,17 @@ const PetFriendly = () => {
           <PawPrint className="absolute -left-8 top-1/3 h-14 w-14 rotate-[35deg] !text-amber-400 opacity-20" aria-hidden="true" />
           <PawPrint className="absolute -right-6 top-1/2 h-20 w-20 rotate-[-15deg] !text-amber-400 opacity-20" aria-hidden="true" />
 
-          <div className="relative z-20 lg:pl-32">
-            <p className="mb-1 text-center text-xl font-bold !text-orange-500 sm:text-2xl">
+          <div className="pf-hero-texto relative z-20 lg:pl-32">
+            <p className="pf-hero-label mb-1 text-center !text-orange-500">
               Servicio Especial
             </p>
-            <h1 className="mb-2 text-center text-5xl font-black tracking-tight !text-gray-800 sm:text-6xl">
+            <h1 className="pf-hero-title mb-2 text-center !text-gray-800">
               PetFriendly
             </h1>
-            <p className="mb-4 text-center text-lg font-bold !text-orange-500 sm:text-xl">
+            <p className="pf-hero-subtitle mb-4 text-center !text-orange-500">
               ¡Tus viajes ahora dejarán huella!
             </p>
-            <p className="mx-auto max-w-lg text-left text-xs leading-relaxed !text-gray-600 sm:text-center sm:text-sm">
+            <p className="pf-hero-desc mx-auto max-w-lg text-left !text-gray-600 sm:text-center">
               En LUX sabemos que tu mascota no es solo una mascota, es parte de tu familia. Por eso creamos
               nuestro servicio PetFriendly, para que puedan viajar juntos, con la tranquilidad, seguridad y
               comodidad que ambos merecen.
@@ -32,10 +32,10 @@ const PetFriendly = () => {
             <img
               src="/petfriendly/beagle.png"
               alt="Perro beagle con su arnés sentado sobre la plataforma amarilla"
-              className="absolute bottom-4 left-6 z-20 w-44 drop-shadow-2xl sm:left-16 sm:w-60"
+              className="pf-hero-perro absolute bottom-4 left-6 z-20 w-44 drop-shadow-2xl sm:left-16 sm:w-60"
               fetchPriority="high"
             />
-            <p className="relative z-10 pl-24 text-center text-sm font-bold leading-snug !text-white drop-shadow-sm sm:pl-36 sm:text-lg">
+            <p className="pf-hero-quote relative z-10 pl-24 text-center !text-white drop-shadow-sm sm:pl-36">
               Porque los mejores momentos comienzan
               <br />
               cuando nadie se queda en casa. <span aria-hidden="true">♡</span>
@@ -48,10 +48,10 @@ const PetFriendly = () => {
         <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-8">
           <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[55%_45%] md:gap-12">
             <div>
-              <h2 className="!text-left !text-2xl font-black tracking-tight !text-gray-800 sm:!text-3xl">
+              <h2 className="pf-titulo !text-left !text-gray-800">
                 ¿En qué consiste el servicio?
               </h2>
-              <p className="mt-4 max-w-xl !text-left !text-sm leading-relaxed !text-gray-600 sm:!text-base">
+              <p className="pf-descripcion mt-4 max-w-xl !text-left !text-gray-600">
                 El servicio PetFriendly permite que{' '}
                 <strong className="font-bold !text-gray-800">
                   tu mascota viaje a tu lado en su respectivo asiento
@@ -77,10 +77,10 @@ const PetFriendly = () => {
         <div className="mx-auto w-full max-w-[1150px] px-4 sm:px-8">
           <div className="flex flex-col gap-8 md:flex-row md:items-center md:gap-10">
             <div className="w-full md:w-[65%]">
-              <h2 className="!text-2xl font-black tracking-tight !text-gray-800 sm:!text-3xl">
+              <h2 className="pf-titulo !text-gray-800">
                 ¿A dónde puedo viajar con mi mascota?
               </h2>
-              <p className="mt-3 max-w-2xl !text-sm leading-relaxed !text-gray-600">
+              <p className="pf-descripcion mt-3 max-w-2xl !text-gray-600">
                 Este servicio está pensado para los pasajeros que viajan con sus mascotas, permitiéndoles
                 trasladarlas de forma segura y cómoda en las siguientes rutas.
               </p>
@@ -96,7 +96,7 @@ const PetFriendly = () => {
                   ].map((ruta) => (
                     <li
                       key={ruta}
-                      className="flex items-center gap-2 border-b border-gray-200 py-2 !text-sm !text-gray-700"
+                      className="pf-ruta-item flex items-center gap-2 border-b border-gray-200 py-2 !text-gray-700"
                     >
                       <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500" aria-hidden="true" />
                       <span className="leading-snug">{ruta}</span>
@@ -112,7 +112,7 @@ const PetFriendly = () => {
                   ].map((ruta) => (
                     <li
                       key={ruta}
-                      className="flex items-center gap-2 border-b border-gray-200 py-2 !text-sm !text-gray-700"
+                      className="pf-ruta-item flex items-center gap-2 border-b border-gray-200 py-2 !text-gray-700"
                     >
                       <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500" aria-hidden="true" />
                       <span className="leading-snug">{ruta}</span>
@@ -121,7 +121,7 @@ const PetFriendly = () => {
                 </ul>
               </div>
 
-              <p className="mt-5 !text-xs font-semibold !text-gray-500">
+              <p className="pf-nota mt-5 !text-gray-500">
                 *Consulta los horarios y disponibilidad en las agencias presenciales.
               </p>
             </div>
