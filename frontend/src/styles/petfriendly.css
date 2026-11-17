@@ -1081,8 +1081,48 @@
   }
 
   .pf-page .container {
-    width: 100%;
-    max-width: 1200px;
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 0 20px !important;
+  }
+
+  .pf-page .pf-consiste-row--solo {
+    display: block;
+    max-width: 800px;
     margin: 0 auto;
-    padding: 0 15px;
+    text-align: center;
+  }
+
+  .pf-page .pf-consiste-row--solo .pf-section__title,
+  .pf-page .pf-consiste-row--solo .pf-section__text {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  html.dark .pf-page {
+    color-scheme: light;
+    background: #fff !important;
+    color: #444 !important;
+  }
+
+  html.dark .pf-page div,
+  html.dark .pf-page h1,
+  html.dark .pf-page h2,
+  html.dark .pf-page p,
+  html.dark .pf-page li,
+  html.dark .pf-page strong {
+    color: #444;
+  }
+
+  html.dark .pf-page .pf-hero__badge,
+  html.dark .pf-page .pf-hero__subtitle,
+  html.dark .pf-page .pf-final__text strong {
+    color: #f4831f;
+  }
+
+  html.dark .pf-page .pf-hero__quote,
+  html.dark .pf-page .pf-btn {
+    color: #fff;
   }

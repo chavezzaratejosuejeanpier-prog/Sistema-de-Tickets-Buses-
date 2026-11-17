@@ -60,11 +60,7 @@ const Navbar = () => {
   const linkSeccionInactivo = `${botonBase} border-line text-navy hover:border-orange-500 hover:bg-orange-500/15 hover:text-orange-600 hover:backdrop-blur-md hover:shadow-[0_0_18px_rgba(249,115,22,0.22)] focus-visible:border-orange-500 focus-visible:bg-orange-500/15 focus-visible:text-orange-600 focus-visible:ring-orange-500/60 dark:border-stone-700 dark:text-white dark:hover:border-orange-400 dark:hover:bg-orange-500/15 dark:hover:text-orange-300 dark:focus-visible:border-orange-400 dark:focus-visible:bg-orange-500/15 dark:focus-visible:text-orange-300`
   const linkSeccionActivo = `${botonBase} border-orange-500 bg-orange-500/15 text-orange-600 backdrop-blur-md shadow-[0_0_18px_rgba(249,115,22,0.22)] dark:border-orange-400 dark:bg-orange-500/15 dark:text-orange-300`
 
-  const linkPet =
-    'inline-flex items-center gap-2 rounded-md border border-[#fdb901] bg-[#fdb901] px-4 py-2 text-sm font-bold text-white transition-all duration-200 hover:border-[#f2ca30] hover:bg-[#f2ca30] dark:text-white'
-
   const claseEnlace = (to) => {
-    if (to === '/petfriendly') return linkPet
     const esActivo = to === pathname && !to.includes('#')
     if (transparente) return esActivo ? linkHomeActivo : linkHomeInactivo
     return esActivo ? linkSeccionActivo : linkSeccionInactivo

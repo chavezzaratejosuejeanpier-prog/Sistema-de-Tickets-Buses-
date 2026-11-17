@@ -58,6 +58,11 @@ def buscar_viajes(origen: str, destino: str, fecha: Optional[str] = None, db: Se
         })
     return result
 
+@router.get("/pares")
+def listar_pares_rutas(db: Session = Depends(get_db)):
+    filas = db.query(Route.origen, Route.destino).distinct().order_by(Route.origen, Route.destino).all()
+    return [{"origen": origen, "destino": destino} for origen, destino in filas]
+
 @router.get("/{route_id}/asientos")
 def asientos_por_ruta(route_id: int, db: Session = Depends(get_db)):
     ruta = db.query(Route).filter(Route.id == route_id).first()
