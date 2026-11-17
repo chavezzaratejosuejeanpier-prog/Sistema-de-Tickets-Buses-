@@ -151,12 +151,22 @@ const PetFriendly = () => {
                 términos y condiciones!
               </h2>
               <div className="terminos-btn">
-                <a href="/petfriendly/pdf/TyC-Petfriendly-A4.pdf" target="_blank" rel="noreferrer" className="pf-btn">
+                <a
+                  href="/petfriendly/pdf/TyC-Petfriendly-A4.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pf-btn"
+                >
                   <Download size={16} aria-hidden="true" /> Términos y Condiciones
                 </a>
               </div>
               <div>
-                <a href="/petfriendly/pdf/Declaracion-Jurada-Petfriendly.pdf" target="_blank" rel="noreferrer" className="pf-btn">
+                <a
+                  href="/petfriendly/pdf/DECLARACION%20JURADA%20PETFRIENDLY%2016.03.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pf-btn"
+                >
                   <Download size={16} aria-hidden="true" /> Declaración Jurada
                 </a>
               </div>
