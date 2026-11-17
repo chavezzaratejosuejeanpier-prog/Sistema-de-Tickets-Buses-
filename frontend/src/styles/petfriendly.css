@@ -1244,3 +1244,37 @@
       padding-bottom: 0;
     }
   }
+
+  /* ---------- Medidas del kennel ---------- */
+  .pf-page .pf-kennel-titulo {
+    font-size: var(--pf-h2);
+    font-weight: var(--pf-peso-bold);
+    line-height: 1.2;
+    text-align: left;
+    margin-bottom: 4px;
+  }
+
+  .pf-page .pf-kennel-desc {
+    font-size: var(--pf-cuerpo);
+    font-weight: var(--pf-peso-regular);
+    line-height: var(--pf-interlineado);
+    max-width: 100%;
+  }
+
+  .pf-page .pf-kennel-medidas {
+    margin-top: 28px;
+    font-size: clamp(17px, 1.5vw, 22px);
+    font-weight: var(--pf-peso-bold);
+    line-height: 1.35;
+  }
+
+  .pf-page .pf-kennel-medidas strong {
+    font-weight: var(--pf-peso-bold);
+  }
+
+  .pf-page .pf-kennel-imagen {
+    display: block;
+    width: 100%;
+    max-width: 560px;
+    height: auto;
+  }

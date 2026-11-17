@@ -175,20 +175,23 @@ const PetFriendly = () => {
         </div>
       </section>
 
-      <section className="pf-kennel">
-        <div className="container">
-          <h2 className="pf-kennel__title">Medidas del kennel:</h2>
-          <div className="pf-kennel__row">
-            <div className="pf-kennel__info">
-              <p>El kennel de la mascota, no debe interferir ni impedir la reclinación del asiento delantero.</p>
-              <p className="medidas"><strong>30cm de ancho x 48cm de largo x 32cm de altura</strong></p>
+      <section className="pf-kennel-seccion bg-white py-12 sm:py-16">
+        <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-8">
+          <h2 className="pf-kennel-titulo !text-left !text-gray-800">Medidas del kennel:</h2>
+          <div className="mt-6 grid grid-cols-1 items-start gap-8 md:grid-cols-[60%_40%] md:gap-10">
+            <div className="pf-kennel-texto">
+              <p className="pf-kennel-desc !text-gray-600">
+                El kennel de la mascota, no debe interferir ni impedir la reclinación del asiento delantero.
+              </p>
+              <p className="pf-kennel-medidas !text-gray-800">
+                <strong>30cm de ancho x 48cm de largo x 32cm de altura</strong>
+              </p>
             </div>
-            <div className="pf-kennel__img">
-              <img src="/petfriendly/imagen-5.png" alt="Kennel con medidas: ancho, altura y profundidad" loading="lazy" />
+            <div className="flex justify-center">
               <img
-                src="/petfriendly/imagen-4.png"
-                className="imagen-ocultar-desktop"
-                alt="Perrito poodle con arnés colorido"
+                src="/petfriendly/imagen-5.png"
+                alt="Kennel con medidas: ancho, altura y profundidad"
+                className="pf-kennel-imagen object-contain"
                 loading="lazy"
               />
             </div>
