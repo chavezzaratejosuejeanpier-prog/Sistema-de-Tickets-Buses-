@@ -44,14 +44,30 @@ const PetFriendly = () => {
         </div>
       </section>
 
-      <section className="pf-section">
-        <div className="container">
-          <div className="pf-consiste-row pf-consiste-row--solo">
-            <div className="pf-consiste-row__text">
-              <h2 className="pf-section__title">¿En qué consiste el servicio?</h2>
-              <p className="pf-section__text">
-                El servicio PetFriendly permite que <strong>tu mascota viaje a tu lado en su respectivo asiento</strong>, dentro de su kennel, cumpliendo con protocolos establecidos y bajo condiciones que garantizan su bienestar, tu comodidad y la seguridad de todos a bordo.
+      <section className="bg-white py-16 sm:py-20">
+        <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-8">
+          <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[55%_45%] md:gap-12">
+            <div>
+              <h2 className="!text-left !text-2xl font-black tracking-tight !text-gray-800 sm:!text-3xl">
+                ¿En qué consiste el servicio?
+              </h2>
+              <p className="mt-4 max-w-xl !text-left !text-sm leading-relaxed !text-gray-600 sm:!text-base">
+                El servicio PetFriendly permite que{' '}
+                <strong className="font-bold !text-gray-800">
+                  tu mascota viaje a tu lado en su respectivo asiento
+                </strong>
+                , dentro de su kennel, cumpliendo con protocolos establecidos y bajo condiciones que
+                garantizan su bienestar, tu comodidad y la seguridad de todos a bordo.
               </p>
+            </div>
+
+            <div className="flex justify-center">
+              <img
+                src="/petfriendly/emblema-petfriendly.png"
+                alt="Emblema circular Servicio Pet Friendly con una huella blanca"
+                className="w-56 object-contain sm:w-64 md:w-full md:max-w-sm"
+                loading="lazy"
+              />
             </div>
           </div>
         </div>
