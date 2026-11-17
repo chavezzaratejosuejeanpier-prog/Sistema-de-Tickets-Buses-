@@ -12,16 +12,16 @@ const PetFriendly = () => {
           <PawPrint className="absolute -right-6 top-1/2 h-20 w-20 rotate-[-15deg] !text-amber-400 opacity-20" aria-hidden="true" />
 
           <div className="pf-hero-texto relative z-20 lg:pl-32">
-            <p className="pf-hero-label mb-1 text-center !text-orange-500">
+            <p className="pf-hero-label mb-1 text-center pf-naranja">
               Servicio Especial
             </p>
-            <h1 className="pf-hero-title mb-2 text-center !text-gray-800">
+            <h1 className="pf-hero-title mb-2 text-center pf-titulo">
               PetFriendly
             </h1>
-            <p className="pf-hero-subtitle mb-4 text-center !text-orange-500">
+            <p className="pf-hero-subtitle mb-4 text-center pf-naranja">
               ¡Tus viajes ahora dejarán huella!
             </p>
-            <p className="pf-hero-desc mx-auto max-w-lg text-left !text-gray-600 sm:text-center">
+            <p className="pf-hero-desc mx-auto max-w-lg text-left pf-texto sm:text-center">
               En LUX sabemos que tu mascota no es solo una mascota, es parte de tu familia. Por eso creamos
               nuestro servicio PetFriendly, para que puedan viajar juntos, con la tranquilidad, seguridad y
               comodidad que ambos merecen.
@@ -48,12 +48,12 @@ const PetFriendly = () => {
         <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-8">
           <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[55%_45%] md:gap-12">
             <div>
-              <h2 className="pf-titulo !text-left !text-gray-800">
+              <h2 className="pf-titulo !text-left">
                 ¿En qué consiste el servicio?
               </h2>
-              <p className="pf-descripcion mt-4 max-w-xl !text-left !text-gray-600">
+              <p className="pf-descripcion mt-4 max-w-xl !text-left pf-texto">
                 El servicio PetFriendly permite que{' '}
-                <strong className="font-bold !text-gray-800">
+                <strong className="font-bold pf-titulo">
                   tu mascota viaje a tu lado en su respectivo asiento
                 </strong>
                 , dentro de su kennel, cumpliendo con protocolos establecidos y bajo condiciones que
@@ -77,10 +77,10 @@ const PetFriendly = () => {
         <div className="mx-auto w-full max-w-[1150px] px-4 sm:px-8">
           <div className="flex flex-col gap-8 md:flex-row md:items-center md:gap-10">
             <div className="w-full md:w-[65%]">
-              <h2 className="pf-titulo !text-gray-800">
+              <h2 className="pf-titulo">
                 ¿A dónde puedo viajar con mi mascota?
               </h2>
-              <p className="pf-descripcion mt-3 max-w-2xl !text-gray-600">
+              <p className="pf-descripcion mt-3 max-w-2xl pf-texto">
                 Este servicio está pensado para los pasajeros que viajan con sus mascotas, permitiéndoles
                 trasladarlas de forma segura y cómoda en las siguientes rutas.
               </p>
@@ -96,7 +96,7 @@ const PetFriendly = () => {
                   ].map((ruta) => (
                     <li
                       key={ruta}
-                      className="pf-ruta-item flex items-center gap-2 border-b border-gray-200 py-2 !text-gray-700"
+                      className="pf-ruta-item flex items-center gap-2 border-b border-gray-200 py-2 pf-texto"
                     >
                       <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500" aria-hidden="true" />
                       <span className="leading-snug">{ruta}</span>
@@ -112,7 +112,7 @@ const PetFriendly = () => {
                   ].map((ruta) => (
                     <li
                       key={ruta}
-                      className="pf-ruta-item flex items-center gap-2 border-b border-gray-200 py-2 !text-gray-700"
+                      className="pf-ruta-item flex items-center gap-2 border-b border-gray-200 py-2 pf-texto"
                     >
                       <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500" aria-hidden="true" />
                       <span className="leading-snug">{ruta}</span>
@@ -121,7 +121,7 @@ const PetFriendly = () => {
                 </ul>
               </div>
 
-              <p className="pf-nota mt-5 !text-gray-500">
+              <p className="pf-nota mt-5 pf-secundario">
                 *Consulta los horarios y disponibilidad en las agencias presenciales.
               </p>
             </div>
@@ -177,17 +177,17 @@ const PetFriendly = () => {
 
       <section className="pf-kennel-seccion bg-white py-12 sm:py-16">
         <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-8">
-          <h2 className="pf-kennel-titulo !text-left !text-gray-800">Medidas del kennel:</h2>
+          <h2 className="pf-kennel-titulo !text-left pf-titulo">Medidas del kennel:</h2>
           <div className="mt-6 grid grid-cols-1 items-start gap-8 md:grid-cols-[60%_40%] md:gap-10">
             <div className="pf-kennel-texto">
-              <p className="pf-kennel-desc !text-gray-600">
+              <p className="pf-kennel-desc pf-texto">
                 El kennel de la mascota, no debe interferir ni impedir la reclinación del asiento delantero.
               </p>
-              <p className="pf-kennel-medidas !text-gray-800">
+              <p className="pf-kennel-medidas pf-titulo">
                 <strong>30cm de ancho x 48cm de largo x 32cm de altura</strong>
               </p>
             </div>
-            <div className="flex justify-center">
+            <div className="pf-kennel-imagen-wrap flex justify-center">
               <img
                 src="/petfriendly/imagen-5.png"
                 alt="Kennel con medidas: ancho, altura y profundidad"
@@ -218,7 +218,7 @@ const PetFriendly = () => {
             <div className="pf-solicitar__text">
               <h2 className="pf-solicitar__title">¿Donde solicito el servicio PetFriendly?</h2>
               <div className="pf-solicitar__check">
-                <Check size={18} aria-hidden="true" /> En nuestros counter de atención al cliente en nuestras agencias.
+                <Check size={18} className="pf-naranja shrink-0" aria-hidden="true" /> En nuestros counter de atención al cliente en nuestras agencias.
               </div>
               <p className="pf-solicitar__desc">
                 Para poder acceder al servicio Petfriendly, es indispensable y obligatorio, cumplir con todos nuestros terminos y condiciones, así como llenar y firmar la declaración Jurada.

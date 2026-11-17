@@ -1075,9 +1075,28 @@
 
   .pf-page {
     padding-top: 80px;
-    background: #fff;
-    color: #444;
+    background: var(--pf-fondo);
+    color: var(--pf-texto);
     font-family: Mont, Arial, sans-serif;
+    --pf-fondo: #ffffff;
+    --pf-titulo: #444444;
+    --pf-texto: #555555;
+    --pf-secundario: #6b7280;
+    --pf-borde: #e5e7eb;
+    --pf-naranja: #f97316;
+  }
+
+  html.dark .pf-page {
+    color-scheme: dark;
+    --pf-fondo: #0d1120;
+    --pf-titulo: #f8fafc;
+    --pf-texto: #cbd5e1;
+    --pf-secundario: #94a3b8;
+    --pf-borde: #30394b;
+  }
+
+  .pf-page section {
+    background-color: transparent;
   }
 
   .pf-page .container {
@@ -1101,30 +1120,67 @@
     margin-right: auto;
   }
 
-  html.dark .pf-page {
-    color-scheme: light;
-    background: #fff !important;
-    color: #444 !important;
+  .pf-page .pf-titulo {
+    color: var(--pf-titulo) !important;
   }
 
-  html.dark .pf-page div,
+  .pf-page .pf-texto {
+    color: var(--pf-texto) !important;
+  }
+
+  .pf-page .pf-secundario {
+    color: var(--pf-secundario) !important;
+  }
+
+  .pf-page .pf-naranja {
+    color: var(--pf-naranja) !important;
+  }
+
+  html.dark .pf-page .pf-naranja {
+    color: var(--pf-naranja) !important;
+  }
+
+  html.dark .pf-page .pf-secundario {
+    color: var(--pf-secundario) !important;
+  }
+
   html.dark .pf-page h1,
   html.dark .pf-page h2,
+  html.dark .pf-page .pf-terminos__title,
+  html.dark .pf-page .pf-posicion__title,
+  html.dark .pf-page .pf-solicitar__title {
+    color: var(--pf-titulo) !important;
+  }
+
   html.dark .pf-page p,
   html.dark .pf-page li,
-  html.dark .pf-page strong {
-    color: #444;
+  html.dark .pf-page .pf-solicitar__check,
+  html.dark .pf-page .pf-solicitar__desc,
+  html.dark .pf-page .pf-final__text {
+    color: var(--pf-texto) !important;
   }
 
-  html.dark .pf-page .pf-hero__badge,
-  html.dark .pf-page .pf-hero__subtitle,
   html.dark .pf-page .pf-final__text strong {
-    color: #f4831f;
+    color: var(--pf-naranja) !important;
   }
 
-  html.dark .pf-page .pf-hero__quote,
   html.dark .pf-page .pf-btn {
-    color: #fff;
+    background-color: var(--pf-naranja) !important;
+    color: #fff !important;
+  }
+
+  html.dark .pf-page .pf-ruta-item {
+    border-color: var(--pf-borde) !important;
+  }
+
+  html.dark .pf-page .pf-rutas-grid li {
+    border-color: var(--pf-borde) !important;
+  }
+
+  html.dark .pf-page .pf-kennel-imagen-wrap {
+    background: rgba(248, 250, 252, 0.94);
+    border-radius: 14px;
+    padding: 10px;
   }
 
   /* ---------- Sistema tipográfico PetFriendly ---------- */

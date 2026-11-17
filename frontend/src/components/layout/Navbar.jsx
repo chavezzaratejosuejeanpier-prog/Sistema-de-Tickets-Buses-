@@ -33,9 +33,9 @@ const Navbar = () => {
   const enlaces = [
     { texto: 'Inicio', to: '/' },
     { texto: 'Rutas', to: '/buscar' },
+    { texto: 'PetFriendly', to: '/petfriendly' },
     { texto: 'Servicios', to: '/#servicios', submenu: true },
     { texto: 'Nosotros', to: '/nosotros' },
-    { texto: 'PetFriendly', to: '/petfriendly' },
   ]
   if (user) enlaces.push({ texto: 'Mis Pasajes', to: '/mis-pasajes' })
   if (user?.rol === 'ADMIN') enlaces.push({ texto: 'Panel', to: '/dashboard' })
