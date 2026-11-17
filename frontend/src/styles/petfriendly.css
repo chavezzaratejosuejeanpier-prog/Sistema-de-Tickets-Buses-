@@ -1274,6 +1274,11 @@
     padding: 11px 24px;
   }
 
+  .pf-page .pf-btn:focus-visible {
+    outline: 2px solid var(--pf-naranja);
+    outline-offset: 3px;
+  }
+
   .pf-page .pf-final__text {
     font-size: var(--pf-h2);
     font-weight: var(--pf-peso-regular);

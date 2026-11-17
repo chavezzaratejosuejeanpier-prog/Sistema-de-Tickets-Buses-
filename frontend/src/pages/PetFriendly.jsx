@@ -156,6 +156,8 @@ const PetFriendly = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="pf-btn"
+                  aria-label="Abrir términos y condiciones en una pestaña nueva"
+                  title="Abrir en pestaña nueva"
                 >
                   <Download size={16} aria-hidden="true" /> Términos y Condiciones
                 </a>
@@ -166,6 +168,8 @@ const PetFriendly = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="pf-btn"
+                  aria-label="Abrir declaración jurada en una pestaña nueva"
+                  title="Abrir en pestaña nueva"
                 >
                   <Download size={16} aria-hidden="true" /> Declaración Jurada
                 </a>
