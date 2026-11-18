@@ -1,0 +1,1341 @@
+/* ===========================
+   Pet Friendly Page - ITTSA BUS
+   =========================== */
+
+   :root {
+    --pf-fs-h2-title: clamp(2.4rem, 2.6vw, 3.2rem);
+    --pf-fs-text: clamp(1.5rem, 1.5vw, 1.8rem);
+  }
+  
+  /* ---------- Hero Section ---------- */
+  .pf-hero {
+    position: relative;
+    overflow: hidden;
+    /* background: #fff8f0; */
+    padding: 40px 0 0;
+  }
+  
+  .pf-hero__container {
+    display: block;
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .pf-hero__bg {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+  }
+  
+  .pf-hero__content {
+    position: absolute;
+    top: 15%;
+    right: 12%;
+    width: 48%;
+    text-align: left;
+    width: 660px;
+  }
+  
+  .pf-hero__badge {
+    color: #f4831f;
+    font-family: Mont, sans-serif;
+    font-weight: 700;
+    margin-bottom: 0 0 4%;
+    font-size: clamp(2.0rem, 2.8vw, 4rem);
+    text-align: center;
+  }
+  
+  .pf-hero__title {
+    font-family: Mont, sans-serif;
+    font-weight: 700;
+    color: #444;
+    margin: 0 0 2%;
+    line-height: 1.05;
+    font-size: clamp(2.8rem, 4.8vw, 7.4rem);
+    text-align: center;
+  }
+  
+  .pf-hero__subtitle {
+    font-family: Mont, sans-serif;
+    font-weight: 700;
+    color: #f4831f;
+    margin: 0 0 3%;
+    font-size: clamp(2.0rem, 2vw, 4rem);
+    text-align: center;
+  }
+  
+  .pf-hero__desc {
+    font-family: Mont, sans-serif;
+    color: #555;
+    line-height: 1.5;
+    max-width: 660px;
+    margin: 0;
+    font-size: clamp(1.1rem, 1.2vw, 1.6rem);
+  }
+  
+  .pf-hero__quote {
+    position: absolute;
+    bottom: 18%;
+    left: 55%;
+    transform: translateX(-50%);
+    width: 85%;
+    text-align: center;
+    color: #fff;
+    font-family: Mont, sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 2vw, 2.4rem);
+  }
+  
+  @media (max-width: 1200px) {
+    .pf-hero__content {
+      top: 12%;
+      right: 24%;
+      width: 420px;
+    }
+  
+    .pf-hero__quote {
+      bottom: 18%;
+      width: 85%;
+    }
+  }
+  
+  @media (max-width: 991px) {
+    .pf-hero__content {
+      top: 10%;
+      right: 22%;
+      width: 420px;
+    }
+  
+    .pf-hero__quote {
+      bottom: 18%;
+      width: 85%;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .pf-hero__content {
+      top: 10%;
+      right: 17%;
+      width: 396px;
+    }
+  
+    .pf-hero__quote {
+      bottom: 18%;
+      width: 85%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .pf-hero__content {
+      top: 8%;
+      right: 20%;
+      width: 320px;
+    }
+  
+    .pf-hero__subtitle {
+      font-size: 2.2vw;
+      margin-bottom: 2%;
+    }
+  }
+  
+  @media (max-width: 650px) {
+    .pf-hero__content {
+      top: 3%;
+      right: 18%;
+      width: 50%;
+      text-align: center;
+    }
+  
+    .pf-hero__quote {
+      bottom: 16%;
+      right: 12%;
+      margin-left: 20px;
+    }
+  
+    .pf-hero__quote {
+      font-size: 2.6vw;
+    }
+  }
+  
+  @media (max-width: 550px) {
+    .pf-hero__content {
+      top: 6%;
+      right: 14%;
+    }
+  
+    .pf-hero__subtitle {
+      font-size: 2.8vw;
+    }
+  
+    .pf-hero__quote {
+      bottom: 12%;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .pf-hero__content {
+      top: 6%;
+      right: 10%;
+      width: 230px;
+    }
+  
+    .pf-hero__quote {
+      bottom: 10%;
+    }
+  }
+  
+  @media (max-width: 400px) {
+    .pf-hero__content {
+      top: 6%;
+      right: 13%;
+      width: 210px;
+    }
+  
+    .pf-hero__subtitle {
+      font-size: 3.1vw;
+    }
+  }
+  
+  .pf-hero__quote .heart-icon {
+    font-style: normal;
+  }
+  
+  @media (max-width: 800px) {
+    .pf-hero__content {
+      padding-bottom: 50px;
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .pf-hero {
+      height: 350px;
+      padding: 0;
+    }
+  
+    .pf-hero__container {
+      height: 330px;
+    }
+  
+    .pf-hero__bg {
+      /* height: 300px; */
+      position: absolute;
+      bottom: 0;
+    }
+  }
+  
+  @media (max-width: 400px) {
+    .pf-hero {
+      height: 310px;
+    }
+  
+    .pf-hero__container {
+      height: 310px;
+    }
+  }
+  
+  @media (min-width: 601px) and (max-width: 800px) {
+    .pf-hero__content {
+      top: -5%;
+    }
+  }
+  
+  .pf-hero__quote .heart-icon {
+    font-style: normal;
+  }
+  
+  /* ---------- Section base ---------- */
+  .pf-hero__container,
+  .pf-section .container,
+  .pf-rutas .container,
+  .pf-terminos .container,
+  .pf-kennel .container,
+  .pf-posicion .container,
+  .pf-solicitar .container,
+  .pf-final .container {
+    max-width: 1300px !important;
+    width: 90% !important;
+    margin: 0 auto !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  
+  .pf-section {
+    font-family: Mont, sans-serif;
+  }
+  
+  .pf-section--gray {
+    background-color: #fafafa;
+  }
+  
+  .pf-section__title,
+  .pf-page h2 {
+    font-size: var(--pf-fs-h2-title);
+    font-weight: 700;
+    color: #444;
+    margin-bottom: 25px;
+    font-family: Mont, sans-serif;
+    width: 100%;
+  }
+  
+  @media (min-width: 901px) {
+  
+    .pf-section__title,
+    .pf-page h2 {
+      text-align: left;
+    }
+  }
+  
+  @media (max-width: 900px) {
+  
+    .pf-section__title,
+    .pf-page h2 {
+      text-align: center;
+    }
+  }
+  
+  .pf-section__text {
+    font-size: var(--pf-fs-text);
+    color: #555;
+    line-height: 1.7;
+    max-width: 700px;
+  }
+  
+  .pf-section__text strong {
+    color: #444;
+  }
+  
+  /* ---------- ¿En qué consiste? ---------- */
+  .pf-consiste-row {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+  }
+  
+  @media (min-width: 901px) {
+    .pf-consiste-row {
+      justify-content: space-between;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .pf-consiste-row {
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+  
+    .pf-section__text {
+      margin: 0 auto;
+      text-align: center;
+    }
+  }
+  
+  @media (max-width: 400px) {
+    .pf-section {
+      padding-top: 15px;
+    }
+  }
+  
+  .pf-consiste-row__img {
+    /* flex: 1 1 300px; */
+    text-align: right;
+  }
+  
+  .pf-consiste-row__img img {
+    width: 100%;
+    height: auto;
+  }
+  
+  @media (max-width: 600px) {
+    .pf-consiste-row {
+      margin: 0 auto;
+    }
+  
+    .pf-section__text {
+      margin: 0 auto;
+      text-align: center;
+    }
+  }
+  
+  /* ---------- Rutas ---------- */
+  .pf-rutas {
+    padding: 30px 0;
+    font-family: Mont, sans-serif;
+  }
+
+  .pf-rutas__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 50px;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  @media (min-width: 901px) {
+    .pf-rutas__row {
+      justify-content: space-between;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .pf-rutas__row {
+      justify-content: center;
+      align-items: center;
+    }
+  }
+
+  .pf-rutas__info {
+    flex: 1 1 50%;
+  }
+
+  .pf-rutas__img {
+    text-align: center;
+    align-self: center;
+  }
+
+  @media (min-width: 901px) {
+    .pf-rutas__img {
+      text-align: right;
+    }
+  }
+
+  .pf-rutas__img img {
+    width: 100%;
+    height: auto;
+  }
+
+  .pf-rutas__title {
+    margin-bottom: 8px;
+  }
+
+  .pf-rutas__desc {
+    font-size: var(--pf-fs-text);
+    color: #555;
+    line-height: 1.65;
+    margin-bottom: 25px;
+  }
+
+  .pf-rutas__desc strong {
+    color: #444;
+  }
+
+  /* Routes grid (two-column list) */
+  .pf-rutas-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 30px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .pf-rutas-grid li {
+    position: relative;
+    padding: 12px 10px 12px 22px;
+    font-size: clamp(1.3rem, 1.5vw, 1.8rem);
+    color: #333;
+    font-weight: 500;
+    border-bottom: 1px solid #eee;
+  }
+
+  .pf-rutas-grid li::before {
+    content: '•';
+    position: absolute;
+    left: 4px;
+    top: 12px;
+    color: #f4831f;
+    font-size: 1.2em;
+    line-height: 1;
+  }
+
+  @media (max-width: 600px) {
+    .pf-rutas-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .pf-rutas__desc {
+      text-align: center;
+    }
+  }
+
+  /* CTA button for routes section */
+  .pf-rutas__cta {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .pf-btn--compra {
+    font-size: clamp(1.4rem, 2.4vw, 2.4rem);
+  }
+
+  
+  /* ---------- Términos y Condiciones ---------- */
+  .pf-terminos {
+    padding: 10px 0;
+    background-color: #fff;
+    font-family: Mont, sans-serif;
+  }
+  
+  .pf-terminos__row {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    width: 100%;
+  }
+  
+  @media (min-width: 901px) {
+    .pf-terminos__row {
+      justify-content: space-between;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .pf-terminos__row {
+      flex-direction: column-reverse;
+      justify-content: center;
+    }
+  
+    .pf-terminos__img {
+      display: none;
+    }
+  }
+  
+  .pf-terminos__content,
+  .pf-terminos__title {
+    text-align: center;
+  }
+  
+  .pf-terminos__img img {
+    width: 100%;
+    height: auto;
+  }
+  
+  .pf-terminos__content {
+    flex: 1 1 50%;
+  }
+  
+  .pf-terminos__title {
+    font-size: clamp(2.8rem, 5.0vw, 5.0rem);
+    font-weight: 700;
+    color: #444;
+    margin-bottom: 24px;
+    line-height: 1.3;
+  }
+  
+  .pf-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #f4831f;
+    color: #fff;
+    padding: 13px 28px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 2.6vw, 2.6rem);
+    transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+    margin-bottom: 10px;
+    font-family: Mont, sans-serif;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(244, 131, 31, 0.25);
+  }
+  
+  .terminos-btn .pf-btn {
+    font-size: clamp(1.5rem, 2.8vw, 2.8rem);
+  }
+  
+  .pf-btn:hover {
+    background-color: #e07018;
+    transform: translateY(-2px);
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 6px 16px rgba(244, 131, 31, 0.35);
+  }
+  
+  .pf-btn i {
+    font-size: 1rem;
+  }
+  
+  /* ---------- Medidas del Kennel ---------- */
+  .pf-kennel {
+    padding: 30px 0;
+    font-family: Mont, sans-serif;
+  }
+  
+  .pf-kennel__row {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    width: 100%;
+  }
+  
+  @media (min-width: 901px) {
+    .pf-kennel__row {
+      justify-content: space-between;
+    }
+  
+    .pf-kennel__img {
+      text-align: right;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .pf-kennel__row {
+      flex-direction: column-reverse;
+      justify-content: center;
+    }
+  
+    .pf-kennel__img {
+      text-align: center;
+    }
+  
+    .pf-kennel-table {
+      margin: 0 auto;
+    }
+  }
+  
+  /* .pf-kennel__info {
+    flex: 1 1 50%;
+  } */
+  
+  .pf-kennel__info p {
+    font-size: clamp(2rem, 2.4vw, 2.6rem);
+    color: #444;
+  }
+  
+  .pf-kennel__info .medidas {
+    margin-top: 60px;
+    margin-bottom: 80px;
+  }
+  
+  .pf-kennel__info ul li {
+    font-size: var(--pf-fs-text);
+    color: #444;
+  }
+  
+  .pf-kennel__img {
+    display: grid;
+    grid-template-columns: 10fr 7fr;
+    align-items: center;
+    flex: 1 1 0%;
+  }
+  
+  .pf-kennel__img img {
+    max-width: 500px;
+    height: auto;
+    width: 100%;
+  }
+  
+  @media (min-width: 901px) {
+    .imagen-ocultar-desktop {
+      display: none;
+    }
+  
+    .pf-kennel__img img {
+      width: auto;
+    }
+  }
+  
+  .pf-kennel__title {
+    color: #444;
+  }
+  
+  @media (min-width: 901px) {
+    .pf-kennel__title {
+      margin-bottom: -55px;
+      position: relative;
+      z-index: 2;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .pf-kennel__title {
+      margin-bottom: 20px;
+    }
+  }
+  
+  .pf-kennel-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--pf-fs-text);
+    margin: 0;
+    table-layout: fixed;
+  }
+  
+  .pf-kennel-table th {
+    width: 50%;
+    font-weight: 700;
+    text-align: left;
+    padding: 11px 0px;
+    color: #444;
+  }
+  
+  .pf-kennel-table td {
+    word-wrap: break-word;
+    padding: 11px 0px;
+    color: #555;
+  }
+  
+  .pf-kennel-table tbody tr:nth-child(1) {
+    border-bottom: 1px solid #333;
+  }
+  
+  /* ---------- Posición mascotas ---------- */
+  .pf-posicion {
+    padding: 20px 0;
+    background-color: #fff;
+    font-family: Mont, sans-serif;
+  }
+  
+  @media (min-width: 901px) {
+    .pf-posicion {
+      text-align: left;
+    }
+  
+    .pf-posicion__title {
+      margin-left: 0;
+      text-align: left;
+    }
+  
+    .pf-posicion__img {
+      text-align: left;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .pf-posicion {
+      text-align: center;
+    }
+  
+    .pf-posicion__title {
+      margin: 0 auto 28px;
+      text-align: center;
+    }
+  
+    .pf-posicion__img {
+      margin: 0 auto;
+      text-align: center;
+    }
+  }
+  
+  .pf-posicion__title {
+    margin-bottom: 28px;
+    max-width: 100%;
+    line-height: 1.35;
+  }
+  
+  .pf-posicion__img {
+    max-width: 100%;
+  }
+  
+  .pf-posicion__img img {
+    width: 100%;
+    height: auto;
+  }
+  
+  /* ---------- ¿Dónde solicito? ---------- */
+  .pf-solicitar {
+    padding: 50px 0 0;
+    font-family: Mont, sans-serif;
+    text-align: left;
+  }
+  
+  .pf-solicitar__row {
+    display: grid;
+    gap: 20px;
+    width: 100%;
+  }
+  
+  .pf-solicitar__text {
+    grid-area: text;
+  }
+  
+  .pf-launch {
+    grid-area: launch;
+    margin: 0;
+    text-align: left;
+  }
+  
+  .pf-final__img {
+    grid-area: img;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .pf-final__img img {
+    width: 100%;
+    height: auto;
+    max-width: 750px;
+    display: block;
+  }
+  
+  @media (min-width: 901px) {
+    .pf-solicitar__row {
+      grid-template-columns: 1.15fr 0.85fr;
+      grid-template-areas:
+        "text img"
+        "launch img";
+      align-items: center;
+    }
+  
+    .pf-solicitar__text {
+      align-self: end;
+    }
+  
+    .pf-launch {
+      align-self: start;
+      margin-top: -10px;
+    }
+  
+    .pf-final__img {
+      align-self: center;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .pf-solicitar__row {
+      grid-template-columns: 1.4fr 0.6fr;
+      grid-template-areas:
+        "text text"
+        "launch img";
+      align-items: end;
+    }
+  
+    .pf-solicitar__title {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+  
+    .pf-final__img img {
+      width: 140%;
+      margin-right: -20px;
+      margin-top: 20px;
+    }
+  
+    .pf-launch__date {
+      font-size: 2rem;
+      padding: 5px 15px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .pf-solicitar__row {
+      grid-template-columns: 1.3fr 0.7fr;
+    }
+  
+    .pf-final__img img {
+      width: 160%;
+      margin-right: -30px;
+    }
+  }
+  
+  .pf-solicitar__title {
+    margin-bottom: 25px;
+  }
+  
+  .pf-solicitar__check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-weight: 500;
+    font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+    margin-bottom: 15px;
+    color: #555;
+    text-align: left;
+  }
+  
+  .pf-solicitar__check i {
+    color: #fdb901;
+    margin-top: 4px;
+  }
+  
+  .pf-solicitar__desc {
+    font-size: clamp(0.85rem, 1.1vw, 1rem);
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 35px;
+    text-align: left;
+  }
+  
+  .pf-launch__label {
+    font-family: Mont, sans-serif;
+    font-size: clamp(0.9rem, 1.1vw, 1.1rem);
+    font-weight: 700;
+    color: #f4831f;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  
+  .pf-launch__date {
+    background: #fdb901;
+    color: #fff;
+    font-family: Mont, sans-serif;
+    font-size: clamp(2.5rem, 3.5vw, 4rem);
+    font-weight: 700;
+    padding: 4px 25px;
+    border-radius: 12px;
+  }
+  
+  /* ---------- Final section ---------- */
+  .pf-final {
+    padding: 30px 0 50px;
+    text-align: center;
+    font-family: Mont, sans-serif;
+  }
+  
+  .pf-final__text {
+    font-size: clamp(2rem, 2.2vw, 2.8rem);
+    color: #444;
+    font-weight: 400;
+    line-height: 1.6;
+    margin: 0 auto;
+  }
+  
+  .pf-final__text strong {
+    color: #f4831f;
+    font-weight: 700;
+  }
+  
+  @media (max-width: 900px) {
+    .pf-hero__container {
+      width: 100% !important;
+    }
+  }
+  
+  
+  
+  
+  .pf-solicitar {
+    padding: 50px 0;
+    font-family: Mont, sans-serif;
+    overflow: hidden;
+  }
+  
+  .pf-solicitar__row {
+    display: grid;
+    gap: 20px;
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "text text"
+      "launch img";
+    align-items: end;
+  }
+  
+  .pf-solicitar__text {
+    grid-area: text;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .pf-launch {
+    grid-area: launch;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 180px;
+  }
+  
+  .pf-final__img {
+    grid-area: img;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .pf-final__img img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  .pf-solicitar__title {
+    font-size: clamp(2.2rem, 3.5vw, 3.8rem);
+    color: #444;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+  
+  .pf-solicitar__check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-weight: 500;
+    font-size: var(--pf-fs-text);
+    margin-bottom: 15px;
+    color: #555;
+  }
+  
+  .pf-solicitar__check i {
+    color: #fdb901;
+    margin-top: 4px;
+  }
+  
+  .pf-solicitar__desc {
+    font-size: var(--pf-fs-text);
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    max-width: 90%;
+  }
+  
+  .pf-launch__label {
+    font-size: clamp(1.4rem, 2vw, 3rem);
+    font-weight: 700;
+    color: #f4831f;
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  
+  .pf-launch__date {
+    background: #fdb901;
+    color: #fff;
+    font-size: clamp(3rem, 5.5vw, 7rem);
+    font-weight: 700;
+    padding: 0px 30px;
+    border-radius: 12px;
+    justify-self: center;
+  }
+  
+  @media (min-width: 901px) {
+    .pf-solicitar__row {
+      grid-template-columns: 1.4fr 1fr;
+      grid-template-areas:
+        "text img"
+        "launch img";
+      align-items: center;
+    }
+  
+    .pf-final__img {
+      margin-left: -90px;
+      display: flex;
+      justify-content: flex-end;
+    }
+  
+    .pf-final__img img {
+      width: 120%;
+      max-width: 800px;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .pf-solicitar__row {
+      grid-template-columns: 1fr 1fr;
+    }
+  
+    .pf-solicitar__desc {
+      margin-bottom: -70px;
+    }
+  
+    .pf-final__img img {
+      width: 130%;
+      margin-left: -20px;
+    }
+  
+    .pf-launch {
+      align-self: center;
+      margin-bottom: 20px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .pf-solicitar__row {
+      grid-template-columns: 1.2fr 0.8fr;
+    }
+  
+    .pf-solicitar__desc {
+      margin-bottom: -20px;
+    }
+  
+    .pf-launch__date {
+      font-size: 2.3rem;
+      padding: 5px 15px;
+    }
+  }
+  
+  .pf-launch__date {
+    text-align: center;
+  }
+
+  /* ---------- Adaptación a la app ---------- */
+  @font-face { font-family: Mont; src: url('/petfriendly/fonts/Mont-Thin.woff2') format('woff2'); font-weight: 100; font-style: normal; font-display: swap; }
+  @font-face { font-family: Mont; src: url('/petfriendly/fonts/Mont-ExtraLight.woff2') format('woff2'); font-weight: 200; font-style: normal; font-display: swap; }
+  @font-face { font-family: Mont; src: url('/petfriendly/fonts/Mont-Light.woff2') format('woff2'); font-weight: 300; font-style: normal; font-display: swap; }
+  @font-face { font-family: Mont; src: url('/petfriendly/fonts/Mont-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: Mont; src: url('/petfriendly/fonts/Mont-SemiBold.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: Mont; src: url('/petfriendly/fonts/Mont-Bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: Mont; src: url('/petfriendly/fonts/Mont-Black.woff2') format('woff2'); font-weight: 900; font-style: normal; font-display: swap; }
+
+  .pf-page {
+    padding-top: 80px;
+    background: var(--pf-fondo);
+    color: var(--pf-texto);
+    font-family: Mont, Arial, sans-serif;
+    --pf-fondo: #ffffff;
+    --pf-titulo: #444444;
+    --pf-texto: #555555;
+    --pf-secundario: #6b7280;
+    --pf-borde: #e5e7eb;
+    --pf-naranja: #f97316;
+  }
+
+  html.dark .pf-page {
+    color-scheme: dark;
+    --pf-fondo: #0d1120;
+    --pf-titulo: #f8fafc;
+    --pf-texto: #cbd5e1;
+    --pf-secundario: #94a3b8;
+    --pf-borde: #30394b;
+  }
+
+  .pf-page section {
+    background-color: transparent;
+  }
+
+  .pf-page .container {
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 0 20px !important;
+  }
+
+  .pf-page .pf-consiste-row--solo {
+    display: block;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .pf-page .pf-consiste-row--solo .pf-section__title,
+  .pf-page .pf-consiste-row--solo .pf-section__text {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .pf-page .pf-titulo {
+    color: var(--pf-titulo) !important;
+  }
+
+  .pf-page .pf-texto {
+    color: var(--pf-texto) !important;
+  }
+
+  .pf-page .pf-secundario {
+    color: var(--pf-secundario) !important;
+  }
+
+  .pf-page .pf-naranja {
+    color: var(--pf-naranja) !important;
+  }
+
+  html.dark .pf-page .pf-naranja {
+    color: var(--pf-naranja) !important;
+  }
+
+  html.dark .pf-page .pf-secundario {
+    color: var(--pf-secundario) !important;
+  }
+
+  html.dark .pf-page h1,
+  html.dark .pf-page h2,
+  html.dark .pf-page .pf-terminos__title,
+  html.dark .pf-page .pf-posicion__title,
+  html.dark .pf-page .pf-solicitar__title {
+    color: var(--pf-titulo) !important;
+  }
+
+  html.dark .pf-page p,
+  html.dark .pf-page li,
+  html.dark .pf-page .pf-solicitar__check,
+  html.dark .pf-page .pf-solicitar__desc,
+  html.dark .pf-page .pf-final__text {
+    color: var(--pf-texto) !important;
+  }
+
+  html.dark .pf-page .pf-final__text strong {
+    color: var(--pf-naranja) !important;
+  }
+
+  html.dark .pf-page .pf-btn {
+    background-color: var(--pf-naranja) !important;
+    color: #fff !important;
+  }
+
+  html.dark .pf-page .pf-ruta-item {
+    border-color: var(--pf-borde) !important;
+  }
+
+  html.dark .pf-page .pf-rutas-grid li {
+    border-color: var(--pf-borde) !important;
+  }
+
+  html.dark .pf-page .pf-kennel-imagen-wrap {
+    background: rgba(248, 250, 252, 0.94);
+    border-radius: 14px;
+    padding: 10px;
+  }
+
+  /* ---------- Sistema tipográfico PetFriendly ---------- */
+  .pf-page {
+    --pf-fuente: Mont, Arial, sans-serif;
+    --pf-h1: clamp(30px, 3.1vw, 44px);
+    --pf-h2: clamp(24px, 2.4vw, 34px);
+    --pf-h3: clamp(19px, 1.9vw, 24px);
+    --pf-cuerpo: clamp(15px, 1.25vw, 18px);
+    --pf-lista: clamp(15px, 1.15vw, 17px);
+    --pf-nota: clamp(13px, 0.95vw, 15px);
+    --pf-boton: clamp(14px, 1.1vw, 16px);
+    --pf-interlineado: 1.6;
+    --pf-interlineado-titulo: 1.18;
+    --pf-peso-regular: 400;
+    --pf-peso-medium: 500;
+    --pf-peso-semibold: 600;
+    --pf-peso-bold: 700;
+  }
+
+  .pf-page h1,
+  .pf-page h2,
+  .pf-page h3,
+  .pf-page p,
+  .pf-page li,
+  .pf-page a,
+  .pf-page strong,
+  .pf-page span {
+    font-family: var(--pf-fuente);
+  }
+
+  .pf-page h1,
+  .pf-page .pf-hero-title {
+    font-size: var(--pf-h1);
+    font-weight: var(--pf-peso-bold);
+    line-height: var(--pf-interlineado-titulo);
+    letter-spacing: -0.02em;
+  }
+
+  .pf-page h2,
+  .pf-page .pf-titulo,
+  .pf-page .pf-section__title,
+  .pf-page .pf-rutas__title,
+  .pf-page .pf-terminos__title,
+  .pf-page .pf-kennel__title,
+  .pf-page .pf-posicion__title,
+  .pf-page .pf-solicitar__title {
+    font-size: var(--pf-h2);
+    font-weight: var(--pf-peso-bold);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .pf-page .pf-hero-label,
+  .pf-page .pf-hero-subtitle,
+  .pf-page .pf-hero-quote {
+    font-size: var(--pf-h3);
+    font-weight: var(--pf-peso-semibold);
+    line-height: 1.35;
+  }
+
+  .pf-page p,
+  .pf-page .pf-descripcion,
+  .pf-page .pf-hero-desc,
+  .pf-page .pf-section__text,
+  .pf-page .pf-rutas__desc,
+  .pf-page .pf-kennel__info p,
+  .pf-page .pf-solicitar__desc {
+    font-size: var(--pf-cuerpo);
+    font-weight: var(--pf-peso-regular);
+    line-height: var(--pf-interlineado);
+  }
+
+  .pf-page li,
+  .pf-page .pf-ruta-item {
+    font-size: var(--pf-lista);
+    font-weight: var(--pf-peso-regular);
+    line-height: 1.5;
+  }
+
+  .pf-page .pf-nota {
+    font-size: var(--pf-nota);
+    font-weight: var(--pf-peso-medium);
+    line-height: 1.5;
+  }
+
+  .pf-page .pf-btn {
+    font-size: var(--pf-boton);
+    font-weight: var(--pf-peso-semibold);
+    line-height: 1.3;
+    padding: 11px 24px;
+  }
+
+  .pf-page .pf-btn:focus-visible {
+    outline: 2px solid var(--pf-naranja);
+    outline-offset: 3px;
+  }
+
+  .pf-page .pf-final__text {
+    font-size: var(--pf-h2);
+    font-weight: var(--pf-peso-regular);
+    line-height: 1.4;
+  }
+
+  .pf-page strong {
+    font-weight: var(--pf-peso-bold);
+  }
+
+  @media (max-width: 1023px) {
+    .pf-page .pf-hero-perro {
+      width: 140px;
+    }
+
+    .pf-page .pf-hero-texto {
+      padding-bottom: 60px;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .pf-page .pf-hero-texto {
+      padding-left: 120px;
+      padding-bottom: 0;
+    }
+  }
+
+  /* ---------- Medidas del kennel ---------- */
+  .pf-page .pf-kennel-titulo {
+    font-size: var(--pf-h2);
+    font-weight: var(--pf-peso-bold);
+    line-height: 1.2;
+    text-align: left;
+    margin-bottom: 4px;
+  }
+
+  .pf-page .pf-kennel-desc {
+    font-size: var(--pf-cuerpo);
+    font-weight: var(--pf-peso-regular);
+    line-height: var(--pf-interlineado);
+    max-width: 100%;
+  }
+
+  .pf-page .pf-kennel-medidas {
+    margin-top: 28px;
+    font-size: clamp(17px, 1.5vw, 22px);
+    font-weight: var(--pf-peso-bold);
+    line-height: 1.35;
+  }
+
+  .pf-page .pf-kennel-medidas strong {
+    font-weight: var(--pf-peso-bold);
+  }
+
+  .pf-page .pf-kennel-imagen {
+    display: block;
+    width: 100%;
+    max-width: 560px;
+    height: auto;
+  }

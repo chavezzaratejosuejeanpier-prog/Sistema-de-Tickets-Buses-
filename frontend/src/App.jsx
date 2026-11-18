@@ -17,6 +17,7 @@ import Fab from './components/common/Fab.jsx'
 
 import About from './pages/About'
 import Nosotros from './pages/Nosotros'
+const PetFriendly = lazy(() => import('./pages/PetFriendly'))
 const Checkout = lazy(() => import('./pages/Checkout'))
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
@@ -32,6 +33,7 @@ const TITULOS = {
   '/': 'Inicio',
   '/buscar': 'Buscar Viajes',
   '/nosotros': 'Nosotros',
+  '/petfriendly': 'Servicio PetFriendly',
   '/checkout': 'Pago',
   '/mis-pasajes': 'Mis Pasajes',
   '/login': 'Iniciar Sesión',
@@ -52,11 +54,14 @@ function Layout({ _modoCompacto, _setModoCompacto, _temaCiudad, _setTemaCiudad }
   const { pathname } = useLocation()
   const esInicio = pathname === '/'
   const esNosotros = pathname === '/nosotros'
-  const claseMain = esInicio
-    ? 'flex-grow'
-    : esNosotros
-      ? 'flex-grow pt-20'
-      : 'flex-grow pt-28 pb-8 w-full max-w-shell mx-auto px-4 sm:px-[30px]'
+  const esPetFriendly = pathname === '/petfriendly'
+  const claseMain = esPetFriendly
+    ? 'flex-grow w-full'
+    : esInicio
+      ? 'flex-grow'
+      : esNosotros
+        ? 'flex-grow pt-20'
+        : 'flex-grow pt-28 pb-8 w-full max-w-shell mx-auto px-4 sm:px-[30px]'
 
   return (
     <div className="min-h-screen bg-surface dark:bg-stone-950 flex flex-col">
@@ -92,6 +97,7 @@ function Layout({ _modoCompacto, _setModoCompacto, _temaCiudad, _setTemaCiudad }
             <Route path="/" element={<About />} />
             <Route path="/buscar" element={<SearchRoutes />} />
             <Route path="/nosotros" element={<Nosotros />} />
+            <Route path="/petfriendly" element={<PetFriendly />} />
             <Route path="/asientos/:routeId" element={<SeatSelection />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/innovacion" element={<Innovacion />} />

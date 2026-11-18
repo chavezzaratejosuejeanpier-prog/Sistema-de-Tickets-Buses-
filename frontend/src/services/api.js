@@ -37,6 +37,7 @@ export const searchRoutes = (origen, destino, fecha) => {
 export const getRouteSeats = (routeId) => api.get(`/routes/${routeId}/asientos`)
 export const getRoutes = () => api.get('/routes/')
 export const getCiudades = () => api.get('/routes/ciudades')
+export const getRoutePairs = () => api.get('/routes/pares')
 export const getBuses = () => api.get('/buses/')
 
 export const checkout = (data) => api.post('/sales/checkout', data)

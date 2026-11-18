@@ -33,6 +33,7 @@ const Navbar = () => {
   const enlaces = [
     { texto: 'Inicio', to: '/' },
     { texto: 'Rutas', to: '/buscar' },
+    { texto: 'PetFriendly', to: '/petfriendly' },
     { texto: 'Servicios', to: '/#servicios', submenu: true },
     { texto: 'Nosotros', to: '/nosotros' },
   ]
