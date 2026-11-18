@@ -42,7 +42,7 @@ export default function Onboarding({ onFinish }) {
     }
   }
 
-  const { Icono, color, titulo, texto } = PANTALLAS[indice]
+  const { icono: Icono, color, titulo, texto } = PANTALLAS[indice]
 
   return (
     <motion.div
@@ -71,7 +71,7 @@ export default function Onboarding({ onFinish }) {
       <div className="flex gap-3">
         <button
           onClick={siguiente}
-          className={`flex-1 btn-primary ${indice === PANTALLAS.length - 1 ? '' : 'opacity-60 pointer-events-none'}`}
+          className="flex-1 btn-primary"
         >
           {indice === PANTALLAS.length - 1 ? 'Empezar a viajar' : <span>Siguiente <Check size={16} className="ml-2" /></span>}
         </button>
