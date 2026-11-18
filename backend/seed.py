@@ -1,4 +1,3 @@
-import re
 import sqlite3
 from pathlib import Path
 
@@ -64,23 +63,50 @@ def _convertir_fila(fila, columnas):
 
 
 def _esquema_tickets_desactualizado(con):
-    sql = con.execute("select sql from sqlite_master where name='tickets'").fetchone()
-    if not sql:
+    if not con.execute(
+        "select 1 from sqlite_master where type='table' and name='tickets'"
+    ).fetchone():
         return False
-    ddl = sql[0].upper()
-    if "UQ_TICKET_RUTA_ASIENTO" not in ddl:
-        return True
-    if re.search(r"UNIQUE\s*\(\s*CODIGO_RESERVA\s*\)", ddl):
-        return True
-    for indice in Base.metadata.tables["tickets"].indexes:
-        if not con.execute(
-            "select name from sqlite_master where type='index' and name=? and tbl_name='tickets'",
-            (indice.name,),
-        ).fetchone():
-            return True
+    tabla = Base.metadata.tables["tickets"]
+
     actuales = {c[1] for c in con.execute("pragma table_info(tickets)").fetchall()}
-    if {c.name for c in Base.metadata.tables["tickets"].columns} - actuales:
+    if {c.name for c in tabla.columns} - actuales:
         return True
+
+    # pragma index_list: (seq, name, unique, origin, partial). Incluye los
+    # sqlite_autoindex_* que generan las restricciones UNIQUE del CREATE TABLE.
+    existentes = {}
+    for fila in con.execute("pragma index_list(tickets)").fetchall():
+        nombre = fila[1]
+        columnas = [
+            c[0] for c in con.execute(
+                "select name from pragma_index_info(?) order by seqno", (nombre,)
+            ).fetchall()
+        ]
+        parcial = bool(fila[4]) if len(fila) > 4 else False
+        existentes[nombre.lower()] = (bool(fila[2]), parcial, columnas)
+
+    esperados = set()
+    for indice in tabla.indexes:
+        nombre = indice.name.lower()
+        esperados.add(nombre)
+        parcial = indice.dialect_options["sqlite"].get("where") is not None
+        esperado = (bool(indice.unique), parcial, [c.name for c in indice.columns])
+        if existentes.get(nombre) != esperado:
+            return True
+
+    # Restricciones heredadas que rompen el flujo: UNIQUE(codigo_reserva) y
+    # UNIQUE total de (route_id, numero_asiento), que impide revender
+    # asientos cancelados. Otros indices unicos ajenos se respetan.
+    for nombre, (unico, parcial, columnas) in existentes.items():
+        if not unico or nombre in esperados:
+            continue
+        if columnas == ["codigo_reserva"]:
+            return True
+        if not parcial and columnas in (
+            ["route_id", "numero_asiento"], ["numero_asiento", "route_id"]
+        ):
+            return True
     return False
 
 
