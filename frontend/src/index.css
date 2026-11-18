@@ -8,6 +8,56 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  @keyframes busMove {
+    0% { left: -8%; }
+    100% { left: 108%; }
+  }
+
+  /* --- Gradientes mesh animados (hero) --- */
+  @keyframes mesh-move {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 40px) scale(0.9); }
+    100% { transform: translate(0, 0) scale(1); }
+  }
+
+  .mesh-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.45;
+    animation: mesh-move 14s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .mesh-orb-1 {
+    top: 10%;
+    left: 10%;
+    width: 600px;
+    height: 600px;
+    background: #f97316;
+    animation-delay: 0s;
+  }
+
+  .mesh-orb-2 {
+    bottom: 15%;
+    right: 10%;
+    width: 500px;
+    height: 500px;
+    background: #00f2ff;
+    animation-delay: -5s;
+  }
+
+  .mesh-orb-3 {
+    top: 40%;
+    left: 50%;
+    width: 400px;
+    height: 400px;
+    background: #ea580c;
+    animation-delay: -10s;
+  }
+
   html.dark { color-scheme: dark; }
   body, a, button, input, select, textarea, [role="button"], summary { @apply transition-colors duration-200; }
 
@@ -16,9 +66,24 @@
     letter-spacing: -0.01em;
   }
 
+  h1, h2, h3 {
+    @apply font-display tracking-tight;
+  }
+
   html.dark body {
     @apply bg-stone-950 text-stone-100;
   }
+
+  html.hc body { @apply bg-black text-white; }
+  html.hc .card { @apply border-2 border-white bg-black; }
+  html.hc .btn-primary { @apply border-2 border-white; }
+  html.hc input, html.hc select, html.hc textarea { @apply border-2 border-white bg-black text-white; }
+
+  /* --- Tema automático por luz ambiental --- */
+  html.ambient-dark body { @apply bg-stone-950 text-stone-100; }
+  html.ambient-dark .card { @apply bg-stone-900 border-stone-800; }
+  html.ambient-light body { @apply bg-stone-50 text-stone-900; }
+  html.ambient-light .card { @apply bg-white border-line; }
 
   ::selection {
     background: rgba(234, 88, 12, 0.35);
@@ -52,6 +117,18 @@
     -webkit-text-fill-color: #ffffff;
   }
 
+  @media print {
+    header, footer, nav, .no-print, .voice-assistant, .accessibility-btn, .command-palette, .toaster { display: none !important; }
+    body { background: #fff !important; color: #000 !important; }
+    .print-only { display: block !important; }
+    .card { box-shadow: none !important; border: 1px solid #000 !important; }
+    #main { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+    .boleto-termico { border: 2px solid #000 !important; page-break-inside: avoid; }
+    .no-print, .voice-assistant { display: none !important; }
+  }
+
+  .print-only { display: none; }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     *, *::before, *::after {
@@ -61,11 +138,127 @@
       scroll-behavior: auto !important;
     }
   }
+
+  /* --- Modo viaje nocturno --- */
+  html.night-mode {
+    --night-accent: #00f2ff;
+    --night-surface: #050508;
+  }
+  html.night-mode body {
+    @apply bg-[#050508] text-stone-100;
+  }
+  html.night-mode .card {
+    @apply bg-[#0a0a12] border-stone-800/50;
+  }
+  html.night-mode .btn-primary {
+    @apply text-black hover:bg-cyan-400;
+    background-color: #00f2ff;
+  }
+  html.night-mode .input {
+    @apply bg-stone-900 border-stone-700 text-white;
+  }
+
+  /* --- Asiento neumorfismo --- */
+  .seat-neumorphic {
+    @apply relative rounded-lg border-0 shadow-[inset_4px_4px_8px_rgba(0,0,0,0.3),inset_-4px_-4px_8px_rgba(255,255,255,0.05)] bg-stone-800 text-stone-300;
+  }
+  .seat-neumorphic:active {
+    @apply shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5)] bg-stone-900;
+  }
+
+  /* --- Mapa de calor de asientos --- */
+  .seat-heat-1 { background-color: #fef3c7 !important; }
+  .seat-heat-2 { background-color: #fde047 !important; }
+  .seat-heat-3 { background-color: #facc15 !important; }
+  .seat-heat-4 { background-color: #f59e0b !important; }
+  .seat-heat-5 { background-color: #ef4444 !important; }
+  html.dark .seat-heat-1 { background-color: #92400e !important; }
+  html.dark .seat-heat-2 { background-color: #78350f !important; }
+  html.dark .seat-heat-3 { background-color: #713f12 !important; }
+  html.dark .seat-heat-4 { background-color: #b45309 !important; }
+  html.dark .seat-heat-5 { background-color: #7f1d1d !important; }
+
+  /* --- Modo Cine overlay --- */
+  .cine-overlay {
+    @apply fixed inset-0 z-[60] bg-black/85 backdrop-blur-sm flex items-center justify-center;
+  }
+  .cine-panel {
+    @apply relative z-[61] max-w-4xl w-full bg-stone-950 border border-stone-800 rounded-2xl shadow-2xl p-6 md:p-8;
+  }
+
+  /* --- Estrellas y luna en modo noche --- */
+  html.night-mode .stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+  }
+  html.night-mode .star {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 50%;
+    opacity: 0.7;
+    animation: parpadeo 4s ease-in-out infinite;
+  }
+  html.night-mode .moon {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    box-shadow: 15px 0 0 0 #d1d5db;
+    opacity: 0.9;
+    animation: flotar 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px rgba(243,244,246,0.4));
+  }
+
+  @keyframes parpadeo {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+  @keyframes flotar {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  /* --- Accesibilidad: escala de fuente --- */
+  .font-scale {
+    transition: font-size 0.2s ease;
+  }
+
+  /* --- Modo compacto / modo cómodo --- */
+  html.modo-compacto .card { @apply p-3; }
+  html.modo-compacto .btn-primary { @apply px-4 py-2 text-xs; }
+  html.modo-compacto .input { @apply px-3 py-2 text-xs; }
+  html.modo-compacto .badge { @apply px-2 py-0.5 text-[10px]; }
+
+  /* --- Temas automáticos por ciudad de destino --- */
+  html.tema-playa .btn-primary { background-color: #0ea5e9; hover:bg-accent-hover; }
+  html.tema-montana .btn-primary { background-color: #10b981; hover:bg-accent-hover; }
+  html.tema-ciudad .btn-primary { background-color: #6366f1; hover:bg-accent-hover; }
+  html.tema-desierto .btn-primary { background-color: #f59e0b; hover:bg-accent-hover; }
+
+  /* --- Animaciones al hacer scroll --- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* --- FAB styles --- */
+  .fab-menu {
+    transition: all 0.3s ease;
+  }
 }
 
 @layer components {
   .card {
-    @apply bg-white dark:bg-stone-900 rounded-xl border border-line dark:border-stone-800 shadow-soft;
+    @apply bg-white/95 dark:bg-stone-900/80 dark:backdrop-blur-sm rounded-xl border border-line dark:border-stone-800 shadow-soft transition-colors duration-200;
   }
 
   .btn-primary {
@@ -94,5 +287,76 @@
 
   .empty-state {
     @apply rounded-xl border border-dashed border-line bg-white/70 p-10 text-center text-sm text-muted;
+  }
+
+  /* --- Modo Premium (acentos dorados, interfaz limpia) --- */
+  html.premium-mode .btn-primary {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+  }
+  html.premium-mode .card {
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+
+  /* --- Modo OLED (negro puro para pantallas OLED) --- */
+  html.oled-mode body {
+    @apply bg-black text-white;
+  }
+  html.oled-mode .card {
+    @apply bg-black border-stone-900;
+  }
+  html.oled-mode .input {
+    @apply bg-black text-white border-stone-800;
+  }
+
+  /* --- Modo Kiosco (botones grandes, interfaz táctil) --- */
+  html.kiosco-mode .btn-primary,
+  html.kiosco-mode .btn-outline,
+  html.kiosco-mode .btn-ghost {
+    @apply min-h-[56px] px-8 text-base;
+  }
+  html.kiosco-mode .input {
+    @apply min-h-[56px] px-8 text-base;
+  }
+
+  /* --- Boleto coleccionable efectos --- */
+  .boleto-coleccionable-sello {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+  }
+
+  /* --- Animaciones modo invierno (nieve) --- */
+  @keyframes caer {
+    0% { transform: translateY(-10px); }
+    100% { transform: translateY(110vh); }
+  }
+
+  /* --- Animaciones modo playa (olas) --- */
+  @keyframes olas {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-20px); }
+  }
+
+  /* --- Filtros de daltonismo --- */
+  html.filtro-protanopia { filter: url('#filtro-protanopia'); }
+  html.filtro-deuteranopia { filter: url('#filtro-deuteranopia'); }
+  html.filtro-tritanopia { filter: url('#filtro-tritanopia'); }
+
+  /* --- Temas de estación del año --- */
+  html.estacion-primavera { --estacion-accent: #22c55e; }
+  html.estacion-verano { --estacion-accent: #f97316; }
+  html.estacion-otonno { --estacion-accent: #d97706; }
+  html.estacion-invierno { --estacion-accent: #3b82f6; }
+  html.estacion-primavera .btn-primary { background-color: var(--estacion-accent); }
+  html.estacion-verano .btn-primary { background-color: var(--estacion-accent); }
+  html.estacion-otonno .btn-primary { background-color: var(--estacion-accent); }
+  html.estacion-invierno .btn-primary { background-color: var(--estacion-accent); }
+
+  /* --- Modo foco --- */
+  html.modo-foco *:not(.focus-element) { filter: grayscale(80%) opacity(40%); pointer-events: none; }
+  html.modo-foco .focus-element { filter: none !important; opacity: 1 !important; pointer-events: auto !important; }
+
+  /* --- Máquina de escribir --- */
+  @keyframes escribir-cursor {
+    0%, 100% { border-color: transparent; }
+    50% { border-color: currentColor; }
   }
 }

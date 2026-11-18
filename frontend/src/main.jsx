@@ -17,3 +17,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </ThemeProvider>
   </React.StrictMode>
 )
+
+// El service worker solo se registra en producción para no servir shells obsoletos en desarrollo.
+if (import.meta.env.PROD && 'serviceWorker' in window.navigator) {
+  window.addEventListener('load', () => {
+    window.navigator.serviceWorker.register('/sw.js').catch(() => {})
+  })
+}

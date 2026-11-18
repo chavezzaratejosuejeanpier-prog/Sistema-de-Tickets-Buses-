@@ -1,10 +1,14 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import { Timer, Download } from 'lucide-react'
+import { Timer, Check } from 'lucide-react'
+import { motion } from 'framer-motion'
 import Swal from 'sweetalert2'
+import confetti from 'canvas-confetti'
 import Button from '../components/common/Button.jsx'
 import { checkout, getPdfUrl } from '../services/api.js'
 import { totalConIGV } from '../utils/precios.js'
+import BoletoTermico from '../components/common/BoletoTermico.jsx'
+import FirmaDigital from '../components/common/FirmaDigital.jsx'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const HOY_ISO = new Date().toISOString().slice(0, 10)
@@ -59,21 +63,52 @@ function validarPasajeros(pasajeros, email, conFactura, ruc) {
   return null
 }
 
-function leerReservaFallback() {
+const CAMPOS_VIAJE = ['origen', 'destino', 'fecha', 'hora', 'placa', 'tipo']
+
+function normalizarViaje(fuente) {
+  const v = {}
+  for (const campo of CAMPOS_VIAJE) {
+    const valor = fuente?.[campo]
+    v[campo] = typeof valor === 'string' ? valor : ''
+  }
+  return v
+}
+
+function leerReservaGuardada() {
   try {
     const raw = localStorage.getItem('reserva')
-    if (!raw) return null
-    const r = JSON.parse(raw)
-    const nums = Array.isArray(r.asientos) ? r.asientos.filter((n) => Number.isInteger(n)) : []
-    if (!r.routeId || nums.length === 0) return null
-    return {
-      rutaId: Number(r.routeId),
-      asientos: nums.map((n) => ({ id: n, number: n })),
-      precio: r.precio != null ? Number(r.precio) : null,
-    }
+    return raw ? JSON.parse(raw) : null
   } catch {
     return null
   }
+}
+
+// Metadatos guardados solo si pertenecen a la misma ruta (reservas antiguas no traen `viaje`).
+function viajeGuardado(rutaId) {
+  const r = leerReservaGuardada()
+  if (!r || Number(r.routeId) !== Number(rutaId)) return normalizarViaje(null)
+  return normalizarViaje(r.viaje)
+}
+
+function leerReservaFallback() {
+  const r = leerReservaGuardada()
+  if (!r) return null
+  const nums = Array.isArray(r.asientos) ? r.asientos.filter((n) => Number.isInteger(n)) : []
+  if (!r.routeId || nums.length === 0) return null
+  return {
+    rutaId: Number(r.routeId),
+    asientos: nums.map((n) => ({ id: n, number: n })),
+    precio: r.precio != null ? Number(r.precio) : null,
+    viaje: normalizarViaje(r.viaje),
+  }
+}
+
+function formatearFecha(valor) {
+  if (!valor) return 'Por confirmar'
+  const texto = String(valor)
+  const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(texto) ? `${texto}T00:00:00` : texto)
+  if (Number.isNaN(d.getTime())) return 'Por confirmar'
+  return d.toLocaleDateString('es-PE', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 const Checkout = () => {
@@ -83,10 +118,15 @@ const Checkout = () => {
   const inicial = useMemo(() => {
     const st = location.state
     if (st?.rutaId && Array.isArray(st?.asientos) && st.asientos.length > 0) {
+      const desdeState = normalizarViaje(st)
+      const guardado = viajeGuardado(st.rutaId)
+      const viaje = {}
+      for (const campo of CAMPOS_VIAJE) viaje[campo] = desdeState[campo] || guardado[campo]
       return {
         rutaId: Number(st.rutaId),
         asientos: st.asientos,
         precio: st.precio != null ? Number(st.precio) : null,
+        viaje,
       }
     }
     return leerReservaFallback()
@@ -101,10 +141,24 @@ const Checkout = () => {
   const [timeLeft, setTimeLeft] = useState(300)
   const [enviando, setEnviando] = useState(false)
   const [result, setResult] = useState(null)
+  const [firma, setFirma] = useState(null)
 
   const rutaId = inicial?.rutaId
+  const viaje = inicial?.viaje ?? normalizarViaje(null)
   const precioPorAsiento = Number(inicial?.precio ?? 0)
-  const total = totalConIGV(precioPorAsiento, pasajeros.length)
+  // La cantidad siempre corresponde a los asientos/pasajeros que se envían al backend.
+  const cantidadPasajeros = pasajeros.length
+  const total = totalConIGV(precioPorAsiento, cantidadPasajeros)
+
+  const cambiarAsientos = () => {
+    if (!rutaId) return
+    navigate(`/asientos/${rutaId}`, {
+      state: {
+        precio: inicial?.precio ?? undefined,
+        ...viaje,
+      },
+    })
+  }
 
   useEffect(() => {
     if (!rutaId) navigate('/buscar', { replace: true })
@@ -139,26 +193,46 @@ const Checkout = () => {
 
   if (result) {
     return (
-      <div className="max-w-xl mx-auto p-6 mt-10">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className="max-w-xl mx-auto p-6 mt-10"
+      >
         <div className="card p-8 text-center">
           <h2 className="text-2xl font-bold text-green-600">¡Compra Exitosa!</h2>
           <p className="mt-2">Código: <span className="font-mono font-bold">{result.codigo_reserva}</span></p>
           <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">Ruta #{rutaId} • Asientos: {result.asientos.join(', ')} • Total: S/ {Number(result.total).toFixed(2)}</p>
-          <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href={getPdfUrl(result.codigo_reserva)}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-6 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
-            >
-              <Download size={18} aria-hidden="true" />
-              Descargar boleto (PDF)
-            </a>
-            <Link to="/buscar" className="btn-outline">Volver a buscar</Link>
+
+          {!firma && (
+            <div className="mt-6">
+              <FirmaDigital onFirmaCambio={(firmado) => setFirma(firmado)} />
+            </div>
+          )}
+
+          <div className="mt-6 card p-4">
+            <BoletoTermico
+              codigoReserva={result.codigo_reserva}
+              origen={viaje.origen || '—'}
+              destino={viaje.destino || '—'}
+              fecha={formatearFecha(viaje.fecha)}
+              hora={viaje.hora || '—'}
+              asiento={result.asientos.join(', ')}
+              precio={Number(result.total)}
+              busPlaca={viaje.placa || '—'}
+              pdfUrl={getPdfUrl(result.codigo_reserva)}
+              onImprimir={() => window.print()}
+            />
+          </div>
+
+          <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center">
+            <Link to="/buscar" className="btn-outline flex-1 text-center">
+              Volver a buscar
+            </Link>
             <Button onClick={() => { try { localStorage.removeItem('reserva') } catch {} navigate('/buscar') }}>Aceptar</Button>
           </div>
         </div>
-      </div>
+      </motion.div>
     )
   }
 
@@ -214,6 +288,7 @@ const Checkout = () => {
         confirmButtonColor: '#10b981'
       })
       setResult(data)
+      try { confetti({ particleCount: 140, spread: 80, origin: { y: 0.6 } }) } catch {}
     } catch (error) {
       const detalle = error.response?.data?.detail
       const status = error.response?.status
@@ -237,8 +312,27 @@ const Checkout = () => {
 
   const urgente = timeLeft <= 60
 
+  const PASOS = ['Búsqueda', 'Asientos', 'Pago', 'Confirmación']
+  const pasoActual = result ? 4 : 3
+
   return (
     <div className="w-full md:w-[70%] mx-auto">
+      <ol className="mb-6 flex items-center justify-between gap-2">
+        {PASOS.map((p, i) => {
+          const n = i + 1
+          const done = n < pasoActual
+          const active = n === pasoActual
+          return (
+            <li key={p} className="flex flex-1 items-center gap-2">
+              <span className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold border-2 transition-colors ${done ? 'bg-primary border-primary text-white' : active ? 'border-primary text-primary bg-white dark:bg-stone-900' : 'border-line dark:border-stone-700 text-muted'}`}>
+                {done ? <Check size={16} /> : n}
+              </span>
+              <span className={`hidden sm:block text-xs font-semibold ${active ? 'text-navy dark:text-white' : 'text-muted'}`}>{p}</span>
+              {i < PASOS.length - 1 && <span className={`h-0.5 flex-1 ${done ? 'bg-primary' : 'bg-line dark:bg-stone-700'}`} />}
+            </li>
+          )
+        })}
+      </ol>
       <div className="card overflow-hidden">
         <div className="bg-navy text-white p-6 flex justify-between items-center gap-4">
           <div>
@@ -452,6 +546,22 @@ const Checkout = () => {
                 />
               </div>
             )}
+          </div>
+
+          <div className="mt-6 rounded-lg border border-gray-200 bg-white p-6 dark:border-stone-700 dark:bg-stone-900">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-semibold text-stone-700 dark:text-stone-300">Cantidad de pasajeros:</span>
+                <span className="font-mono font-bold text-navy dark:text-white w-8 text-center">{cantidadPasajeros}</span>
+              </div>
+              <button
+                type="button"
+                onClick={cambiarAsientos}
+                className="px-4 py-2 rounded-lg border border-line dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors text-sm font-medium"
+              >
+                Cambiar asientos
+              </button>
+            </div>
           </div>
 
           <div className="mt-8 border-t border-line dark:border-stone-700 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">

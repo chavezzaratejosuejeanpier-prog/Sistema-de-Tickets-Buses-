@@ -13,12 +13,16 @@ export default function SeatSelection() {
   const [error, setError] = useState('')
   const [seleccionados, setSeleccionados] = useState([])
   const [precio, setPrecio] = useState(location.state?.precio ?? null)
-  const [rutaInfo, setRutaInfo] = useState({
+  // Metadatos no personales del viaje (vienen de la búsqueda o de getRoutes) para el boleto en checkout.
+  const [viaje, setViaje] = useState(() => ({
     origen: location.state?.origen ?? '',
     destino: location.state?.destino ?? '',
-  })
+    fecha: location.state?.fecha ?? '',
+    hora: location.state?.hora ?? '',
+    placa: location.state?.placa ?? '',
+    tipo: location.state?.tipo ?? '',
+  }))
 
-  const info = location.state || {}
   const total = totalConIGV(precio, seleccionados.length)
 
   useEffect(() => {
@@ -35,7 +39,13 @@ export default function SeatSelection() {
           const ruta = routesRes.data.rutas.find((r) => String(r.id) === String(routeId))
           if (ruta) {
             setPrecio(Number(ruta.precio_base))
-            setRutaInfo({ origen: ruta.origen ?? '', destino: ruta.destino ?? '' })
+            setViaje((prev) => ({
+              ...prev,
+              origen: ruta.origen ?? prev.origen,
+              destino: ruta.destino ?? prev.destino,
+              fecha: ruta.fecha_salida ?? prev.fecha,
+              hora: ruta.hora_salida ?? prev.hora,
+            }))
           }
         }
       })
@@ -55,9 +65,9 @@ export default function SeatSelection() {
     if (seleccionados.length === 0) return
     const asientos = [...seleccionados].sort((a, b) => a - b).map((n) => ({ id: n, number: n }))
     try {
-      localStorage.setItem('reserva', JSON.stringify({ routeId: Number(routeId), asientos: [...seleccionados].sort((a, b) => a - b), precio: precio != null ? Number(precio) : null }))
+      localStorage.setItem('reserva', JSON.stringify({ routeId: Number(routeId), asientos: [...seleccionados].sort((a, b) => a - b), precio: precio != null ? Number(precio) : null, viaje }))
     } catch {}
-    navigate('/checkout', { state: { rutaId: Number(routeId), asientos, precio: precio != null ? Number(precio) : null } })
+    navigate('/checkout', { state: { rutaId: Number(routeId), asientos, precio: precio != null ? Number(precio) : null, ...viaje } })
   }
 
   if (!data) return (
@@ -71,9 +81,9 @@ export default function SeatSelection() {
       <div className="mb-6">
         <h1 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white tracking-tight">Elige tus Asientos</h1>
         <p className="text-stone-500 dark:text-stone-400 mt-2 text-sm md:text-base">
-          {rutaInfo.origen && rutaInfo.destino ? `${rutaInfo.origen} → ${rutaInfo.destino}` : `Ruta #${routeId}`}
-          {info.fecha ? ` · ${new Date(info.fecha).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}` : ''}
-          {info.hora ? ` · ${info.hora}` : ''} · Elige tus asientos y continúa al pago.
+          {viaje.origen && viaje.destino ? `${viaje.origen} → ${viaje.destino}` : `Ruta #${routeId}`}
+          {viaje.fecha ? ` · ${new Date(viaje.fecha).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}` : ''}
+          {viaje.hora ? ` · ${viaje.hora}` : ''} · Elige tus asientos y continúa al pago.
         </p>
       </div>
 

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Ticket as TicketIcon, Bus, CalendarDays, Search, Download } from 'lucide-react'
 import Button from '../components/common/Button.jsx'
+import Skeleton from '../components/common/Skeleton.jsx'
+import EmptyState from '../components/common/EmptyState.jsx'
 import { getTicketByCode, getPdfUrl } from '../services/api.js'
 
 const formatoFecha = (iso) => {
@@ -96,8 +98,11 @@ export default function MisPasajes() {
       </form>
 
       {cargando && (
-        <div className="mt-8 flex items-center justify-center gap-3 text-muted">
-          <span className="spinner" aria-hidden="true" /> Consultando reserva...
+        <div className="mt-8 card p-6 space-y-3">
+          <Skeleton className="h-5 w-1/2" />
+          <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="h-4 w-1/3" />
+          <Skeleton className="h-10 w-40 mt-2" />
         </div>
       )}
 
@@ -124,15 +129,18 @@ export default function MisPasajes() {
                 </span>
               )}
               {codigoReserva && (
-                <a
-                  href={getPdfUrl(codigoReserva)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="ml-auto inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-6 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
-                >
-                  <Download size={18} aria-hidden="true" />
-                  Descargar boleto (PDF)
-                </a>
+                <div className="ml-auto flex flex-wrap gap-2">
+                  <a
+                    href={getPdfUrl(codigoReserva)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-6 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
+                  >
+                    <Download size={18} aria-hidden="true" />
+                    Descargar boleto (PDF)
+                  </a>
+                  <Button variant="outline" onClick={() => window.print()}>Imprimir</Button>
+                </div>
               )}
             </div>
           )}
@@ -173,9 +181,7 @@ export default function MisPasajes() {
       )}
 
       {!error && !cargando && !tickets && (
-        <div className="empty-state mt-8">
-          Aún no has consultado ninguna reserva. Escribe tu código <span className="font-mono">BC-...</span> arriba.
-        </div>
+        <EmptyState className="mt-8" icon={Search} title="Sin reserva consultada" description="Escribe tu código BC-... arriba para ver tus pasajes." />
       )}
     </div>
   )

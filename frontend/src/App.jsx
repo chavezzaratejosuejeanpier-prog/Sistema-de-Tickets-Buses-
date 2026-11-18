@@ -1,9 +1,19 @@
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { Eye } from 'lucide-react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Toaster } from 'sonner'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
 import ScrollToTop from './components/common/ScrollToTop'
 import ProtectedRoute from './components/common/ProtectedRoute'
+import CommandPalette from './components/common/CommandPalette.jsx'
+import Onboarding from './components/common/Onboarding.jsx'
+import AmbientStationSound from './components/common/AmbientStationSound.jsx'
+import AccessibilityPanel from './components/common/AccessibilityPanel.jsx'
+import VoiceAssistant from './components/common/VoiceAssistant.jsx'
+import { useAmbientLightTheme } from './components/common/useAmbientLightTheme.js'
+import Fab from './components/common/Fab.jsx'
 
 import About from './pages/About'
 import Nosotros from './pages/Nosotros'
@@ -15,6 +25,8 @@ const SeatSelection = lazy(() => import('./pages/SeatSelection'))
 const MisPasajes = lazy(() => import('./pages/MisPasajes'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const NotFound = lazy(() => import('./pages/NotFound'))
+const Innovacion = lazy(() => import('./pages/Innovacion.jsx'))
+const Innovacion2 = lazy(() => import('./pages/Innovacion2.jsx'))
 
 const TITULOS = {
   '/': 'Inicio',
@@ -36,7 +48,7 @@ function TituloRuta() {
   return null
 }
 
-function Layout() {
+function Layout({ _modoCompacto, _setModoCompacto, _temaCiudad, _setTemaCiudad }) {
   const { pathname } = useLocation()
   const esInicio = pathname === '/'
   const esNosotros = pathname === '/nosotros'
@@ -61,19 +73,29 @@ function Layout() {
         id="main"
         className={claseMain}
       >
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center gap-3 py-20 text-muted dark:text-stone-400">
-              <span className="spinner" aria-hidden="true" /> Cargando...
-            </div>
-          }
-        >
-          <Routes>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+          >
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center gap-3 py-20 text-muted dark:text-stone-400">
+                  <span className="spinner" aria-hidden="true" /> Cargando...
+                </div>
+              }
+            >
+              <Routes>
             <Route path="/" element={<About />} />
             <Route path="/buscar" element={<SearchRoutes />} />
             <Route path="/nosotros" element={<Nosotros />} />
             <Route path="/asientos/:routeId" element={<SeatSelection />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/innovacion" element={<Innovacion />} />
+            <Route path="/innovacion2" element={<Innovacion2 />} />
             <Route path="/mis-pasajes" element={<MisPasajes />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
@@ -87,7 +109,9 @@ function Layout() {
             />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </Suspense>
+            </Suspense>
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       <Footer />
@@ -96,11 +120,49 @@ function Layout() {
 }
 
 function App() {
+  const [mostrarOnboarding, setMostrarOnboarding] = useState(() => {
+    return localStorage.getItem('lux_onboarding') !== '1'
+  })
+  const [accesoAbierto, setAccesoAbierto] = useState(false)
+  const [modoCompacto, setModoCompacto] = useState(false)
+  const [temaCiudad, setTemaCiudad] = useState('')
+  useAmbientLightTheme()
+
+  useEffect(() => {
+    const root = document.documentElement
+    if (modoCompacto) root.classList.add('modo-compacto')
+    else root.classList.remove('modo-compacto')
+    root.classList.remove('tema-playa', 'tema-montana', 'tema-ciudad', 'tema-desierto')
+    if (temaCiudad) root.classList.add(`tema-${temaCiudad}`)
+  }, [modoCompacto, temaCiudad])
+
   return (
     <Router>
       <ScrollToTop />
       <TituloRuta />
-      <Layout />
+      <Layout _modoCompacto={modoCompacto} _setModoCompacto={setModoCompacto} _temaCiudad={temaCiudad} _setTemaCiudad={setTemaCiudad} />
+      <div className="command-palette">
+        <CommandPalette />
+      </div>
+      <div className="toaster">
+        <Toaster richColors position="top-right" />
+      </div>
+      <AmbientStationSound />
+      {mostrarOnboarding && (
+        <Onboarding onFinish={() => setMostrarOnboarding(false)} />
+      )}
+      <AccessibilityPanel open={accesoAbierto} onClose={() => setAccesoAbierto(false)} />
+      <button
+        type="button"
+        onClick={() => setAccesoAbierto(o => !o)}
+        aria-label={accesoAbierto ? 'Cerrar panel de accesibilidad' : 'Abrir panel de accesibilidad'}
+        className="accessibility-btn fixed bottom-4 left-4 z-[90] flex items-center justify-center w-10 h-10 rounded-full border border-line dark:border-stone-700 bg-white dark:bg-stone-800 shadow-soft hover:bg-primary hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      >
+        <Eye size={18} className="text-navy dark:text-white" />
+        <span className="sr-only">Accesibilidad</span>
+      </button>
+      <VoiceAssistant />
+      <Fab />
     </Router>
   )
 }

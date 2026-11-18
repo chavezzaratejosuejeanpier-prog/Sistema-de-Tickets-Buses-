@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { FILTROS, POPULAR_ROUTES } from '../data/popularRoutes.js'
+import { getRoutes } from '../services/api.js'
 import RouteCard from './RouteCard.jsx'
+import Skeleton from './common/Skeleton.jsx'
 
 const filtrarRutas = (rutas, filtro) => {
   if (filtro === 'todas') return rutas
@@ -10,9 +12,53 @@ const filtrarRutas = (rutas, filtro) => {
   return rutas.filter(ruta => ruta.region === filtro)
 }
 
+const claveCiudad = (texto) => String(texto ?? '')
+  .normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .trim().toLowerCase()
+
+const formatearPrecio = (valor) => (Number.isInteger(valor) ? valor : valor.toFixed(2))
+
+// Parte del catálogo (filtros, fotos, créditos y orden) y solo actualiza precio/duración
+// con la salida más barata del mismo par dirigido origen → destino devuelto por la API.
+const enriquecerCatalogo = (salidas) => {
+  const mejores = new Map()
+  for (const s of salidas) {
+    const precio = Number(s?.precio_base)
+    if (!Number.isFinite(precio) || precio <= 0) continue
+    const clave = `${claveCiudad(s.origen)}|${claveCiudad(s.destino)}`
+    const actual = mejores.get(clave)
+    if (!actual || precio < actual.precio) mejores.set(clave, { precio, duracion: Number(s.duracion_horas) })
+  }
+  return POPULAR_ROUTES.map((ruta) => {
+    const mejor = mejores.get(`${claveCiudad(ruta.origen)}|${claveCiudad(ruta.destino)}`)
+    if (!mejor) return ruta
+    return {
+      ...ruta,
+      precioDesde: formatearPrecio(mejor.precio),
+      duracion: Number.isFinite(mejor.duracion) && mejor.duracion > 0 ? `${mejor.duracion} h` : ruta.duracion,
+    }
+  })
+}
+
 export default function PopularRoutes() {
   const [filtro, setFiltro] = useState('todas')
-  const rutas = filtrarRutas(POPULAR_ROUTES, filtro)
+  const [rutasData, setRutasData] = useState(POPULAR_ROUTES)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let vivo = true
+    getRoutes()
+      .then(({ data }) => {
+        if (!vivo) return
+        const lista = Array.isArray(data?.rutas) ? data.rutas : Array.isArray(data) ? data : []
+        setRutasData(enriquecerCatalogo(lista))
+      })
+      .catch(() => { if (vivo) setRutasData(POPULAR_ROUTES) })
+      .finally(() => { if (vivo) setLoading(false) })
+    return () => { vivo = false }
+  }, [])
+
+  const rutas = filtrarRutas(rutasData, filtro)
 
   return (
     <section aria-labelledby="rutas-populares-titulo">
@@ -64,9 +110,11 @@ export default function PopularRoutes() {
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {rutas.map(ruta => (
-          <RouteCard key={ruta.id} ruta={ruta} />
-        ))}
+        {loading
+          ? [1,2,3,4,5,6].map(i => <Skeleton key={i} className="aspect-[4/3] w-full" />)
+          : rutas.map(ruta => (
+            <RouteCard key={ruta.id} ruta={ruta} />
+          ))}
       </div>
     </section>
   )

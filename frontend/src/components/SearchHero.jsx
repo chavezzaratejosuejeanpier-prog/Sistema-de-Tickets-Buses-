@@ -1,4 +1,5 @@
-import { ArrowLeftRight, Search, ShieldCheck, Armchair, Wifi } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ArrowLeftRight, Search, ShieldCheck, Armchair, Wifi, Bus } from 'lucide-react'
 import CityField from './common/CityField.jsx'
 import DateField from './common/DateField.jsx'
 import fondo from '../assets/plaza-armas-cusco.jpeg'
@@ -15,13 +16,49 @@ export default function SearchHero({
 }) {
   const hoy = new Date().toLocaleDateString('en-CA')
   const valido = origen.trim().length >= 2 && destino.trim().length >= 2 && origen.trim().toLowerCase() !== destino.trim().toLowerCase()
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  const [rutasRecientes, setRutasRecientes] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('lux_rutas_recientes') || '[]') } catch { return [] }
+  })
+
+  const guardarRutaReciente = (o, d) => {
+    const entrada = { origen: o, destino: d }
+    const filtrado = rutasRecientes.filter(r => !(r.origen === o && r.destino === d))
+    const nuevo = [entrada, ...filtrado].slice(0, 5)
+    setRutasRecientes(nuevo)
+    try { localStorage.setItem('lux_rutas_recientes', JSON.stringify(nuevo)) } catch {}
+  }
+
+  const seleccionarRutaReciente = (o, d) => {
+    if (onOrigen && onDestino) {
+      onOrigen(o)
+      onDestino(d)
+    }
+    guardarRutaReciente(o, d)
+  }
+
+  useEffect(() => {
+    const onMove = (e) => {
+      setMousePos({ x: e.clientX / window.innerWidth - 0.5, y: e.clientY / window.innerHeight - 0.5 })
+    }
+    window.addEventListener('mousemove', onMove)
+    return () => window.removeEventListener('mousemove', onMove)
+  }, [])
+
+  const parallax = (factor) => ({
+    transform: `translate(${mousePos.x * factor * 20}px, ${mousePos.y * factor * 20}px)`,
+  })
 
   return (
-    <section className="relative min-h-[760px] w-full md:min-h-[80vh]">
+    <section className="relative min-h-[760px] w-full md:min-h-[80vh]" style={{ overflow: 'hidden' }}>
+      <div className="mesh-orb mesh-orb-1" style={parallax(0.4)} />
+      <div className="mesh-orb mesh-orb-2" style={parallax(0.6)} />
+      <div className="mesh-orb mesh-orb-3" style={parallax(0.8)} />
       <img
         src={fondo}
         alt="Plaza de Armas del Cusco - LUX Líneas Únicas Xpress"
         className="absolute inset-0 h-full w-full object-cover object-center"
+        style={parallax(0.3)}
       />
       <div className="absolute inset-0 bg-gradient-to-l from-orange-950/95 via-orange-900/50 to-transparent" />
 
@@ -29,11 +66,27 @@ export default function SearchHero({
         <div className="max-w-xl text-right text-white">
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-white/80">LUX · Líneas Únicas Xpress</p>
           <h1 className="mt-3 text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
-            Hasta 30% de descuento
+            {new Date().getHours() < 12 ? 'Buenos días, señor' : 'Buenas tardes, señor'} · Hasta 30% de descuento
           </h1>
           <p className="ml-auto mt-4 max-w-md text-base text-white/90 sm:text-lg">
             Viaja nivel premium con LUX. Encuentra los mejores pasajes a nivel nacional.
           </p>
+
+          {rutasRecientes.length > 0 && (
+            <div className="ml-auto mt-6 flex flex-wrap gap-2">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70 block mb-1.5">Tus rutas recientes:</span>
+              {rutasRecientes.map((r, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => seleccionarRutaReciente(r.origen, r.destino)}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/20 transition-colors"
+                >
+                  {r.origen} → {r.destino}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="mt-8 flex flex-wrap justify-end gap-3">
             {BENEFICIOS.map(({ Icono, texto }) => (
@@ -42,6 +95,11 @@ export default function SearchHero({
                 {texto}
               </span>
             ))}
+          </div>
+
+          <div className="relative mt-6 h-6 overflow-hidden" aria-hidden="true">
+            <div className="absolute inset-x-0 top-1/2 border-t-2 border-dashed border-white/40" />
+            <Bus size={22} className="absolute top-1/2 -translate-y-1/2 text-orange-400 animate-[busMove_6s_linear_infinite] motion-reduce:animate-none" />
           </div>
         </div>
       </div>
