@@ -51,7 +51,8 @@ function TituloRuta() {
 }
 
 function Layout({ _modoCompacto, _setModoCompacto, _temaCiudad, _setTemaCiudad }) {
-  const { pathname } = useLocation()
+  const location = useLocation()
+  const { pathname } = location
   const esInicio = pathname === '/'
   const esNosotros = pathname === '/nosotros'
   const esPetFriendly = pathname === '/petfriendly'
@@ -93,20 +94,13 @@ function Layout({ _modoCompacto, _setModoCompacto, _temaCiudad, _setTemaCiudad }
                 </div>
               }
             >
-              <Routes>
+              <Routes location={location}>
             <Route path="/" element={<About />} />
             <Route path="/buscar" element={<SearchRoutes />} />
             <Route path="/nosotros" element={<Nosotros />} />
             <Route path="/petfriendly" element={<PetFriendly />} />
             <Route path="/asientos/:routeId" element={<SeatSelection />} />
-            <Route
-              path="/checkout"
-              element={
-                <ProtectedRoute>
-                  <Checkout />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/innovacion" element={<Innovacion />} />
             <Route path="/innovacion2" element={<Innovacion2 />} />
             <Route

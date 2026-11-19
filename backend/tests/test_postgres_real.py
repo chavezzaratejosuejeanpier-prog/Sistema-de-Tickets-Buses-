@@ -222,6 +222,26 @@ class LegadoPostgresTest(unittest.TestCase):
 
 
 class CicloCompletoPostgresTest(_BasePG):
+    def test_historial_de_cuenta_e_invitado_persisten_en_conexion_nueva(self):
+        email = "contacto@example.com"
+        self.crear_usuario(email)
+        ruta = self.crear_ruta()
+        cuenta = self.comprar(self.login(email), ruta, (1,)).json()["codigo_reserva"]
+        respuesta = llamar("POST", "/api/sales/checkout/invitado", {
+            "route_id": ruta, "email": email, "pasajeros": [_pasajero(2)],
+        })
+        self.assertEqual(respuesta.status_code, 200)
+        invitado = respuesta.json()
+        self.pg.engine.dispose()
+        sesion = self.login(email)
+        self.assertEqual(llamar("GET", "/api/sales/mis-reservas", token=sesion).json(),
+                         [{"codigo": cuenta, "estado": "PAGADA"}])
+        self.assertTrue(llamar("GET", f"/api/sales/tickets/{cuenta}/pdf", token=sesion).content.startswith(b"%PDF"))
+        self.assertTrue(llamar("POST", "/api/sales/invitado/pdf", token=invitado["token_pdf"]).content.startswith(b"%PDF"))
+        with self.Sesion() as db:
+            self.assertIsNone(db.query(Reserva).filter_by(codigo=invitado["codigo_reserva"]).one().user_id)
+            self.assertEqual(db.query(Ticket).count(), 2)
+
     def test_ciclo_completo_checkout_de_demostracion(self):
         for alias, rol in (("admin", RolUsuario.ADMIN), ("vendedor", RolUsuario.VENDEDOR)):
             self.crear_usuario(f"{alias}@example.com", rol)

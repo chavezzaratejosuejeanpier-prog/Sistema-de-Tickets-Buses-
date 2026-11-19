@@ -7,6 +7,8 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
   const [seleccionados, setSeleccionados] = useState([])
 
   const total = piso === 1 ? totalPiso1 : totalPiso2
+  const primerAsiento = piso === 1 ? 1 : totalPiso1 + 1
+  const ultimoAsiento = primerAsiento + total - 1
   const labelServicio = piso === 1 ? 'Servicio VIP' : 'Servicio Estándar'
   const rows = Math.ceil(total / 4)
 
@@ -76,12 +78,12 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
         ) : (
           <div className="grid grid-cols-5 gap-y-3 sm:gap-y-4 mt-10" role="grid" aria-label={`Distribución piso ${piso}`}>
             {Array.from({ length: rows }, (_, row) => {
-              const base = row * 4
+              const base = primerAsiento - 1 + row * 4
               const nums = [base + 1, base + 2, base + 3, base + 4]
               return (
                 <React.Fragment key={row}>
                   <div className="flex justify-center" role="gridcell">
-                    {nums[0] <= total && (
+                    {nums[0] <= ultimoAsiento && (
                       <Seat
                         numero={nums[0]}
                         estado={ocupados.includes(nums[0]) ? 'ocupado' : 'libre'}
@@ -92,7 +94,7 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
                     )}
                   </div>
                   <div className="flex justify-center" role="gridcell">
-                    {nums[1] <= total && (
+                    {nums[1] <= ultimoAsiento && (
                       <Seat
                         numero={nums[1]}
                         estado={ocupados.includes(nums[1]) ? 'ocupado' : 'libre'}
@@ -106,7 +108,7 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
                     <div className="w-px h-8 bg-gray-100/60 dark:bg-white/10 hidden sm:block" />
                   </div>
                   <div className="flex justify-center" role="gridcell">
-                    {nums[2] <= total && (
+                    {nums[2] <= ultimoAsiento && (
                       <Seat
                         numero={nums[2]}
                         estado={ocupados.includes(nums[2]) ? 'ocupado' : 'libre'}
@@ -117,7 +119,7 @@ export default function BusMap({ totalPiso1 = 20, totalPiso2 = 40, ocupados = []
                     )}
                   </div>
                   <div className="flex justify-center" role="gridcell">
-                    {nums[3] <= total && (
+                    {nums[3] <= ultimoAsiento && (
                       <Seat
                         numero={nums[3]}
                         estado={ocupados.includes(nums[3]) ? 'ocupado' : 'libre'}

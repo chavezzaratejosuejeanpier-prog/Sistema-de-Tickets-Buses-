@@ -4,7 +4,7 @@ import Button from '../components/common/Button.jsx'
 import Skeleton from '../components/common/Skeleton.jsx'
 import EmptyState from '../components/common/EmptyState.jsx'
 import Swal from 'sweetalert2'
-import { getTicketByCode, descargarBoletoPdf } from '../services/api.js'
+import { getMisReservas, getTicketByCode, descargarBoletoPdf } from '../services/api.js'
 import { alertaTexto } from '../utils/alertas.js'
 
 const formatoFecha = (iso) => {
@@ -23,15 +23,22 @@ const ESTADO_BADGE = {
 }
 
 export default function MisPasajes() {
-  const [codigo, setCodigo] = useState(() => localStorage.getItem('ultimaReserva') || '')
+  const [codigo, setCodigo] = useState('')
   const [tickets, setTickets] = useState(null)
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState('')
   const [descargando, setDescargando] = useState(false)
 
+  const [reservas, setReservas] = useState(null)
+  const [errorLista, setErrorLista] = useState(false)
   useEffect(() => {
-    const guardado = localStorage.getItem('ultimaReserva')
-    if (guardado) consultar(guardado)
+    let activo = true
+    getMisReservas().then(({ data }) => {
+      if (activo) setReservas(data)
+    }).catch(() => {
+      if (activo) setErrorLista(true)
+    })
+    return () => { activo = false }
   }, [])
 
   const consultar = async (codigoBuscado) => {
@@ -46,11 +53,9 @@ export default function MisPasajes() {
     try {
       const { data } = await getTicketByCode(limpio)
       setTickets(data)
-      localStorage.setItem('ultimaReserva', limpio)
       setCodigo(limpio)
     } catch (err) {
       setTickets(null)
-      localStorage.removeItem('ultimaReserva')
       setError(
         err.response?.status === 404
           ? `No encontramos una reserva ${limpio} asociada a tu cuenta. Revisa el código e inténtalo de nuevo.`
@@ -89,9 +94,19 @@ export default function MisPasajes() {
       <header className="mb-8">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-navy dark:text-white">Mis Pasajes</h1>
         <p className="text-muted dark:text-stone-400 mt-2">
-          Ingresa el código de una reserva hecha con esta cuenta para ver tus pasajes.
+          Selecciona una compra de tu cuenta o consulta su código.
         </p>
       </header>
+
+      <section aria-label="Reservas de tu cuenta" className="card p-5 mb-4">
+        {errorLista ? <p>No se pudo cargar el historial. Vuelve a abrir Mis Pasajes.</p>
+          : reservas === null ? <p>Cargando tus reservas…</p>
+          : reservas.length === 0 ? <p>Aún no tienes reservas en esta cuenta.</p>
+          : reservas.map(r => (
+            <button type="button" key={r.codigo} disabled={cargando} onClick={() => consultar(r.codigo)}
+              className="block py-2 underline">{r.codigo} · {r.estado}</button>
+          ))}
+      </section>
 
       <form
         onSubmit={(e) => { e.preventDefault(); consultar(codigo) }}
@@ -208,9 +223,6 @@ export default function MisPasajes() {
             </p>
           )}
 
-          <p className="text-xs text-muted dark:text-stone-500 text-center">
-            ¿Perdiste el código? Puedes buscarlo en el correo con el que compraste.
-          </p>
         </div>
       )}
 

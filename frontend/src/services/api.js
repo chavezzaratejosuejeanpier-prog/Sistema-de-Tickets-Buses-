@@ -18,7 +18,7 @@ const api = axios.create({
 
 api.interceptors.request.use(cfg => {
   const token = obtenerToken()
-  if (token) cfg.headers.Authorization = `Bearer ${token}`
+  if (token && !cfg.headers.Authorization) cfg.headers.Authorization = `Bearer ${token}`
   return cfg
 })
 
@@ -65,6 +65,15 @@ export const getRoutePairs = () => api.get('/routes/pares')
 export const getBuses = () => api.get('/buses/')
 
 export const checkout = (data) => api.post('/sales/checkout', data)
+export const checkoutInvitado = (data) => api.post('/sales/checkout/invitado', data)
+export const getMisReservas = () => api.get('/sales/mis-reservas')
+export const getPdfInvitado = (token, signal) =>
+  api.post('/sales/invitado/pdf', null, {
+    responseType: 'blob',
+    signal,
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/pdf' },
+  })
+
 export const getSalesSummary = () => api.get('/sales/')
 export const getTicketByCode = (codigo) => api.get(`/sales/tickets/${encodeURIComponent(codigo)}`)
 

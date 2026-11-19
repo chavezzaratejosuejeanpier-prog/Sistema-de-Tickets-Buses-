@@ -149,3 +149,14 @@ test('descargarBoletoPdf expone el detalle del 409 de reserva cancelada sin desc
   assert.equal(urlsCreadas.length, 0)
   assert.equal(enlaces.length, 0)
 })
+
+test('el permiso de invitado viaja solo en Authorization y conserva su alcance con otra sesión abierta', async () => {
+  const { getPdfInvitado } = await import('../src/services/api.js')
+  await getPdfInvitado('permiso-sintetico')
+  const [config] = peticiones
+  assert.equal(config.method, 'post')
+  assert.equal(config.url, '/sales/invitado/pdf')
+  assert.equal(config.responseType, 'blob')
+  assert.equal(autorizacion(config), 'Bearer permiso-sintetico')
+  assert.equal(config.params, undefined)
+})

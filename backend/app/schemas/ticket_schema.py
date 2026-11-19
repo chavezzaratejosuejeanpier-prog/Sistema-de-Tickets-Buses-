@@ -267,6 +267,10 @@ class CheckoutResponse(BaseModel):
     # Siempre True: no existe integración con una pasarela de pago real.
     pago_simulado: bool = True
 
+class CheckoutInvitadoResponse(CheckoutResponse):
+    token_pdf: str
+
+
 class VentaResumen(BaseModel):
     total_ventas: int
     ventas_hoy: int

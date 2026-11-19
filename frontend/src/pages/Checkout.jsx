@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import Swal from 'sweetalert2'
 import confetti from 'canvas-confetti'
 import Button from '../components/common/Button.jsx'
-import { checkout, descargarBoletoPdf } from '../services/api.js'
+import { checkout, checkoutInvitado, getPdfInvitado, descargarBoletoPdf } from '../services/api.js'
 import { useAuth } from '../context/useAuth.js'
 import { totalConIGV } from '../utils/precios.js'
 import BoletoTermico from '../components/common/BoletoTermico.jsx'
@@ -69,12 +69,6 @@ function leerReservaFallback() {
 
 const AVISO_SIMULADO = 'Compra de demostración: el pago es simulado y no se realiza ningún cobro real.'
 
-function escaparHtml(texto) {
-  return String(texto ?? '').replace(/[&<>"']/g, (c) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-  })[c])
-}
-
 function formatearFecha(valor) {
   if (!valor) return 'Por confirmar'
   const texto = String(valor)
@@ -118,6 +112,32 @@ const Checkout = () => {
   const [firma, setFirma] = useState(null)
   const [descargando, setDescargando] = useState(false)
 
+  const [pdfUrl, setPdfUrl] = useState('')
+  const [errorPdf, setErrorPdf] = useState('')
+  const [intentoPdf, setIntentoPdf] = useState(0)
+
+  useEffect(() => {
+    if (!result?.token_pdf) return
+    const controller = new window.AbortController()
+    let url
+    setErrorPdf('')
+    getPdfInvitado(result.token_pdf, controller.signal).then(({ data }) => {
+      if (controller.signal.aborted) return
+      url = window.URL.createObjectURL(data)
+      setPdfUrl(url)
+    }).catch((err) => {
+      if (!controller.signal.aborted) {
+        setErrorPdf(err.response?.status === 404
+          ? 'El permiso de descarga ya no está disponible.'
+          : 'No se pudo obtener el PDF. Puedes reintentar la descarga.')
+      }
+    })
+    return () => {
+      controller.abort()
+      if (url) window.URL.revokeObjectURL(url)
+    }
+  }, [result, intentoPdf])
+
   const descargarPdf = async (codigo) => {
     if (descargando) return
     setDescargando(true)
@@ -154,7 +174,7 @@ const Checkout = () => {
   }, [rutaId, navigate])
 
   useEffect(() => {
-    if (!inicial) return
+    if (!inicial || result || enviando) return
     if (timeLeft <= 0) {
       Swal.fire({
         title: 'Tiempo agotado',
@@ -166,7 +186,7 @@ const Checkout = () => {
     }
     const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000)
     return () => clearInterval(timer)
-  }, [timeLeft, navigate, inicial])
+  }, [timeLeft, navigate, inicial, result, enviando])
 
   if (!inicial || pasajeros.length === 0) {
     return (
@@ -196,6 +216,13 @@ const Checkout = () => {
           <p className="mt-2">Código: <span className="font-mono font-bold">{result.codigo_reserva}</span></p>
           <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">Ruta #{rutaId} • Asientos: {result.asientos.join(', ')} • Total: S/ {Number(result.total).toFixed(2)}</p>
 
+          {result.token_pdf ? (
+            <p className="mt-3 text-sm" role="status">
+              {errorPdf || (pdfUrl ? 'Si la descarga no comenzó, pulsa Descargar PDF.' : 'Preparando tu PDF…')}
+              {' '}Guarda el boleto antes de cerrar esta página. El permiso de descarga dura 15 minutos.
+            </p>
+          ) : <Link className="mt-3 inline-block underline" to="/mis-pasajes">Ver en Mis Pasajes</Link>}
+
           {!firma && (
             <div className="mt-6">
               <FirmaDigital onFirmaCambio={(firmado) => setFirma(firmado)} />
@@ -212,7 +239,10 @@ const Checkout = () => {
               asiento={result.asientos.join(', ')}
               precio={Number(result.total)}
               busPlaca={viaje.placa || '—'}
-              onDescargar={() => descargarPdf(result.codigo_reserva)}
+              pdfUrl={pdfUrl}
+              onDescargar={result.token_pdf
+                ? (errorPdf ? () => setIntentoPdf(i => i + 1) : undefined)
+                : () => descargarPdf(result.codigo_reserva)}
               descargando={descargando}
               onImprimir={() => window.print()}
             />
@@ -249,7 +279,8 @@ const Checkout = () => {
 
     setEnviando(true)
     try {
-      const { data } = await checkout({
+      const comprar = user ? checkout : checkoutInvitado
+      const { data } = await comprar({
         route_id: rutaId,
         email: email.trim(),
         ruc: conFactura ? ruc.trim() : null,
@@ -268,19 +299,7 @@ const Checkout = () => {
 
       try {
         localStorage.removeItem('reserva')
-        localStorage.setItem('ultimaReserva', data.codigo_reserva)
       } catch {}
-      await Swal.fire({
-        title: '¡Compra registrada!',
-        html: `
-          <p style="font-size:.85rem;font-weight:700;color:#B45309;margin-bottom:.5rem">${escaparHtml(AVISO_SIMULADO)}</p>
-          <p>Tu código de reserva es:</p>
-          <p style="font-size:1.6rem;font-weight:800;letter-spacing:.12em;color:#EA580C;margin:.5rem 0">${escaparHtml(data.codigo_reserva)}</p>
-          <p style="font-size:.9rem">Consulta tus pasajes desde "Mis Pasajes" con esta misma cuenta. Correo de contacto: ${escaparHtml(data.email)}</p>
-        `,
-        icon: 'success',
-        confirmButtonColor: '#10b981'
-      })
       setResult(data)
       try { confetti({ particleCount: 140, spread: 80, origin: { y: 0.6 } }) } catch {}
     } catch (error) {
@@ -336,6 +355,7 @@ const Checkout = () => {
         <div className="bg-navy text-white p-6 flex justify-between items-center gap-4">
           <div>
             <h2 className="text-2xl font-bold">Completa tu compra</h2>
+            {!user && <p>Compra como invitado o <Link to="/login" state={{ from: '/checkout' }} className="underline">inicia sesión para guardar tus pasajes en tu cuenta</Link>.</p>}
             <p className="text-sm text-slate-300 mt-1">{pasajeros.length} pasaje(s) reservado(s)</p>
           </div>
           <div

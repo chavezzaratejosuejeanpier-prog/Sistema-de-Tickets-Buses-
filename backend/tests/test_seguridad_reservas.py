@@ -113,7 +113,7 @@ class SeguridadReservasTest(unittest.TestCase):
         self.assertIn("no-store", r.headers.get("cache-control", ""))
 
     # ---------------------------------------------------------------- invitados
-    def test_invitado_no_puede_comprar_ni_consultar(self):
+    def test_checkout_de_cuenta_y_consulta_requieren_sesion(self):
         r = self._comprar(alias=None)
         self.assertEqual(r.status_code, 401)
         db = SessionLocal()
@@ -126,6 +126,38 @@ class SeguridadReservasTest(unittest.TestCase):
         codigo = self._compra_ok()
         self.assertEqual(llamar("GET", f"/api/sales/tickets/{codigo}").status_code, 401)
         self.assertEqual(llamar("GET", f"/api/sales/tickets/{codigo}/pdf").status_code, 401)
+
+    def test_permiso_invitado_solo_pdf_temporal_y_cancelacion(self):
+        from unittest.mock import patch
+
+        cuerpo = {"route_id": self.route_id, "email": "cliente@example.com", "pasajeros": [_pasajero(1)]}
+        compra = "/api/sales/checkout/invitado"
+        pdf = "/api/sales/invitado/pdf"
+        self.assertEqual(llamar("POST", compra, cuerpo, self.tokens["cliente"]).status_code, 400)
+        r = llamar("POST", compra, cuerpo)
+        self.assertEqual(r.status_code, 200)
+        self._assert_no_store(r)
+        codigo, permiso = r.json()["codigo_reserva"], r.json()["token_pdf"]
+        self.assertIsNone(self._reserva(codigo).user_id)
+        repetida = llamar("POST", compra, cuerpo)
+        self.assertEqual(repetida.status_code, 409)
+        self.assertNotIn("token_pdf", repetida.json())
+        self.assertEqual(len(self._tickets(codigo)), 1)
+        self.assertEqual(llamar("GET", "/api/sales/mis-reservas", token=self.tokens["cliente"]).json(), [])
+        self.assertEqual(llamar("GET", "/api/sales/mis-reservas", token=permiso).status_code, 401)
+        self.assertEqual(llamar("GET", f"/api/sales/tickets/{codigo}/pdf", token=self.tokens["cliente"]).status_code, 404)
+        for credencial in (None, codigo, self.tokens["cliente"]):
+            self.assertEqual(llamar("POST", pdf, token=credencial).status_code, 404)
+        for _ in range(2):
+            r = llamar("POST", pdf, token=permiso)
+            self.assertTrue(r.content.startswith(b"%PDF"))
+            self.assertIn(codigo, r.headers["content-disposition"])
+            self._assert_no_store(r)
+        with patch("jose.jwt.datetime") as reloj:
+            reloj.utcnow.return_value = datetime.now() + timedelta(days=2)
+            self.assertEqual(llamar("POST", pdf, token=permiso).status_code, 404)
+        self.assertEqual(llamar("POST", f"/api/reservas/{codigo}/cancelar", token=self.tokens["admin"]).status_code, 200)
+        self.assertEqual(llamar("POST", pdf, token=permiso).status_code, 409)
 
     def test_token_invalido_rechazado(self):
         codigo = self._compra_ok()

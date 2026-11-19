@@ -1,18 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 import uuid
+from datetime import datetime, timedelta, timezone
+
+from jose import JWTError, jwt
+from fastapi.security import HTTPAuthorizationCredentials
+from ..core.config import settings
+from ..core.rate_limit import consumir
 from ..core.tiempo import hoy_lima, inicio_dia_lima_en_utc
 from ..services import programa
 from ..database import get_db
 from ..models.ticket import Ticket, EstadoTicket
 from ..models.route import Route
 from ..models.reserva import Reserva, METODO_PAGO_SIMULADO
-from ..schemas.ticket_schema import CheckoutRequest, CheckoutResponse, VentaResumen
+from ..schemas.ticket_schema import CheckoutRequest, CheckoutResponse, CheckoutInvitadoResponse, VentaResumen
 from ..services.ticket_service import verificar_disponibilidad, calcularMontos, ESTADOS_VENDIDOS
 from ..services.boleto_pdf import generar_pdf_boletos
-from ..core.deps import require_admin, get_current_user
+from ..core.deps import require_admin, get_current_user, bearer_scheme
 from ..models.user import User, RolUsuario
 
 router = APIRouter()
@@ -132,6 +138,27 @@ def checkout(
     user: User = Depends(get_current_user),
 ):
     response.headers.update(NO_STORE)
+    return _registrar_compra(data, db, user)
+
+
+AUDIENCIA_PDF = "lux:pdf-invitado"
+
+
+def _limitar_invitado(request: Request, operacion: str, maximo: int):
+    ip = request.client.host if request.client else "desconocido"
+    consumir([(f"invitado:{operacion}:{ip}", maximo, 60)], "Demasiadas solicitudes. Inténtalo en un minuto.")
+
+
+@router.post("/checkout/invitado", response_model=CheckoutInvitadoResponse)
+def checkout_invitado(data: CheckoutRequest, request: Request, response: Response, db: Session = Depends(get_db)):
+    response.headers.update(NO_STORE)
+    if "authorization" in request.headers:
+        raise HTTPException(400, "Usa el checkout de tu cuenta para comprar con sesión.")
+    _limitar_invitado(request, "compra", 6)
+    return _registrar_compra(data, db, None)
+
+
+def _registrar_compra(data: CheckoutRequest, db: Session, user: User | None):
     # Los formatos (documento, nombres, teléfono, RUC, límites) los valida
     # CheckoutRequest; aquí van las reglas que dependen de la base de datos.
     ruta = db.query(Route).filter(Route.id == data.route_id).first()
@@ -159,9 +186,12 @@ def checkout(
 
     ruc = data.ruc
     codigo = f"BC-{uuid.uuid4().hex[:8].upper()}"
+    # Un código histórico puede tener boletos sin fila en reservas.
+    if db.query(Ticket.id).filter_by(codigo_reserva=codigo).first():
+        raise HTTPException(409, "No se pudo asignar el código de reserva. Inténtalo de nuevo.")
     precio_unitario, subtotal, igv, total = calcularMontos(ruta.precio_base, len(data.pasajeros))
 
-    db.add(Reserva(
+    reserva = Reserva(
         codigo=codigo,
         email=data.email,
         ruc=ruc or None,
@@ -171,9 +201,10 @@ def checkout(
         cantidad_asientos=len(data.pasajeros),
         estado="PAGADA",
         # Titular = usuario autenticado del token; nunca un dato del cliente.
-        user_id=user.id,
+        user_id=user.id if user else None,
         metodo_pago=METODO_PAGO_SIMULADO,
-    ))
+    )
+    db.add(reserva)
 
     for pasajero in data.pasajeros:
         # Valores ya normalizados por PasajeroCheckout.
@@ -196,6 +227,15 @@ def checkout(
     # Reserva y tickets se confirman en un único commit: o se registra todo
     # o nada. El índice único parcial resuelve la carrera por un asiento.
     try:
+        permiso = {}
+        if user is None:
+            db.flush()
+            # Se firma antes del commit y solo se entrega si este tiene éxito.
+            permiso["token_pdf"] = jwt.encode({
+                "aud": AUDIENCIA_PDF, "reserva_id": reserva.id, "codigo": codigo,
+                "jti": uuid.uuid4().hex,
+                "exp": datetime.now(timezone.utc) + timedelta(minutes=15),
+            }, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
         db.commit()
     except IntegrityError:
         db.rollback()
@@ -206,6 +246,7 @@ def checkout(
         raise HTTPException(409, "No se pudo registrar la compra por un conflicto de datos; vuelve a intentarlo")
 
     return {
+        **permiso,
         "mensaje": MENSAJE_SIMULADO,
         "codigo_reserva": codigo,
         "email": data.email,
@@ -214,6 +255,32 @@ def checkout(
         "estado": "PAGADA",
         "pago_simulado": True,
     }
+
+@router.get("/mis-reservas")
+def mis_reservas(response: Response, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    response.headers.update(NO_STORE)
+    filas = (db.query(Reserva.codigo, Reserva.estado)
+             .filter(Reserva.user_id == user.id).order_by(Reserva.id.desc()).all())
+    return [{"codigo": codigo, "estado": estado} for codigo, estado in filas]
+
+
+@router.post("/invitado/pdf")
+def pdf_invitado(request: Request, db: Session = Depends(get_db),
+                 permiso: HTTPAuthorizationCredentials | None = Depends(bearer_scheme)):
+    _limitar_invitado(request, "pdf", 30)
+    if permiso is None or len(permiso.credentials) > 1024:
+        raise _no_encontrada()
+    try:
+        claims = jwt.decode(permiso.credentials, settings.SECRET_KEY, algorithms=[settings.ALGORITHM],
+                            audience=AUDIENCIA_PDF, options={"require_exp": True, "require_aud": True,
+                                                             "require_reserva_id": True, "require_codigo": True})
+    except JWTError:
+        raise _no_encontrada() from None
+    reserva = db.query(Reserva).filter_by(id=claims["reserva_id"], codigo=claims["codigo"], user_id=None).first()
+    if reserva is None:
+        raise _no_encontrada()
+    return _pdf_vigente(reserva.codigo, reserva, _cargar_reserva(db, reserva.codigo))
+
 
 @router.get("/tickets/{codigo}")
 def obtener_ticket(
@@ -259,6 +326,10 @@ def pdf_ticket(
 ):
     codigo, reserva, tickets = _reserva_autorizada(db, codigo, user)
 
+    return _pdf_vigente(codigo, reserva, tickets)
+
+
+def _pdf_vigente(codigo, reserva, tickets):
     vigentes = [t for t in tickets if t.estado in ESTADOS_VENDIDOS]
     if (reserva is not None and reserva.estado in ESTADOS_RESERVA_ANULADA) or not vigentes:
         raise HTTPException(

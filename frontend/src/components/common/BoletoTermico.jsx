@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react'
+
 export default function BoletoTermico({
   codigoReserva,
   origen,
@@ -12,6 +14,11 @@ export default function BoletoTermico({
   descargando = false,
   onImprimir,
 }) {
+  const enlacePdf = useRef(null)
+  useEffect(() => {
+    if (pdfUrl) enlacePdf.current?.click()
+  }, [pdfUrl])
+
   return (
     <div className="max-w-md mx-auto p-4">
       {/* Boleto tipo ticket térmico */}
@@ -91,7 +98,7 @@ export default function BoletoTermico({
 
           {/* Pie de página */}
           <p className="text-[9px] font-mono text-stone-500 text-center mt-3">
-            Guarde este código para consultar su viaje.
+            Conserve su boleto para el viaje.
           </p>
           <p className="text-[9px] font-mono text-stone-500 text-center">
             LUX - Líneas Únicas Xpress
@@ -128,8 +135,8 @@ export default function BoletoTermico({
         ) : pdfUrl && (
           <a
             href={pdfUrl}
-            target="_blank"
-            rel="noreferrer"
+            ref={enlacePdf}
+            download={`boleto-${codigoReserva}.pdf`}
             className="flex-1 btn-primary text-center"
           >
             Descargar PDF
