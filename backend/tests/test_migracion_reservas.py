@@ -86,7 +86,11 @@ class MigracionReservasTest(unittest.TestCase):
     def test_migra_sin_perder_datos_ni_reasignar(self):
         antes = _volcado(self.ruta)
         cambios = aplicar_migraciones(self.engine)
-        self.assertEqual(set(cambios), {"reservas.user_id", "reservas.metodo_pago", "ix_reservas_user_id"})
+        # La base heredada no tenía el índice único de asientos: se crea.
+        self.assertEqual(
+            set(cambios),
+            {"reservas.user_id", "reservas.metodo_pago", "ix_reservas_user_id", "uq_ticket_ruta_asiento"},
+        )
 
         insp = inspect(self.engine)
         columnas = {c["name"] for c in insp.get_columns("reservas")}

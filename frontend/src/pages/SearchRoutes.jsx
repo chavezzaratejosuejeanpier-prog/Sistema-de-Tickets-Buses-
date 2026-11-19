@@ -2,25 +2,21 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeftRight, Search } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { searchRoutes } from '../services/api.js'
+import { buscarOProgramar } from '../services/api.js'
+import { hoyLima } from '../utils/fecha.js'
 import Button from '../components/common/Button.jsx'
 import CityField from '../components/common/CityField.jsx'
 import DateField from '../components/common/DateField.jsx'
 import DestinationGrid from '../components/DestinationGrid.jsx'
 import RouteLoadingLine from '../components/common/RouteLoadingLine.jsx'
+import { mensajeError } from '../utils/errores.js'
 
 function mensajeErrorApi(err) {
-  if (!err?.response) return 'No se pudo conectar con el backend.'
-  const detalle = err.response.data?.detail
-  if (typeof detalle === 'string' && detalle.trim()) return detalle
-  if (Array.isArray(detalle) && detalle.length > 0) {
-    return detalle.map(d => (typeof d === 'string' ? d : d?.msg)).filter(Boolean).join(' · ') || `Error del servidor (${err.response.status}).`
-  }
-  return `Error del servidor (${err.response.status}).`
+  return mensajeError(err, `Error del servidor (${err?.response?.status ?? 'sin respuesta'}).`)
 }
 
 export default function SearchRoutes() {
-  const hoy = new Date().toLocaleDateString('en-CA')
+  const hoy = hoyLima()
   const [origen, setOrigen] = useState('')
   const [destino, setDestino] = useState('')
   const [fecha, setFecha] = useState(hoy)
@@ -42,7 +38,7 @@ export default function SearchRoutes() {
   const ejecutar = async (o, d, f) => {
     setLoading(true); setError(''); setHasSearched(true)
     try {
-      const { data } = await searchRoutes(o.trim(), d.trim(), f || undefined)
+      const { data } = await buscarOProgramar(o.trim(), d.trim(), f || undefined)
       setResultados(data)
       if (data.length > 0) {
         setRecientes(prev => {
@@ -63,7 +59,7 @@ export default function SearchRoutes() {
   useEffect(() => {
     const entrada = location.state
     if (!entrada) return
-    const fechaEntrada = entrada.fecha ?? new Date().toLocaleDateString('en-CA')
+    const fechaEntrada = entrada.fecha ?? hoyLima()
     setOrigen(entrada.origen); setDestino(entrada.destino); setFecha(fechaEntrada)
     ejecutar(entrada.origen, entrada.destino, fechaEntrada)
   }, [location.state])

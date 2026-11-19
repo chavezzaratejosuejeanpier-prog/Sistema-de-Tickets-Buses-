@@ -10,19 +10,11 @@ import { useAuth } from '../context/useAuth.js'
 import { totalConIGV } from '../utils/precios.js'
 import BoletoTermico from '../components/common/BoletoTermico.jsx'
 import FirmaDigital from '../components/common/FirmaDigital.jsx'
+import { DOCUMENTOS, MAX_LARGO_NOMBRE, docDe, validarPasajeros } from '../utils/validacion.js'
+import { mensajeError } from '../utils/errores.js'
+import { alertaTexto } from '../utils/alertas.js'
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const HOY_ISO = new Date().toISOString().slice(0, 10)
-
-const DOCUMENTOS = [
-  { value: 'DNI', label: 'DNI', max: 8, min: 8, digits: true, placeholder: 'Ej. 76543210' },
-  { value: 'CE', label: 'Carné de extranjería', max: 12, min: 9, digits: false, placeholder: 'Ej. 001234567' },
-  { value: 'Pasaporte', label: 'Pasaporte', max: 12, min: 6, digits: false, placeholder: 'Ej. A1234567' },
-]
-
-function docDe(valor) {
-  return DOCUMENTOS.find((d) => d.value === valor) || DOCUMENTOS[0]
-}
 
 const PASAJERO_VACIO = {
   tipo_documento: 'DNI',
@@ -33,35 +25,6 @@ const PASAJERO_VACIO = {
   sexo: '',
   fecha_nacimiento: '',
   telefono: '',
-}
-
-function validarPasajeros(pasajeros, email, conFactura, ruc) {
-  if (!EMAIL_RE.test(email.trim())) {
-    return 'Ingresa un correo válido para enviarte los pasajes.'
-  }
-  for (const p of pasajeros) {
-    const asiento = `del asiento ${p.numero}`
-    if (!p.nombres.trim() || p.nombres.trim().length < 2) return `Ingresa los nombres ${asiento}.`
-    if (!p.apellido_paterno.trim()) return `Ingresa el apellido paterno ${asiento}.`
-    if (!p.sexo) return `Selecciona el sexo ${asiento}.`
-    if (!p.fecha_nacimiento) return `Ingresa la fecha de nacimiento ${asiento}.`
-    if (p.fecha_nacimiento > HOY_ISO) return `La fecha de nacimiento ${asiento} no puede ser futura.`
-    const doc = docDe(p.tipo_documento)
-    if (!p.documento.trim()) return `Ingresa el documento ${asiento}.`
-    if (p.documento.length < doc.min || p.documento.length > doc.max) {
-      return `${doc.label} ${asiento} debe tener entre ${doc.min} y ${doc.max} caracteres.`
-    }
-    if (doc.digits && !/^\d+$/.test(p.documento)) {
-      return `${doc.label} ${asiento} solo admite números.`
-    }
-    if (!/^\+?\d{6,15}$/.test(p.telefono.replace(/[\s-]/g, ''))) {
-      return `Ingresa un teléfono válido ${asiento}.`
-    }
-  }
-  if (conFactura && !/^\d{11}$/.test(ruc.trim())) {
-    return 'El RUC debe tener 11 números.'
-  }
-  return null
 }
 
 const CAMPOS_VIAJE = ['origen', 'destino', 'fecha', 'hora', 'placa', 'tipo']
@@ -162,7 +125,7 @@ const Checkout = () => {
       await descargarBoletoPdf(codigo)
     } catch (err) {
       if (err.response?.status !== 401) {
-        Swal.fire('No se pudo descargar', err.detalle || 'Intenta de nuevo en un momento.', 'error')
+        Swal.fire(alertaTexto('No se pudo descargar', err.detalle || 'Intenta de nuevo en un momento.', 'error'))
       }
     } finally {
       setDescargando(false)
@@ -275,12 +238,12 @@ const Checkout = () => {
     if (enviando) return
 
     if (!rutaId) {
-      Swal.fire('Sesión expirada', 'Vuelve a buscar tu viaje para continuar.', 'error')
+      Swal.fire(alertaTexto('Sesión expirada', 'Vuelve a buscar tu viaje para continuar.', 'error'))
       return
     }
-    const error = validarPasajeros(pasajeros, email, conFactura, ruc)
+    const error = validarPasajeros(pasajeros, email, conFactura, ruc, HOY_ISO)
     if (error) {
-      Swal.fire('Revisa los datos', error, 'error')
+      Swal.fire(alertaTexto('Revisa los datos', error, 'error'))
       return
     }
 
@@ -321,14 +284,19 @@ const Checkout = () => {
       setResult(data)
       try { confetti({ particleCount: 140, spread: 80, origin: { y: 0.6 } }) } catch {}
     } catch (error) {
-      const detalle = error.response?.data?.detail
       const status = error.response?.status
-      if (status === 409) {
-        Swal.fire('Asiento no disponible', detalle || 'Alguien compró tu asiento. Elige otros.', 'error')
+      // La firma posicional Swal.fire(título, texto, icono) trata el texto
+      // como HTML: alertaTexto lo envía como `text` (texto plano).
+      if (status === 401) {
+        // El interceptor ya redirige al login conservando el checkout.
+      } else if (status === 409) {
+        Swal.fire(alertaTexto('Asiento no disponible', mensajeError(error, 'Alguien compró tu asiento. Elige otros.'), 'error'))
       } else if (status === 404) {
-        Swal.fire('Viaje no encontrado', detalle || 'Este viaje ya no existe.', 'error')
+        Swal.fire(alertaTexto('Viaje no encontrado', mensajeError(error, 'Este viaje ya no existe.'), 'error'))
+      } else if (status === 400 || status === 422) {
+        Swal.fire(alertaTexto('Revisa los datos', mensajeError(error, 'Algunos datos no son válidos.'), 'error'))
       } else {
-        Swal.fire('Error de conexión', detalle || 'No pudimos registrar tu compra. Intenta de nuevo.', 'error')
+        Swal.fire(alertaTexto('No pudimos registrar tu compra', mensajeError(error, 'Intenta de nuevo.'), 'error'))
       }
     } finally {
       setEnviando(false)
@@ -449,6 +417,7 @@ const Checkout = () => {
                         type="text"
                         className="input"
                         placeholder="Nombres Completos"
+                        maxLength={MAX_LARGO_NOMBRE}
                         value={pasajero.nombres}
                         onChange={(e) => handleInputChange(index, 'nombres', e.target.value)}
                       />
@@ -463,6 +432,7 @@ const Checkout = () => {
                         type="text"
                         className="input"
                         placeholder="Ingrese apellido paterno"
+                        maxLength={MAX_LARGO_NOMBRE}
                         value={pasajero.apellido_paterno}
                         onChange={(e) => handleInputChange(index, 'apellido_paterno', e.target.value)}
                       />
@@ -476,6 +446,7 @@ const Checkout = () => {
                         type="text"
                         className="input"
                         placeholder="Ingrese apellido materno"
+                        maxLength={MAX_LARGO_NOMBRE}
                         value={pasajero.apellido_materno}
                         onChange={(e) => handleInputChange(index, 'apellido_materno', e.target.value)}
                       />

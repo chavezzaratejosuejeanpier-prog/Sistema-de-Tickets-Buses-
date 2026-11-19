@@ -16,6 +16,11 @@ class EstadoTicket(str, enum.Enum):
     CANCELADO = "CANCELADO"
     USADO = "USADO"
 
+# Predicado del índice único parcial: debe coincidir con ESTADOS_LIBRES de
+# services/ticket_service.py (DISPONIBLE y CANCELADO no ocupan el asiento).
+PREDICADO_ASIENTO_OCUPADO = "estado NOT IN ('CANCELADO', 'DISPONIBLE')"
+
+
 class Ticket(Base):
     __tablename__ = "tickets"
     __table_args__ = (
@@ -24,7 +29,8 @@ class Ticket(Base):
             "route_id",
             "numero_asiento",
             unique=True,
-            sqlite_where=text("estado != 'CANCELADO'"),
+            sqlite_where=text(PREDICADO_ASIENTO_OCUPADO),
+            postgresql_where=text(PREDICADO_ASIENTO_OCUPADO),
         ),
     )
     id = Column(Integer, primary_key=True, index=True)
@@ -40,7 +46,7 @@ class Ticket(Base):
     fecha_nacimiento = Column(Date, nullable=True)
     telefono = Column(String, nullable=True)
     precio_pagado = Column(Float, nullable=True)
-    estado = Column(Enum(EstadoTicket), default=EstadoTicket.DISPONIBLE)
+    estado = Column(Enum(EstadoTicket), default=EstadoTicket.DISPONIBLE, nullable=False)
     codigo_reserva = Column(String, nullable=True, index=True)
     creado_en = Column(DateTime, default=_utcnow)
 

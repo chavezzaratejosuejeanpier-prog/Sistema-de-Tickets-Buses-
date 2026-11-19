@@ -6,6 +6,8 @@ import { useAuth } from '../context/useAuth.js'
 import Input from '../components/common/Input.jsx'
 import Button from '../components/common/Button.jsx'
 import { destinoTrasLogin } from '../utils/destino.js'
+import { mensajeError } from '../utils/errores.js'
+import { alertaTexto } from '../utils/alertas.js'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -21,11 +23,11 @@ export default function Login() {
   const handle = async (e) => {
     e.preventDefault()
     if (!email.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) {
-      Swal.fire('Email inválido', 'Ingresa un correo válido.', 'error')
+      Swal.fire(alertaTexto('Email inválido', 'Ingresa un correo válido.', 'error'))
       return
     }
     if (password.length < 4) {
-      Swal.fire('Contraseña inválida', 'Ingresa tu contraseña.', 'error')
+      Swal.fire(alertaTexto('Contraseña inválida', 'Ingresa tu contraseña.', 'error'))
       return
     }
     setEnviando(true)
@@ -40,12 +42,17 @@ export default function Login() {
       })
       navigate(destino, { replace: true })
     } catch (err) {
-      const credencialesMalas = err.response?.status === 401
+      const status = err.response?.status
+      const titulo = status === 401
+        ? 'Credenciales inválidas'
+        : status === 429
+          ? 'Demasiados intentos'
+          : status === 403
+            ? 'Cuenta desactivada'
+            : !err.response ? 'Sin conexión' : 'No pudimos iniciar sesión'
       Swal.fire({
-        title: credencialesMalas ? 'Credenciales inválidas' : 'Sin conexión',
-        text: credencialesMalas
-          ? 'Revisa tu correo y contraseña.'
-          : 'No pudimos conectar con el servidor. Verifica que el backend esté activo.',
+        titleText: titulo,
+        text: status === 401 ? 'Revisa tu correo y contraseña.' : mensajeError(err, 'Inténtalo de nuevo.'),
         icon: 'error',
         confirmButtonColor: '#0F172A',
       })

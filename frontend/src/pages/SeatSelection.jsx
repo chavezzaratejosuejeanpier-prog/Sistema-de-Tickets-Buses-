@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
-import { getRouteSeats, getRoutes } from '../services/api.js'
+import { getRoute, getRouteSeats } from '../services/api.js'
 import BusMap from '../components/bus/BusMap.jsx'
 import Button from '../components/common/Button.jsx'
 import { totalConIGV } from '../utils/precios.js'
@@ -13,7 +13,7 @@ export default function SeatSelection() {
   const [error, setError] = useState('')
   const [seleccionados, setSeleccionados] = useState([])
   const [precio, setPrecio] = useState(location.state?.precio ?? null)
-  // Metadatos no personales del viaje (vienen de la búsqueda o de getRoutes) para el boleto en checkout.
+  // Metadatos no personales del viaje (vienen de la búsqueda o de getRoute) para el boleto en checkout.
   const [viaje, setViaje] = useState(() => ({
     origen: location.state?.origen ?? '',
     destino: location.state?.destino ?? '',
@@ -30,14 +30,15 @@ export default function SeatSelection() {
     setError('')
     Promise.all([
       getRouteSeats(routeId),
-      precio == null ? getRoutes().catch(() => null) : Promise.resolve(null),
+      // El listado general está acotado: el viaje se consulta por su ID.
+      precio == null ? getRoute(routeId).catch(() => null) : Promise.resolve(null),
     ])
-      .then(([seatsRes, routesRes]) => {
+      .then(([seatsRes, routeRes]) => {
         if (!vivo) return
         setData(seatsRes.data)
-        if (precio == null && routesRes?.data?.rutas) {
-          const ruta = routesRes.data.rutas.find((r) => String(r.id) === String(routeId))
-          if (ruta) {
+        if (precio == null && routeRes?.data) {
+          const ruta = routeRes.data
+          if (String(ruta.id) === String(routeId)) {
             setPrecio(Number(ruta.precio_base))
             setViaje((prev) => ({
               ...prev,

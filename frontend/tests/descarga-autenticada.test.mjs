@@ -17,11 +17,18 @@ let urlsCreadas
 let urlsRevocadas
 
 before(async () => {
-  const almacen = new Map()
-  globalThis.localStorage = {
-    getItem: (k) => (almacen.has(k) ? almacen.get(k) : null),
-    setItem: (k, v) => almacen.set(k, String(v)),
-    removeItem: (k) => almacen.delete(k),
+  // La sesión (JWT) vive en sessionStorage; localStorage queda para datos
+  // no sensibles y para trasladar sesiones heredadas (utils/sesion.js).
+  const crearAlmacen = () => {
+    const almacen = new Map()
+    return {
+      getItem: (k) => (almacen.has(k) ? almacen.get(k) : null),
+      setItem: (k, v) => almacen.set(k, String(v)),
+      removeItem: (k) => almacen.delete(k),
+    }
+  }
+  for (const nombre of ['localStorage', 'sessionStorage']) {
+    Object.defineProperty(globalThis, nombre, { value: crearAlmacen(), configurable: true, writable: true })
   }
   globalThis.window = {
     Blob,
@@ -65,7 +72,7 @@ beforeEach(() => {
   enlaces = []
   urlsCreadas = []
   urlsRevocadas = []
-  localStorage.setItem('token', TOKEN)
+  sessionStorage.setItem('token', TOKEN)
   respuestaFalsa = (config) => ({
     data: config.responseType === 'blob' ? new Blob(['%PDF-sintetico'], { type: 'application/pdf' }) : [],
     status: 200,

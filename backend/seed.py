@@ -1,185 +1,103 @@
-import sqlite3
-from pathlib import Path
+"""Datos de demostración para DESARROLLO: buses del catálogo y salidas.
 
-from app.database import Base, engine, SessionLocal
-from app.models.bus import Bus, BusTipo
-from app.models.user import User, RolUsuario
+Requisitos (si falta alguno, no hace nada y termina con código 2):
+- opt-in explícito: `python seed.py --desarrollo`;
+- `DATABASE_URL` definida explícitamente (entorno o backend/.env) y de
+  tipo SQLite en archivo. No hay valor por defecto ni ruta de respaldo: el
+  seed nunca escribe en una base que no se haya indicado.
+
+Nunca crea, modifica ni desactiva usuarios (el primer administrador se
+crea con `bootstrap_admin.py`) y nunca reconstruye ni borra tablas: solo
+crea las que faltan y aplica las migraciones aditivas de la API.
+"""
+import argparse
+import sys
+
+from sqlalchemy.engine import make_url
+
 from app.core.catalogo import BUSES
 from app.core.config import settings
-from app.core.security import hashear_password
+from app.database import Base, SessionLocal, engine
+from app.migraciones import MigracionFallida, aplicar_migraciones, restricciones_heredadas
+from app.models.bus import Bus, BusTipo
 from app.services import programa
-from app.migraciones import aplicar_migraciones
 
-DB_PATH = (
-    Path(settings.DATABASE_URL.replace("sqlite:///", "", 1)).resolve()
-    if settings.DATABASE_URL.startswith("sqlite:///")
-    else Path(__file__).parent / "buss_conectpro.db"
-)
+CODIGO_RECHAZADO = 2
 
-def _reconstruir_tickets(con, conservar_datos=True):
-    existe = con.execute(
-        "select name from sqlite_master where type='table' and name='tickets'"
-    ).fetchone()
-    filas = columnas = []
-    if existe:
-        filas = con.execute("select * from tickets").fetchall()
-        columnas = [c[1] for c in con.execute("pragma table_info(tickets)").fetchall()]
 
-    con.execute("alter table tickets rename to tickets_legacy")
-    for (nombre,) in con.execute(
-        "select name from sqlite_master where type='index' and tbl_name='tickets_legacy'"
-    ).fetchall():
-        if nombre.startswith("sqlite_autoindex"):
-            continue
-        con.execute(f'drop index if exists "{nombre}"')
+class SeedRechazado(RuntimeError):
+    pass
 
-    Base.metadata.create_all(bind=engine)
 
-    if filas and columnas:
-        nuevas = [c.name for c in Base.metadata.tables["tickets"].columns]
-        marcadores = ", ".join("?" * len(nuevas))
-        con.executemany(
-            f"insert into tickets ({', '.join(nuevas)}) values ({marcadores})",
-            [tuple(_convertir_fila(f, columnas).get(c) for c in nuevas) for f in filas]
+def verificar_destino() -> str:
+    """Devuelve la ruta del archivo SQLite de DATABASE_URL o lanza SeedRechazado."""
+    if "DATABASE_URL" not in settings.model_fields_set:
+        raise SeedRechazado(
+            "DATABASE_URL no está definida. Indica una base SQLite de desarrollo, "
+            "p. ej. DATABASE_URL=sqlite:////ruta/absoluta/dev.db"
         )
-    con.execute("drop table tickets_legacy")
-    con.commit()
-
-
-def _convertir_fila(fila, columnas):
-    datos = {c: fila[columnas.index(c)] for c in columnas}
-    nombre = (datos.get("pasajero_nombre") or "").strip()
-    if nombre and "nombres" not in columnas:
-        partes = nombre.split()
-        if len(partes) >= 3:
-            datos["nombres"] = " ".join(partes[:-2])
-            datos["apellido_paterno"], datos["apellido_materno"] = partes[-2], partes[-1]
-        elif len(partes) == 2:
-            datos["nombres"], datos["apellido_paterno"] = partes
-        else:
-            datos["nombres"] = nombre
-    if datos.get("pasajero_dni") and not datos.get("documento"):
-        datos["documento"] = datos["pasajero_dni"]
-    return datos
-
-
-def _esquema_tickets_desactualizado(con):
-    if not con.execute(
-        "select 1 from sqlite_master where type='table' and name='tickets'"
-    ).fetchone():
-        return False
-    tabla = Base.metadata.tables["tickets"]
-
-    actuales = {c[1] for c in con.execute("pragma table_info(tickets)").fetchall()}
-    if {c.name for c in tabla.columns} - actuales:
-        return True
-
-    # pragma index_list: (seq, name, unique, origin, partial). Incluye los
-    # sqlite_autoindex_* que generan las restricciones UNIQUE del CREATE TABLE.
-    existentes = {}
-    for fila in con.execute("pragma index_list(tickets)").fetchall():
-        nombre = fila[1]
-        columnas = [
-            c[0] for c in con.execute(
-                "select name from pragma_index_info(?) order by seqno", (nombre,)
-            ).fetchall()
-        ]
-        parcial = bool(fila[4]) if len(fila) > 4 else False
-        existentes[nombre.lower()] = (bool(fila[2]), parcial, columnas)
-
-    esperados = set()
-    for indice in tabla.indexes:
-        nombre = indice.name.lower()
-        esperados.add(nombre)
-        parcial = indice.dialect_options["sqlite"].get("where") is not None
-        esperado = (bool(indice.unique), parcial, [c.name for c in indice.columns])
-        if existentes.get(nombre) != esperado:
-            return True
-
-    # Restricciones heredadas que rompen el flujo: UNIQUE(codigo_reserva) y
-    # UNIQUE total de (route_id, numero_asiento), que impide revender
-    # asientos cancelados. Otros indices unicos ajenos se respetan.
-    for nombre, (unico, parcial, columnas) in existentes.items():
-        if not unico or nombre in esperados:
-            continue
-        if columnas == ["codigo_reserva"]:
-            return True
-        if not parcial and columnas in (
-            ["route_id", "numero_asiento"], ["numero_asiento", "route_id"]
-        ):
-            return True
-    return False
-
-
-def _agregar_ruc_reservas(con):
-    columnas = {c[1] for c in con.execute("pragma table_info(reservas)").fetchall()}
-    if columnas and "ruc" not in columnas:
-        con.execute("alter table reservas add column ruc varchar")
-        con.commit()
-        return True
-    return False
-
-
-def corregir_constraint_legacy():
-    if not DB_PATH.exists():
-        return False
-    con = sqlite3.connect(DB_PATH)
     try:
-        tablas = {
-            nombre for (nombre,) in con.execute(
-                "select name from sqlite_master where type='table'"
-            ).fetchall()
-        }
-        if "tickets" not in tablas and "tickets_legacy" in tablas:
-            con.execute("alter table tickets_legacy rename to tickets")
-            con.commit()
-        elif "tickets" in tablas and "tickets_legacy" in tablas:
-            if con.execute("select count(*) from tickets").fetchone()[0] == 0:
-                con.execute("drop table tickets")
-                con.execute("alter table tickets_legacy rename to tickets")
-            else:
-                con.execute("drop table tickets_legacy")
-            con.commit()
-
-        cambiado = _agregar_ruc_reservas(con)
-        if _esquema_tickets_desactualizado(con):
-            _reconstruir_tickets(con)
-            cambiado = True
-        return cambiado
-    finally:
-        con.close()
+        url = make_url(settings.DATABASE_URL)
+    except Exception:
+        raise SeedRechazado("DATABASE_URL no es una URL válida") from None
+    if url.get_backend_name() != "sqlite":
+        raise SeedRechazado("El seed de demostración solo se ejecuta sobre SQLite de desarrollo")
+    if not url.database or url.database == ":memory:" or url.database.startswith("file::memory:"):
+        raise SeedRechazado("DATABASE_URL debe apuntar a un archivo SQLite")
+    return url.database
 
 
-def main():
-    if corregir_constraint_legacy():
-        print("Migracion: esquema de la base actualizado")
-
+def cargar_demo() -> tuple[int, int]:
+    """Crea tablas faltantes, buses (si no hay) y salidas faltantes."""
     Base.metadata.create_all(bind=engine)
     aplicar_migraciones(engine)
-
     db = SessionLocal()
     try:
-        if db.query(Bus).count() == 0:
+        buses = 0
+        if db.query(Bus.id).first() is None:
             for datos in BUSES:
                 db.add(Bus(**{**datos, "tipo": BusTipo(datos["tipo"])}))
-            db.flush()
-            print(f" buses: {len(BUSES)}")
-
-        if db.query(User).count() == 0:
-            db.add(User(
-                email="admin@buss.com", nombre="Administrador",
-                hashed_password=hashear_password("123456"), rol=RolUsuario.ADMIN
-            ))
-            print(" usuario admin: admin@buss.com / 123456")
-        db.commit()
-
-        nuevas = programa.sincronizar_ventana(db)
-        print(f" salidas: {nuevas} creadas")
+            db.commit()
+            buses = len(BUSES)
+        salidas = programa.sincronizar_ventana(db)
     finally:
         db.close()
+    return buses, salidas
 
-    print("Listo. Datos de ejemplo cargados.")
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Carga buses y salidas de demostración en una base SQLite de desarrollo."
+    )
+    parser.add_argument(
+        "--desarrollo", action="store_true",
+        help="Confirma que la base de DATABASE_URL es de desarrollo (obligatorio)",
+    )
+    args = parser.parse_args(argv)
+
+    if not args.desarrollo:
+        print("Seed no ejecutado: es solo para desarrollo. Usa --desarrollo para confirmarlo.")
+        return CODIGO_RECHAZADO
+    try:
+        verificar_destino()
+    except SeedRechazado as exc:
+        print(f"Seed no ejecutado: {exc}")
+        return CODIGO_RECHAZADO
+
+    try:
+        buses, salidas = cargar_demo()
+    except MigracionFallida as exc:
+        print(f"Seed no ejecutado: {exc}")
+        return 1
+
+    print(f" buses creados: {buses}")
+    print(f" salidas creadas: {salidas}")
+    if restricciones_heredadas(engine):
+        print(" AVISO: la tabla tickets tiene restricciones únicas heredadas; "
+              "ver backend/INICIALIZACION_SEGURA.md")
+    print("Listo. No se crearon ni modificaron usuarios (ver bootstrap_admin.py).")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

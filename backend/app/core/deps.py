@@ -22,7 +22,11 @@ def get_current_user(
         )
     try:
         payload = jwt.decode(
-            credentials.credentials, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            credentials.credentials,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+            # Un token sin expiración o sin sujeto nunca es válido.
+            options={"require_exp": True, "require_sub": True},
         )
     except JWTError:
         raise HTTPException(
@@ -32,9 +36,17 @@ def get_current_user(
         )
 
     email = payload.get("sub")
-    user = db.query(User).filter(User.email == email).first() if email else None
+    user = (
+        db.query(User).filter(User.email == email).first()
+        if isinstance(email, str) and 0 < len(email) <= 254
+        else None
+    )
     if user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario no encontrado.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido o expirado.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuario desactivado.")
     return user

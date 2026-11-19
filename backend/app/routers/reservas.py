@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import exists, update
 from sqlalchemy.orm import Session
 
@@ -8,14 +8,15 @@ from ..database import get_db
 from ..models.reserva import Reserva
 from ..models.ticket import Ticket, EstadoTicket
 from ..models.user import User
-from .sales import NO_STORE
+from ..schemas.ticket_schema import MAX_ID_DB
+from .sales import MAX_LARGO_CODIGO, NO_STORE
 
 router = APIRouter()
 
 
 class CheckinRequest(BaseModel):
-    ticket_id: int
-    codigo_reserva: str
+    ticket_id: int = Field(ge=1, le=MAX_ID_DB)
+    codigo_reserva: str = Field(min_length=1, max_length=MAX_LARGO_CODIGO)
 
 
 def _conflicto(db: Session, mensaje: str) -> HTTPException:
@@ -48,6 +49,8 @@ def listar_reservas(response: Response, db: Session = Depends(get_db), _admin: U
 @router.post("/{codigo}/cancelar")
 def cancelar_reserva(codigo: str, db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
     codigo = codigo.strip().upper()
+    if not codigo or len(codigo) > MAX_LARGO_CODIGO:
+        raise HTTPException(404, "No existe la reserva indicada")
     # Bloquea la fila de la reserva (FOR UPDATE en PostgreSQL; SQLite
     # serializa las escrituras) y aplica la transición de forma condicional.
     reserva = db.query(Reserva).filter(Reserva.codigo == codigo).with_for_update().first()

@@ -35,27 +35,42 @@ class Respuesta:
         return json.loads(self.content)
 
 
-def llamar(metodo: str, ruta: str, cuerpo=None, token: str | None = None) -> Respuesta:
+def llamar(
+    metodo: str,
+    ruta: str,
+    cuerpo=None,
+    token: str | None = None,
+    *,
+    cliente: str = "127.0.0.1",
+    esquema: str = "http",
+    cabeceras: dict | None = None,
+    crudo: bytes | None = None,
+) -> Respuesta:
     headers = [(b"host", b"testserver")]
     body = b""
-    if cuerpo is not None:
+    if crudo is not None:
+        body = crudo
+        headers.append((b"content-type", b"application/json"))
+    elif cuerpo is not None:
         body = json.dumps(cuerpo, default=str).encode()
         headers.append((b"content-type", b"application/json"))
     if token:
         headers.append((b"authorization", f"Bearer {token}".encode()))
+    for nombre, valor in (cabeceras or {}).items():
+        headers.append((nombre.lower().encode(), str(valor).encode()))
     path, _, query = ruta.partition("?")
     scope = {
         "type": "http",
         "asgi": {"version": "3.0"},
         "http_version": "1.1",
         "method": metodo,
-        "scheme": "http",
+        "scheme": esquema,
         "path": path,
         "raw_path": path.encode(),
         "query_string": query.encode(),
         "root_path": "",
         "headers": headers,
-        "client": ("127.0.0.1", 50000),
+        "client": (cliente, 50000),
         "server": ("testserver", 80),
     }
     recibido = False
@@ -79,6 +94,9 @@ def llamar(metodo: str, ruta: str, cuerpo=None, token: str | None = None) -> Res
 
 
 def reiniciar_bd():
+    from app.core import rate_limit
+
+    rate_limit.reiniciar()
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { urlLogin } from '../utils/destino.js'
+import { borrarSesion, obtenerToken } from '../utils/sesion.js'
 
 const BASE_URL = import.meta.env?.VITE_API_URL || '/api'
 
@@ -10,7 +11,7 @@ const api = axios.create({
 })
 
 api.interceptors.request.use(cfg => {
-  const token = localStorage.getItem('token')
+  const token = obtenerToken()
   if (token) cfg.headers.Authorization = `Bearer ${token}`
   return cfg
 })
@@ -19,8 +20,7 @@ api.interceptors.response.use(
   (res) => res,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
+      borrarSesion()
       if (!window.location.pathname.startsWith('/login')) {
         // Conserva la ruta actual (p. ej. /checkout) para volver tras el login;
         // la selección de asientos sigue en localStorage. Nunca lleva tokens.
@@ -37,6 +37,21 @@ export const searchRoutes = (origen, destino, fecha) => {
   return api.get(`/routes/buscar?${params.toString()}`)
 }
 
+// La búsqueda (GET) es de solo lectura. Si un par o fecha aún no tiene
+// salidas programadas, se pide su programación explícita con este POST.
+export const generarSalidas = (origen, destino, fecha) =>
+  api.post('/routes/generar', fecha ? { origen, destino, fecha } : { origen, destino })
+
+// Busca y, solo si no hay salidas, pide programarlas una vez.
+export async function buscarOProgramar(origen, destino, fecha) {
+  const respuesta = await searchRoutes(origen, destino, fecha)
+  if (Array.isArray(respuesta.data) && respuesta.data.length === 0) {
+    return generarSalidas(origen, destino, fecha)
+  }
+  return respuesta
+}
+
+export const getRoute = (routeId) => api.get(`/routes/${encodeURIComponent(routeId)}`)
 export const getRouteSeats = (routeId) => api.get(`/routes/${routeId}/asientos`)
 export const getRoutes = () => api.get('/routes/')
 export const getCiudades = () => api.get('/routes/ciudades')

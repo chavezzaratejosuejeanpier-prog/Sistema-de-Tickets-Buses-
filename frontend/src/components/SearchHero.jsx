@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { ArrowLeftRight, Search, ShieldCheck, Armchair, Wifi, Bus } from 'lucide-react'
 import CityField from './common/CityField.jsx'
 import DateField from './common/DateField.jsx'
+import { hoyLima } from '../utils/fecha.js'
 import fondo from '../assets/plaza-armas-cusco.jpeg'
 
 const BENEFICIOS = [
@@ -14,7 +15,7 @@ export default function SearchHero({
   origen, destino, fechaIda, fechaRetorno,
   onOrigen, onDestino, onFechaIda, onFechaRetorno, onSwap, onSubmit, error,
 }) {
-  const hoy = new Date().toLocaleDateString('en-CA')
+  const hoy = hoyLima()
   const valido = origen.trim().length >= 2 && destino.trim().length >= 2 && origen.trim().toLowerCase() !== destino.trim().toLowerCase()
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const [rutasRecientes, setRutasRecientes] = useState(() => {

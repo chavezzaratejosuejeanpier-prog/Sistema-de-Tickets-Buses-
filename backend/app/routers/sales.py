@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 import uuid
-from datetime import datetime, time, timedelta, timezone
+from ..core.tiempo import hoy_lima, inicio_dia_lima_en_utc
+from ..services import programa
 from ..database import get_db
 from ..models.ticket import Ticket, EstadoTicket
 from ..models.route import Route
@@ -110,8 +111,8 @@ def _datos_pdf(codigo: str, reserva: Reserva | None, tickets: list[Ticket]) -> d
 @router.get("/", response_model=VentaResumen)
 def resumen_ventas(db: Session = Depends(get_db), _admin: User = Depends(require_admin)):
     vendido = Ticket.estado.in_(ESTADOS_VENDIDOS)
-    hoy_peru = (datetime.now(timezone.utc) - timedelta(hours=5)).date()
-    inicio_hoy = datetime.combine(hoy_peru, time.min) + timedelta(hours=5)
+    # creado_en se guarda en UTC: medianoche de Lima expresada en UTC.
+    inicio_hoy = inicio_dia_lima_en_utc(hoy_lima())
     total_ventas = db.query(func.count(Ticket.id)).filter(vendido).scalar() or 0
     recaudacion_total = db.query(func.coalesce(func.sum(Ticket.precio_pagado), 0.0)).filter(vendido).scalar() or 0.0
     ventas_hoy = db.query(func.count(Ticket.id)).filter(vendido, Ticket.creado_en >= inicio_hoy).scalar() or 0
@@ -131,32 +132,32 @@ def checkout(
     user: User = Depends(get_current_user),
 ):
     response.headers.update(NO_STORE)
+    # Los formatos (documento, nombres, teléfono, RUC, límites) los valida
+    # CheckoutRequest; aquí van las reglas que dependen de la base de datos.
     ruta = db.query(Route).filter(Route.id == data.route_id).first()
-    if not ruta:
+    if not ruta or ruta.bus is None:
         raise HTTPException(404, "Ruta no encontrada")
+    # Corte real: fecha y hora de salida frente a la hora actual de Lima.
+    if programa.ya_salio(ruta):
+        raise HTTPException(400, "Este viaje ya salió; elige otra fecha")
 
     if not data.pasajeros:
         raise HTTPException(400, "Debe elegir al menos un asiento")
 
+    capacidad_piso1 = ruta.bus.capacidad_piso1 or 0
+    capacidad = capacidad_piso1 + (ruta.bus.capacidad_piso2 or 0)
     vistos = set()
     for pasajero in data.pasajeros:
         if pasajero.numero_asiento in vistos:
             raise HTTPException(400, f"Asiento {pasajero.numero_asiento} duplicado en la solicitud")
         vistos.add(pasajero.numero_asiento)
-        if not verificar_disponibilidad(db, data.route_id, pasajero.numero_asiento):
-            raise HTTPException(409, f"Asiento {pasajero.numero_asiento} ya vendido")
-        if not pasajero.documento.strip() or not pasajero.nombres.strip() or not pasajero.apellido_paterno.strip():
-            raise HTTPException(400, f"Faltan datos del pasajero del asiento {pasajero.numero_asiento}")
-
-    ruc = (data.ruc or "").strip()
-    if ruc and (len(ruc) != 11 or not ruc.isdigit()):
-        raise HTTPException(400, "El RUC debe tener 11 números")
-
-    capacidad = (ruta.bus.capacidad_piso1 or 0) + (ruta.bus.capacidad_piso2 or 0)
-    for pasajero in data.pasajeros:
         if not 1 <= pasajero.numero_asiento <= capacidad:
             raise HTTPException(400, f"Asiento {pasajero.numero_asiento} fuera del bus")
+    for pasajero in data.pasajeros:
+        if not verificar_disponibilidad(db, data.route_id, pasajero.numero_asiento):
+            raise HTTPException(409, f"Asiento {pasajero.numero_asiento} ya vendido")
 
+    ruc = data.ruc
     codigo = f"BC-{uuid.uuid4().hex[:8].upper()}"
     precio_unitario, subtotal, igv, total = calcularMontos(ruta.precio_base, len(data.pasajeros))
 
@@ -175,27 +176,34 @@ def checkout(
     ))
 
     for pasajero in data.pasajeros:
+        # Valores ya normalizados por PasajeroCheckout.
         db.add(Ticket(
             route_id=data.route_id,
             numero_asiento=pasajero.numero_asiento,
-            piso=1 if pasajero.numero_asiento <= (ruta.bus.capacidad_piso1 or 0) else 2,
-            tipo_documento=pasajero.tipo_documento.strip().upper(),
-            documento=pasajero.documento.strip(),
-            nombres=pasajero.nombres.strip(),
-            apellido_paterno=pasajero.apellido_paterno.strip(),
-            apellido_materno=(pasajero.apellido_materno or "").strip() or None,
-            sexo=(pasajero.sexo or "").strip().upper() or None,
+            piso=1 if pasajero.numero_asiento <= capacidad_piso1 else 2,
+            tipo_documento=pasajero.tipo_documento,
+            documento=pasajero.documento,
+            nombres=pasajero.nombres,
+            apellido_paterno=pasajero.apellido_paterno,
+            apellido_materno=pasajero.apellido_materno,
+            sexo=pasajero.sexo,
             fecha_nacimiento=pasajero.fecha_nacimiento,
-            telefono=(pasajero.telefono or "").strip() or None,
+            telefono=pasajero.telefono,
             precio_pagado=precio_unitario,
             estado=EstadoTicket.VENDIDO,
             codigo_reserva=codigo
         ))
+    # Reserva y tickets se confirman en un único commit: o se registra todo
+    # o nada. El índice único parcial resuelve la carrera por un asiento.
     try:
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(409, "Uno de los asientos ya fue vendido por otra persona")
+        tomados = [p.numero_asiento for p in data.pasajeros
+                   if not verificar_disponibilidad(db, data.route_id, p.numero_asiento)]
+        if tomados:
+            raise HTTPException(409, f"Asiento {', '.join(map(str, tomados))} ya vendido por otra persona")
+        raise HTTPException(409, "No se pudo registrar la compra por un conflicto de datos; vuelve a intentarlo")
 
     return {
         "mensaje": MENSAJE_SIMULADO,

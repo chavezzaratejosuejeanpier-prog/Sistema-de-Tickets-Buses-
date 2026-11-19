@@ -5,6 +5,7 @@ import Skeleton from '../components/common/Skeleton.jsx'
 import EmptyState from '../components/common/EmptyState.jsx'
 import Swal from 'sweetalert2'
 import { getTicketByCode, descargarBoletoPdf } from '../services/api.js'
+import { alertaTexto } from '../utils/alertas.js'
 
 const formatoFecha = (iso) => {
   if (!iso) return 'Fecha no disponible'
@@ -67,7 +68,7 @@ export default function MisPasajes() {
       await descargarBoletoPdf(codigoReserva)
     } catch (err) {
       if (err.response?.status !== 401) {
-        Swal.fire('No se pudo descargar', err.detalle || 'Intenta de nuevo en un momento.', 'error')
+        Swal.fire(alertaTexto('No se pudo descargar', err.detalle || 'Intenta de nuevo en un momento.', 'error'))
       }
     } finally {
       setDescargando(false)

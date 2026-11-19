@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import SearchHero from '../components/SearchHero.jsx'
 import PopularRoutes from '../components/PopularRoutes.jsx'
 import Benefits from '../components/Benefits.jsx'
+import { hoyLima } from '../utils/fecha.js'
 
 const BENEFICIOS = [
   { icono: 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z', texto: 'Puntualidad y comodidad en tu experiencia de viaje' },
@@ -15,7 +16,7 @@ export default function About() {
   const navigate = useNavigate()
   const [origen, setOrigen] = useState('')
   const [destino, setDestino] = useState('')
-  const [fechaIda, setFechaIda] = useState(() => new Date().toLocaleDateString('en-CA'))
+  const [fechaIda, setFechaIda] = useState(() => hoyLima())
   const [fechaRetorno, setFechaRetorno] = useState('')
   const [error, setError] = useState('')
 

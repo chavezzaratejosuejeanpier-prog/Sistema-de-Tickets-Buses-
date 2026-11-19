@@ -5,6 +5,9 @@ import { register } from '../services/api.js'
 import Input from '../components/common/Input.jsx'
 import Button from '../components/common/Button.jsx'
 import { destinoTrasLogin } from '../utils/destino.js'
+import { validarPassword } from '../utils/validacion.js'
+import { mensajeError } from '../utils/errores.js'
+import { alertaTexto } from '../utils/alertas.js'
 
 export default function Register() {
   const [form, setForm] = useState({ nombre: '', email: '', password: '', confirmar: '' })
@@ -19,28 +22,30 @@ export default function Register() {
     e.preventDefault()
 
     if (form.nombre.trim().length < 3) {
-      Swal.fire('Nombre inválido', 'Ingresa tu nombre completo.', 'error')
+      Swal.fire(alertaTexto('Nombre inválido', 'Ingresa tu nombre completo.', 'error'))
       return
     }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim())) {
-      Swal.fire('Email inválido', 'Ingresa un correo válido.', 'error')
+      Swal.fire(alertaTexto('Email inválido', 'Ingresa un correo válido.', 'error'))
       return
     }
-    if (form.password.length < 6) {
-      Swal.fire('Contraseña muy corta', 'Debe tener al menos 6 caracteres.', 'error')
+    const errorPassword = validarPassword(form.password)
+    if (errorPassword) {
+      Swal.fire(alertaTexto('Contraseña no válida', errorPassword, 'error'))
       return
     }
     if (form.password !== form.confirmar) {
-      Swal.fire('Contraseñas distintas', 'Las contraseñas no coinciden.', 'error')
+      Swal.fire(alertaTexto('Contraseñas distintas', 'Las contraseñas no coinciden.', 'error'))
       return
     }
 
     setEnviando(true)
     try {
+      // La API responde igual exista o no el correo (evita enumerar cuentas).
       await register({ nombre: form.nombre.trim(), email: form.email.trim(), password: form.password })
       await Swal.fire({
-        title: '¡Cuenta creada!',
-        text: 'Ahora inicia sesión con tu correo y contraseña.',
+        title: 'Solicitud recibida',
+        text: 'Si el correo no estaba registrado, tu cuenta ya está lista. Inicia sesión con tu correo y contraseña.',
         icon: 'success',
         confirmButtonColor: '#EA580C',
       })
@@ -48,7 +53,7 @@ export default function Register() {
     } catch (err) {
       Swal.fire({
         title: 'No pudimos crear la cuenta',
-        text: err.response?.data?.detail || 'Verifica que el backend esté activo.',
+        text: mensajeError(err, 'Revisa los datos e inténtalo de nuevo.'),
         icon: 'error',
         confirmButtonColor: '#0F172A',
       })

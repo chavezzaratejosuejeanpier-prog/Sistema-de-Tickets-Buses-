@@ -1,31 +1,25 @@
 import { useState } from 'react'
 import { AuthContext } from './auth-context.js'
 import { tokenValido } from '../utils/token.js'
+import { borrarSesion, guardarSesion, obtenerToken, obtenerUsuario } from '../utils/sesion.js'
 
 function usuarioGuardado() {
-  const token = localStorage.getItem('token')
-  if (!tokenValido(token)) {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+  if (!tokenValido(obtenerToken())) {
+    borrarSesion()
     return null
   }
-  try {
-    return JSON.parse(localStorage.getItem('user') || 'null')
-  } catch {
-    return null
-  }
+  return obtenerUsuario()
 }
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(usuarioGuardado)
 
   const login = (userData, token) => {
-    localStorage.setItem('token', token)
-    localStorage.setItem('user', JSON.stringify(userData))
+    guardarSesion(token, userData)
     setUser(userData)
   }
   const logout = () => {
-    localStorage.removeItem('token'); localStorage.removeItem('user'); setUser(null)
+    borrarSesion(); setUser(null)
   }
   return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>
 }
