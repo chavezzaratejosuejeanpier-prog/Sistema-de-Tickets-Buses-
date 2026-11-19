@@ -9,8 +9,10 @@ from .services import programa
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from fastapi import Depends
+from .migraciones import aplicar_migraciones
 
 Base.metadata.create_all(bind=engine)
+aplicar_migraciones(engine)
 
 
 @asynccontextmanager

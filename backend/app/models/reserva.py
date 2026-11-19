@@ -1,5 +1,8 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, CheckConstraint, func
+from sqlalchemy import Column, Integer, String, Float, DateTime, CheckConstraint, ForeignKey, func
 from ..database import Base
+
+# Única modalidad de cobro existente: la compra no pasa por una pasarela real.
+METODO_PAGO_SIMULADO = "SIMULADO"
 
 
 class Reserva(Base):
@@ -20,3 +23,13 @@ class Reserva(Base):
     cantidad_asientos = Column(Integer, nullable=False)
     estado = Column(String, default="PAGADA", nullable=False)
     fecha_emision = Column(DateTime, server_default=func.now())
+    # Titular: usuario autenticado que hizo la compra. NULL en reservas
+    # históricas (anteriores a la titularidad): solo las consulta un ADMIN.
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    # NULL en históricas; "SIMULADO" en compras de demostración sin cobro real.
+    metodo_pago = Column(String, nullable=True)
+
+    @property
+    def pago_simulado(self) -> bool:
+        # No existe integración de pago real: toda reserva es una simulación.
+        return self.metodo_pago in (None, METODO_PAGO_SIMULADO)

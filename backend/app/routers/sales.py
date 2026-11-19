@@ -7,23 +7,104 @@ from datetime import datetime, time, timedelta, timezone
 from ..database import get_db
 from ..models.ticket import Ticket, EstadoTicket
 from ..models.route import Route
-from ..models.reserva import Reserva
+from ..models.reserva import Reserva, METODO_PAGO_SIMULADO
 from ..schemas.ticket_schema import CheckoutRequest, CheckoutResponse, VentaResumen
 from ..services.ticket_service import verificar_disponibilidad, calcularMontos, ESTADOS_VENDIDOS
 from ..services.boleto_pdf import generar_pdf_boletos
-from ..core.deps import require_admin
-from ..models.user import User
+from ..core.deps import require_admin, get_current_user
+from ..models.user import User, RolUsuario
 
 router = APIRouter()
+
+# Las respuestas con datos de reservas no deben guardarse en cachés
+# del navegador ni de intermediarios.
+NO_STORE = {"Cache-Control": "no-store, max-age=0", "Pragma": "no-cache"}
+# Respuesta idéntica para un código inexistente, ajeno o histórico sin
+# titular: no revela si el código existe.
+RESERVA_NO_ENCONTRADA = "Reserva no encontrada"
+MENSAJE_SIMULADO = "Compra de demostración registrada: pago simulado, no se realizó ningún cobro real."
+ESTADOS_RESERVA_ANULADA = ("CANCELADA", "REEMBOLSADA")
+MAX_LARGO_CODIGO = 32
+
+
+def _no_encontrada() -> HTTPException:
+    return HTTPException(404, RESERVA_NO_ENCONTRADA, headers=NO_STORE)
+
+
+def _normalizar_codigo(codigo: str) -> str:
+    return (codigo or "").strip().upper()
 
 
 def _cargar_reserva(db: Session, codigo: str):
     return (
         db.query(Ticket)
         .options(joinedload(Ticket.route).joinedload(Route.bus))
-        .filter(Ticket.codigo_reserva == codigo.strip().upper())
+        .filter(Ticket.codigo_reserva == codigo)
+        .order_by(Ticket.id)
         .all()
     )
+
+
+def _reserva_autorizada(db: Session, codigo: str, user: User):
+    """Devuelve (codigo, reserva, tickets) si `user` es el titular o ADMIN.
+
+    La titularidad se decide solo por `reserva.user_id` frente al ID del
+    usuario autenticado; nunca por email ni por datos enviados por el cliente.
+    Reservas históricas (sin titular) y tickets sin reserva: solo ADMIN.
+    """
+    codigo = _normalizar_codigo(codigo)
+    if not codigo or len(codigo) > MAX_LARGO_CODIGO:
+        raise _no_encontrada()
+    es_admin = user.rol == RolUsuario.ADMIN
+    reserva = db.query(Reserva).filter(Reserva.codigo == codigo).first()
+    if not es_admin and (reserva is None or reserva.user_id is None or reserva.user_id != user.id):
+        raise _no_encontrada()
+    tickets = _cargar_reserva(db, codigo)
+    if not tickets:
+        raise _no_encontrada()
+    return codigo, reserva, tickets
+
+
+def _documento_enmascarado(t: Ticket) -> str | None:
+    documento = (t.documento or "").strip()
+    if not documento:
+        return None
+    visibles = documento[-3:] if len(documento) > 4 else ""
+    tipo = (t.tipo_documento or "").strip()
+    return " ".join(p for p in (tipo, "*" * max(len(documento) - len(visibles), 1) + visibles) if p)
+
+
+def _datos_pdf(codigo: str, reserva: Reserva | None, tickets: list[Ticket]) -> dict:
+    """Datos mínimos para el PDF: sin teléfono, sexo ni fecha de nacimiento,
+    documento enmascarado y sin el email del comprador."""
+    return {
+        "codigo": codigo,
+        "pago_simulado": reserva.pago_simulado if reserva else True,
+        "total": sum(float(t.precio_pagado or 0) for t in tickets),
+        "tickets": [
+            {
+                "id": t.id,
+                "numero_boleto": f"LUX-{t.id:06d}",
+                "codigo_reserva": t.codigo_reserva,
+                "numero_asiento": t.numero_asiento,
+                "piso": t.piso,
+                "documento": _documento_enmascarado(t),
+                "nombres": t.nombres,
+                "apellido_paterno": t.apellido_paterno,
+                "apellido_materno": t.apellido_materno,
+                "precio_pagado": t.precio_pagado,
+                "origen": t.route.origen if t.route else None,
+                "destino": t.route.destino if t.route else None,
+                "fecha_salida": t.route.fecha_salida if t.route else None,
+                "hora_salida": t.route.hora_salida if t.route else None,
+                "duracion_horas": t.route.duracion_horas if t.route else None,
+                "bus_placa": t.route.bus.placa if t.route and t.route.bus else None,
+                "bus_modelo": t.route.bus.modelo if t.route and t.route.bus else None,
+                "bus_tipo": t.route.bus.tipo.value if t.route and t.route.bus else None,
+            }
+            for t in tickets
+        ],
+    }
 
 
 @router.get("/", response_model=VentaResumen)
@@ -43,7 +124,13 @@ def resumen_ventas(db: Session = Depends(get_db), _admin: User = Depends(require
     }
 
 @router.post("/checkout", response_model=CheckoutResponse)
-def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):
+def checkout(
+    data: CheckoutRequest,
+    response: Response,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    response.headers.update(NO_STORE)
     ruta = db.query(Route).filter(Route.id == data.route_id).first()
     if not ruta:
         raise HTTPException(404, "Ruta no encontrada")
@@ -82,6 +169,9 @@ def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):
         total_pagado=total,
         cantidad_asientos=len(data.pasajeros),
         estado="PAGADA",
+        # Titular = usuario autenticado del token; nunca un dato del cliente.
+        user_id=user.id,
+        metodo_pago=METODO_PAGO_SIMULADO,
     ))
 
     for pasajero in data.pasajeros:
@@ -108,21 +198,31 @@ def checkout(data: CheckoutRequest, db: Session = Depends(get_db)):
         raise HTTPException(409, "Uno de los asientos ya fue vendido por otra persona")
 
     return {
-        "mensaje": "Compra exitosa",
+        "mensaje": MENSAJE_SIMULADO,
         "codigo_reserva": codigo,
         "email": data.email,
         "asientos": [p.numero_asiento for p in data.pasajeros],
-        "total": total
+        "total": total,
+        "estado": "PAGADA",
+        "pago_simulado": True,
     }
 
 @router.get("/tickets/{codigo}")
-def obtener_ticket(codigo: str, db: Session = Depends(get_db)):
-    tickets = _cargar_reserva(db, codigo)
-    if not tickets:
-        raise HTTPException(404, "Reserva no encontrada")
+def obtener_ticket(
+    codigo: str,
+    response: Response,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    response.headers.update(NO_STORE)
+    codigo, reserva, tickets = _reserva_autorizada(db, codigo, user)
+    estado_reserva = reserva.estado if reserva else None
+    pago_simulado = reserva.pago_simulado if reserva else True
     respuesta = []
     for t in tickets:
         ruta = t.route
+        # Datos mínimos para mostrar el pasaje: sin documento, teléfono,
+        # sexo ni fecha de nacimiento.
         respuesta.append({
             "id": t.id,
             "route_id": t.route_id,
@@ -130,14 +230,8 @@ def obtener_ticket(codigo: str, db: Session = Depends(get_db)):
             "piso": t.piso,
             "estado": t.estado.value,
             "codigo_reserva": t.codigo_reserva,
-            "tipo_documento": t.tipo_documento,
-            "documento": t.documento,
-            "nombres": t.nombres,
-            "apellido_paterno": t.apellido_paterno,
-            "apellido_materno": t.apellido_materno,
-            "sexo": t.sexo,
-            "fecha_nacimiento": t.fecha_nacimiento,
-            "telefono": t.telefono,
+            "estado_reserva": estado_reserva,
+            "pago_simulado": pago_simulado,
             "pasajero_nombre": t.nombre_completo,
             "precio_pagado": t.precio_pagado,
             "origen": ruta.origen if ruta else None,
@@ -150,48 +244,23 @@ def obtener_ticket(codigo: str, db: Session = Depends(get_db)):
 
 
 @router.get("/tickets/{codigo}/pdf")
-def pdf_ticket(codigo: str, db: Session = Depends(get_db)):
-    codigo = codigo.strip().upper()
-    tickets = _cargar_reserva(db, codigo)
-    if not tickets:
-        raise HTTPException(404, "Reserva no encontrada")
+def pdf_ticket(
+    codigo: str,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    codigo, reserva, tickets = _reserva_autorizada(db, codigo, user)
 
-    reserva = db.query(Reserva).filter(Reserva.codigo == codigo).first()
-    datos = {
-        "codigo": codigo,
-        "email": reserva.email if reserva else None,
-        "total": sum(float(t.precio_pagado or 0) for t in tickets),
-        "tickets": [
-            {
-                "id": t.id,
-                "numero_boleto": f"LUX-{t.id:06d}",
-                "codigo_reserva": t.codigo_reserva,
-                "numero_asiento": t.numero_asiento,
-                "piso": t.piso,
-                "tipo_documento": t.tipo_documento,
-                "documento": t.documento,
-                "nombres": t.nombres,
-                "apellido_paterno": t.apellido_paterno,
-                "apellido_materno": t.apellido_materno,
-                "sexo": t.sexo,
-                "fecha_nacimiento": t.fecha_nacimiento,
-                "telefono": t.telefono,
-                "precio_pagado": t.precio_pagado,
-                "origen": t.route.origen if t.route else None,
-                "destino": t.route.destino if t.route else None,
-                "fecha_salida": t.route.fecha_salida if t.route else None,
-                "hora_salida": t.route.hora_salida if t.route else None,
-                "duracion_horas": t.route.duracion_horas if t.route else None,
-                "bus_placa": t.route.bus.placa if t.route and t.route.bus else None,
-                "bus_modelo": t.route.bus.modelo if t.route and t.route.bus else None,
-                "bus_tipo": t.route.bus.tipo.value if t.route and t.route.bus else None,
-            }
-            for t in tickets
-        ],
-    }
+    vigentes = [t for t in tickets if t.estado in ESTADOS_VENDIDOS]
+    if (reserva is not None and reserva.estado in ESTADOS_RESERVA_ANULADA) or not vigentes:
+        raise HTTPException(
+            409,
+            "La reserva está cancelada: el boleto ya no es válido y no se puede descargar.",
+            headers=NO_STORE,
+        )
 
     return Response(
-        content=generar_pdf_boletos(datos),
+        content=generar_pdf_boletos(_datos_pdf(codigo, reserva, vigentes)),
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="boleto-{codigo}.pdf"'},
+        headers={**NO_STORE, "Content-Disposition": f'attachment; filename="boleto-{codigo}.pdf"'},
     )

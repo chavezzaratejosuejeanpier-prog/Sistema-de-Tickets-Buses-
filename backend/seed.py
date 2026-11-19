@@ -8,6 +8,7 @@ from app.core.catalogo import BUSES
 from app.core.config import settings
 from app.core.security import hashear_password
 from app.services import programa
+from app.migraciones import aplicar_migraciones
 
 DB_PATH = (
     Path(settings.DATABASE_URL.replace("sqlite:///", "", 1)).resolve()
@@ -154,6 +155,7 @@ def main():
         print("Migracion: esquema de la base actualizado")
 
     Base.metadata.create_all(bind=engine)
+    aplicar_migraciones(engine)
 
     db = SessionLocal()
     try:

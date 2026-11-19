@@ -123,11 +123,12 @@ def _portada(c, datos, tickets):
         c.line(M, y, ANCHO - M, y)
         y -= 18
 
-    _txt(c, ANCHO - M, y, "TOTAL PAGADO", 9, GRIS, "Helvetica-Bold", derecha=True)
+    etiqueta_total = "TOTAL (PAGO SIMULADO - DEMO, SIN COBRO REAL)" if datos.get("pago_simulado") else "TOTAL PAGADO"
+    _txt(c, ANCHO - M, y, etiqueta_total, 9, GRIS, "Helvetica-Bold", derecha=True)
     _txt(c, ANCHO - M, y - 22, f"S/ {float(datos.get('total') or 0):.2f}", 24, ACENTO, "Helvetica-Bold", derecha=True)
 
 
-def _ticket(c, t, codigo):
+def _ticket(c, t, codigo, pago_simulado=False):
     centro = TX + TW / 2
     numero = t.get("numero_boleto") or f"LUX-{int(t.get('id') or 0):06d}"
 
@@ -141,7 +142,7 @@ def _ticket(c, t, codigo):
     _mono(c, centro, y, numero, 11, MONO_NEGRITA, centrado=True)
     y -= 24
 
-    _mono(c, TX, y, "TIPO PAGO : CONTADO", 9)
+    _mono(c, TX, y, "TIPO PAGO : SIMULADO (DEMO)" if pago_simulado else "TIPO PAGO : CONTADO", 9)
     y -= 13
     _mono(c, TX, y, f"EMISION   : {_fecha(datetime.now())}", 9)
     y -= 13
@@ -189,10 +190,24 @@ def _ticket(c, t, codigo):
         y -= 11
     y -= 14
 
-    qr = createBarcodeDrawing("QR", value=f"https://lux.com/terminos?reserva={codigo}&ticket={t.get('id') or ''}")
+    qr = createBarcodeDrawing("QR", value=contenido_qr(codigo, t.get("id")))
     renderPDF.draw(qr, c, centro - qr.width / 2, y - qr.height)
     y -= qr.height + 12
-    _mono(c, centro, y, "Escanea para términos y condiciones", 7, MONO, centrado=True)
+    _mono(c, centro, y, "Localizador para check-in", 7, MONO, centrado=True)
+    y -= 10
+    _mono(c, centro, y, "La vigencia la verifica el personal", 7, MONO, centrado=True)
+    y -= 10
+    _mono(c, centro, y, "al embarcar.", 7, MONO, centrado=True)
+
+
+def contenido_qr(codigo, ticket_id) -> str:
+    """Localizador escaneable del boleto, sin URL ni datos personales.
+
+    Solo contiene el código de reserva y el ID del ticket, que son los datos
+    que el staff usa en el check-in (`POST /api/reservas/checkin`). No prueba
+    vigencia: el estado se comprueba en el sistema al escanearlo.
+    """
+    return f"LUX-CHECKIN|RESERVA={codigo}|TICKET={int(ticket_id or 0)}"
 
 
 def generar_pdf_boletos(datos: dict) -> bytes:
@@ -204,7 +219,7 @@ def generar_pdf_boletos(datos: dict) -> bytes:
     _portada(c, datos, tickets)
     c.showPage()
     for t in tickets:
-        _ticket(c, t, codigo)
+        _ticket(c, t, codigo, bool(datos.get("pago_simulado")))
         c.showPage()
 
     c.save()

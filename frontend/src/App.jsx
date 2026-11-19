@@ -99,10 +99,24 @@ function Layout({ _modoCompacto, _setModoCompacto, _temaCiudad, _setTemaCiudad }
             <Route path="/nosotros" element={<Nosotros />} />
             <Route path="/petfriendly" element={<PetFriendly />} />
             <Route path="/asientos/:routeId" element={<SeatSelection />} />
-            <Route path="/checkout" element={<Checkout />} />
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/innovacion" element={<Innovacion />} />
             <Route path="/innovacion2" element={<Innovacion2 />} />
-            <Route path="/mis-pasajes" element={<MisPasajes />} />
+            <Route
+              path="/mis-pasajes"
+              element={
+                <ProtectedRoute>
+                  <MisPasajes />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
             <Route

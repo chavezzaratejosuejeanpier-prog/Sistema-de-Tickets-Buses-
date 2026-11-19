@@ -8,6 +8,8 @@ export default function BoletoTermico({
   precio,
   busPlaca,
   pdfUrl,
+  onDescargar,
+  descargando = false,
   onImprimir,
 }) {
   return (
@@ -114,7 +116,16 @@ export default function BoletoTermico({
             Imprimir
           </span>
         </button>
-        {pdfUrl && (
+        {onDescargar ? (
+          <button
+            type="button"
+            onClick={onDescargar}
+            disabled={descargando}
+            className="flex-1 btn-primary text-center"
+          >
+            {descargando ? 'Descargando...' : 'Descargar PDF'}
+          </button>
+        ) : pdfUrl && (
           <a
             href={pdfUrl}
             target="_blank"

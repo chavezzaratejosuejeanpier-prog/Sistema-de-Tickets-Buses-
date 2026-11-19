@@ -89,6 +89,9 @@ class CheckoutResponse(BaseModel):
     email: EmailStr
     asientos: List[int]
     total: float
+    estado: str
+    # Siempre True: no existe integración con una pasarela de pago real.
+    pago_simulado: bool = True
 
 class VentaResumen(BaseModel):
     total_ventas: int

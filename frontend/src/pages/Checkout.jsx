@@ -5,7 +5,8 @@ import { motion } from 'framer-motion'
 import Swal from 'sweetalert2'
 import confetti from 'canvas-confetti'
 import Button from '../components/common/Button.jsx'
-import { checkout, getPdfUrl } from '../services/api.js'
+import { checkout, descargarBoletoPdf } from '../services/api.js'
+import { useAuth } from '../context/useAuth.js'
 import { totalConIGV } from '../utils/precios.js'
 import BoletoTermico from '../components/common/BoletoTermico.jsx'
 import FirmaDigital from '../components/common/FirmaDigital.jsx'
@@ -103,6 +104,14 @@ function leerReservaFallback() {
   }
 }
 
+const AVISO_SIMULADO = 'Compra de demostración: el pago es simulado y no se realiza ningún cobro real.'
+
+function escaparHtml(texto) {
+  return String(texto ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[c])
+}
+
 function formatearFecha(valor) {
   if (!valor) return 'Por confirmar'
   const texto = String(valor)
@@ -114,6 +123,7 @@ function formatearFecha(valor) {
 const Checkout = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const inicial = useMemo(() => {
     const st = location.state
@@ -135,13 +145,29 @@ const Checkout = () => {
   const [pasajeros, setPasajeros] = useState(
     (inicial?.asientos || []).map(a => ({ asiento_id: a.id, numero: a.number, ...PASAJERO_VACIO }))
   )
-  const [email, setEmail] = useState('')
+  // Correo de contacto del boleto; la titularidad la fija el backend con la sesión.
+  const [email, setEmail] = useState(() => user?.email || '')
   const [conFactura, setConFactura] = useState(false)
   const [ruc, setRuc] = useState('')
   const [timeLeft, setTimeLeft] = useState(300)
   const [enviando, setEnviando] = useState(false)
   const [result, setResult] = useState(null)
   const [firma, setFirma] = useState(null)
+  const [descargando, setDescargando] = useState(false)
+
+  const descargarPdf = async (codigo) => {
+    if (descargando) return
+    setDescargando(true)
+    try {
+      await descargarBoletoPdf(codigo)
+    } catch (err) {
+      if (err.response?.status !== 401) {
+        Swal.fire('No se pudo descargar', err.detalle || 'Intenta de nuevo en un momento.', 'error')
+      }
+    } finally {
+      setDescargando(false)
+    }
+  }
 
   const rutaId = inicial?.rutaId
   const viaje = inicial?.viaje ?? normalizarViaje(null)
@@ -200,7 +226,10 @@ const Checkout = () => {
         className="max-w-xl mx-auto p-6 mt-10"
       >
         <div className="card p-8 text-center">
-          <h2 className="text-2xl font-bold text-green-600">¡Compra Exitosa!</h2>
+          <h2 className="text-2xl font-bold text-green-600">¡Compra registrada!</h2>
+          <p role="note" className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
+            {AVISO_SIMULADO}
+          </p>
           <p className="mt-2">Código: <span className="font-mono font-bold">{result.codigo_reserva}</span></p>
           <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">Ruta #{rutaId} • Asientos: {result.asientos.join(', ')} • Total: S/ {Number(result.total).toFixed(2)}</p>
 
@@ -220,7 +249,8 @@ const Checkout = () => {
               asiento={result.asientos.join(', ')}
               precio={Number(result.total)}
               busPlaca={viaje.placa || '—'}
-              pdfUrl={getPdfUrl(result.codigo_reserva)}
+              onDescargar={() => descargarPdf(result.codigo_reserva)}
+              descargando={descargando}
               onImprimir={() => window.print()}
             />
           </div>
@@ -278,11 +308,12 @@ const Checkout = () => {
         localStorage.setItem('ultimaReserva', data.codigo_reserva)
       } catch {}
       await Swal.fire({
-        title: '¡Pago Exitoso!',
+        title: '¡Compra registrada!',
         html: `
+          <p style="font-size:.85rem;font-weight:700;color:#B45309;margin-bottom:.5rem">${escaparHtml(AVISO_SIMULADO)}</p>
           <p>Tu código de reserva es:</p>
-          <p style="font-size:1.6rem;font-weight:800;letter-spacing:.12em;color:#EA580C;margin:.5rem 0">${data.codigo_reserva}</p>
-          <p style="font-size:.9rem">Guarda este código para consultar tus pasajes. Quedó asociado a ${data.email}</p>
+          <p style="font-size:1.6rem;font-weight:800;letter-spacing:.12em;color:#EA580C;margin:.5rem 0">${escaparHtml(data.codigo_reserva)}</p>
+          <p style="font-size:.9rem">Consulta tus pasajes desde "Mis Pasajes" con esta misma cuenta. Correo de contacto: ${escaparHtml(data.email)}</p>
         `,
         icon: 'success',
         confirmButtonColor: '#10b981'
@@ -572,9 +603,12 @@ const Checkout = () => {
               </span>
             </div>
             <Button type="submit" disabled={enviando} className="w-full md:w-auto">
-              {enviando ? (<><span className="spinner" aria-hidden="true" /> Procesando...</>) : 'Confirmar y Pagar'}
+              {enviando ? (<><span className="spinner" aria-hidden="true" /> Procesando...</>) : 'Confirmar compra (pago simulado)'}
             </Button>
           </div>
+          <p role="note" className="mt-3 text-center md:text-right text-xs font-semibold text-amber-700 dark:text-amber-300">
+            {AVISO_SIMULADO}
+          </p>
         </form>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { login } from '../services/api.js'
 import { useAuth } from '../context/useAuth.js'
 import Input from '../components/common/Input.jsx'
 import Button from '../components/common/Button.jsx'
+import { destinoTrasLogin } from '../utils/destino.js'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -14,7 +15,8 @@ export default function Login() {
   const { login: ctxLogin } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const destino = location.state?.from || '/dashboard'
+  const retorno = destinoTrasLogin(location)
+  const destino = retorno || '/dashboard'
 
   const handle = async (e) => {
     e.preventDefault()
@@ -57,6 +59,11 @@ export default function Login() {
       <h1 className="text-center text-3xl font-black tracking-tight text-navy dark:text-white mb-1">LUX</h1>
       <p className="text-center text-xs font-semibold uppercase tracking-wider text-primary mb-3">Líneas Únicas Xpress</p>
       <p className="text-center text-sm text-muted dark:text-stone-400 mb-6">Accede a tu cuenta</p>
+      {retorno === '/checkout' && (
+        <p role="status" className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
+          Inicia sesión para completar tu compra. Tus asientos seleccionados se conservan.
+        </p>
+      )}
       <div className="card p-6">
         <h2 className="text-xl font-bold text-navy dark:text-white mb-4">Acceso</h2>
         <form onSubmit={handle} className="flex flex-col gap-4">
@@ -78,7 +85,7 @@ export default function Login() {
         </form>
       </div>
       <p className="text-sm text-muted dark:text-stone-400 text-center mt-4">
-        ¿No tienes cuenta? <Link to="/registro" className="text-primary hover:underline">Regístrate</Link>
+        ¿No tienes cuenta? <Link to="/registro" state={retorno ? { from: retorno } : undefined} className="text-primary hover:underline">Regístrate</Link>
       </p>
     </div>
   )

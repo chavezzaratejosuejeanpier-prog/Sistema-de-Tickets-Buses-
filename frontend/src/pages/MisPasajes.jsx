@@ -3,7 +3,8 @@ import { Ticket as TicketIcon, Bus, CalendarDays, Search, Download } from 'lucid
 import Button from '../components/common/Button.jsx'
 import Skeleton from '../components/common/Skeleton.jsx'
 import EmptyState from '../components/common/EmptyState.jsx'
-import { getTicketByCode, getPdfUrl } from '../services/api.js'
+import Swal from 'sweetalert2'
+import { getTicketByCode, descargarBoletoPdf } from '../services/api.js'
 
 const formatoFecha = (iso) => {
   if (!iso) return 'Fecha no disponible'
@@ -25,6 +26,7 @@ export default function MisPasajes() {
   const [tickets, setTickets] = useState(null)
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState('')
+  const [descargando, setDescargando] = useState(false)
 
   useEffect(() => {
     const guardado = localStorage.getItem('ultimaReserva')
@@ -50,7 +52,7 @@ export default function MisPasajes() {
       localStorage.removeItem('ultimaReserva')
       setError(
         err.response?.status === 404
-          ? `No encontramos una reserva con el código ${limpio}. Revísalo e inténtalo de nuevo.`
+          ? `No encontramos una reserva ${limpio} asociada a tu cuenta. Revisa el código e inténtalo de nuevo.`
           : 'No pudimos consultar la reserva. Inténtalo en un momento.'
       )
     } finally {
@@ -58,16 +60,35 @@ export default function MisPasajes() {
     }
   }
 
+  const descargar = async () => {
+    if (!codigoReserva || descargando) return
+    setDescargando(true)
+    try {
+      await descargarBoletoPdf(codigoReserva)
+    } catch (err) {
+      if (err.response?.status !== 401) {
+        Swal.fire('No se pudo descargar', err.detalle || 'Intenta de nuevo en un momento.', 'error')
+      }
+    } finally {
+      setDescargando(false)
+    }
+  }
+
   const total = tickets?.reduce((suma, t) => suma + (t.precio_pagado || 0), 0) || 0
   const viaje = tickets?.[0]
   const codigoReserva = viaje?.codigo_reserva
+  const cancelada = Boolean(tickets?.length) && (
+    ['CANCELADA', 'REEMBOLSADA'].includes(viaje?.estado_reserva) ||
+    tickets.every((t) => t.estado === 'CANCELADO')
+  )
+  const pagoSimulado = Boolean(tickets?.some((t) => t.pago_simulado))
 
   return (
     <div className="max-w-3xl mx-auto">
       <header className="mb-8">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-navy dark:text-white">Mis Pasajes</h1>
         <p className="text-muted dark:text-stone-400 mt-2">
-          Ingresa tu código de reserva para ver tus pasajes.
+          Ingresa el código de una reserva hecha con esta cuenta para ver tus pasajes.
         </p>
       </header>
 
@@ -128,19 +149,24 @@ export default function MisPasajes() {
                   <Bus size={16} aria-hidden="true" /> {viaje.bus_placa}
                 </span>
               )}
-              {codigoReserva && (
+              {codigoReserva && !cancelada && (
                 <div className="ml-auto flex flex-wrap gap-2">
-                  <a
-                    href={getPdfUrl(codigoReserva)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-6 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
+                  <button
+                    type="button"
+                    onClick={descargar}
+                    disabled={descargando}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-6 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:opacity-60 dark:focus-visible:ring-offset-stone-900"
                   >
                     <Download size={18} aria-hidden="true" />
-                    Descargar boleto (PDF)
-                  </a>
+                    {descargando ? 'Descargando...' : 'Descargar boleto (PDF)'}
+                  </button>
                   <Button variant="outline" onClick={() => window.print()}>Imprimir</Button>
                 </div>
+              )}
+              {cancelada && (
+                <p className="ml-auto text-sm font-semibold text-red-600 dark:text-red-400">
+                  Reserva cancelada: el boleto ya no es válido.
+                </p>
               )}
             </div>
           )}
@@ -170,9 +196,16 @@ export default function MisPasajes() {
           ))}
 
           <div className="card p-5 flex flex-wrap items-center justify-between gap-4 border-primary/40">
-            <span className="font-semibold text-navy dark:text-white">Total pagado</span>
+            <span className="font-semibold text-navy dark:text-white">
+              {pagoSimulado ? 'Total (pago simulado)' : 'Total pagado'}
+            </span>
             <span className="text-2xl font-extrabold text-primary">S/ {total.toFixed(2)}</span>
           </div>
+          {pagoSimulado && (
+            <p role="note" className="text-xs font-semibold text-amber-700 dark:text-amber-300 text-center">
+              Compra de demostración: el pago es simulado y no se realizó ningún cobro real.
+            </p>
+          )}
 
           <p className="text-xs text-muted dark:text-stone-500 text-center">
             ¿Perdiste el código? Puedes buscarlo en el correo con el que compraste.

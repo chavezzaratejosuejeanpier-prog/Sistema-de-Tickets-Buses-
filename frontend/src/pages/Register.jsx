@@ -1,15 +1,19 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { register } from '../services/api.js'
 import Input from '../components/common/Input.jsx'
 import Button from '../components/common/Button.jsx'
+import { destinoTrasLogin } from '../utils/destino.js'
 
 export default function Register() {
   const [form, setForm] = useState({ nombre: '', email: '', password: '', confirmar: '' })
   const [showPw, setShowPw] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const navigate = useNavigate()
+  // Conserva la ruta de retorno (p. ej. /checkout) a través del registro.
+  const retorno = destinoTrasLogin(useLocation())
+  const estadoLogin = retorno ? { from: retorno } : undefined
 
   const handle = async (e) => {
     e.preventDefault()
@@ -40,7 +44,7 @@ export default function Register() {
         icon: 'success',
         confirmButtonColor: '#EA580C',
       })
-      navigate('/login', { replace: true })
+      navigate('/login', { replace: true, state: estadoLogin })
     } catch (err) {
       Swal.fire({
         title: 'No pudimos crear la cuenta',
@@ -81,7 +85,7 @@ export default function Register() {
         </form>
       </div>
       <p className="text-sm text-muted dark:text-stone-400 text-center mt-4">
-        ¿Ya tienes cuenta? <Link to="/login" className="text-primary hover:underline">Inicia sesión</Link>
+        ¿Ya tienes cuenta? <Link to="/login" state={estadoLogin} className="text-primary hover:underline">Inicia sesión</Link>
       </p>
     </div>
   )

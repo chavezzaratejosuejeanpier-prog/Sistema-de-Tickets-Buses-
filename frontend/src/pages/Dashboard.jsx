@@ -67,9 +67,14 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
         <div className="card p-6 flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-muted dark:text-stone-400">Ventas Hoy</p>
+            <p className="text-sm font-medium text-muted dark:text-stone-400">Ventas Hoy (simuladas)</p>
             <p className="text-2xl font-bold text-navy dark:text-white mt-1">{ventas?.ventas_hoy ?? '--'}</p>
-            <p className="text-sm text-green-600 dark:text-green-400">{moneda(ventas?.recaudacion_hoy)}</p>
+            <p className="text-sm text-green-600 dark:text-green-400">
+              {moneda(ventas?.recaudacion_hoy)} <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">ingreso simulado</span>
+            </p>
+            <p role="note" className="mt-1 text-xs text-muted dark:text-stone-400">
+              Compras de demostración: sin cobro real ni conciliación de pagos.
+            </p>
           </div>
           <span className="inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-lg bg-primary/10 text-primary">
             <TrendingUp size={20} aria-hidden="true" />
