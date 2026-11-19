@@ -11,8 +11,8 @@ Uso no interactivo (solo variables de la sesión, nunca en archivos):
 Reglas:
 - Nunca modifica ni desactiva cuentas existentes: si el correo ya existe,
   termina con error sin cambiar nada.
-- No crea ni repara tablas: la base debe estar inicializada (la API crea el
-  esquema al arrancar).
+- No crea ni repara tablas: la base debe estar migrada antes con
+  `python migrar.py` (la API tampoco crea el esquema al arrancar).
 - Nunca imprime la contraseña.
 """
 import argparse
@@ -120,7 +120,7 @@ def main(argv=None) -> int:
         return 1
 
     if not esquema_listo():
-        print("Administrador no creado: la base no está inicializada. Arranca la API una vez y repite.")
+        print("Administrador no creado: la base no está inicializada. Ejecuta python migrar.py y repite.")
         return 1
 
     db = SessionLocal()

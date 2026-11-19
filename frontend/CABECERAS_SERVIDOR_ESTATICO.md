@@ -1,9 +1,19 @@
 # Cabeceras HTTP del servidor estático de la SPA
 
-`SecurityHeadersMiddleware` (`backend/app/core/http.py`) solo añade cabeceras
-a las respuestas de FastAPI (`/api/*`). El `index.html`, `sw.js`,
-`manifest.json` y `/assets/*` generados por `npm run build` los entrega otro
-servidor (nginx, Caddy, CDN, etc.), que **debe** añadir estas cabeceras.
+**Opción recomendada (mismo origen, sin servidor adicional):** con
+`SERVIR_FRONTEND=true` la propia API entrega `frontend/dist` junto a `/api`
+(`backend/app/core/spa.py`) y aplica automáticamente lo descrito en este
+documento: CSP con los hashes de los scripts en línea calculados al arrancar
+desde `dist/index.html` (sin recalcular a mano), `upgrade-insecure-requests`
+y HSTS solo sobre HTTPS, cabeceras de seguridad, políticas de caché y
+fallback de la SPA sin afectar a `/api/*` ni a estáticos inexistentes. Es la
+configuración de `DESPLIEGUE_RENDER_NEON.md`.
+
+**Alternativa:** si otro servidor (nginx, Caddy, CDN, etc.) entrega el
+`index.html`, `sw.js`, `manifest.json` y `/assets/*` generados por
+`npm run build`, ese servidor **debe** añadir estas cabeceras;
+`SecurityHeadersMiddleware` (`backend/app/core/http.py`) solo cubre entonces
+las respuestas de FastAPI.
 
 ## Cabeceras obligatorias (todas las respuestas de la SPA)
 
@@ -129,8 +139,8 @@ server {
 ```
 
 Con `location /api/` el proxy debe pasar las cabeceras reales del cliente y
-Uvicorn ejecutarse con `--proxy-headers --forwarded-allow-ips=<IP del proxy>`
-(ver `backend/INICIALIZACION_SEGURA.md`).
+la API ejecutarse con `PROXY_IPS_CONFIABLES=127.0.0.1` y `PROXY_SALTOS=1`
+(`python servidor.py`; ver `backend/INICIALIZACION_SEGURA.md`).
 
 ## Notas de XSS / CSRF
 

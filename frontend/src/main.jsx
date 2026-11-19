@@ -21,6 +21,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 // El service worker solo se registra en producción para no servir shells obsoletos en desarrollo.
 if (import.meta.env.PROD && 'serviceWorker' in window.navigator) {
   window.addEventListener('load', () => {
-    window.navigator.serviceWorker.register('/sw.js').catch(() => {})
+    // updateViaCache 'none': el navegador siempre revalida sw.js con el servidor.
+    window.navigator.serviceWorker
+      .register('/sw.js', { scope: '/', updateViaCache: 'none' })
+      .catch(() => {})
   })
 }

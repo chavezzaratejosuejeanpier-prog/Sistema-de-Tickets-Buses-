@@ -21,7 +21,7 @@ from datetime import date, datetime, timedelta, timezone
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from tests.apoyo import SessionLocal, directorio_temporal, llamar, reiniciar_bd, token_de
+from tests.apoyo import SessionLocal, directorio_temporal, engine, llamar, reiniciar_bd, token_de
 
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.exc import OperationalError
@@ -32,6 +32,7 @@ from app import migraciones
 from app.core import tiempo
 from app.core.config import ConfiguracionInvalida, cargar_settings
 from app.core.security import hashear_password, verificar_password
+from app.esquema import migrar
 from app.models.bus import Bus, BusTipo
 from app.models.route import Route
 from app.models.user import RolUsuario, User
@@ -142,6 +143,7 @@ class SeedDemoTest(_Base):
             db.commit()
         finally:
             db.close()
+        migrar(engine)  # paso explícito, separado del seed
         antes = self._usuarios()
         salida = io.StringIO()
         with patch.object(seed.programa, "sincronizar_ventana", return_value=0), redirect_stdout(salida):

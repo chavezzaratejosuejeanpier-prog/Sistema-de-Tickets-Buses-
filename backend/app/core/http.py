@@ -27,6 +27,11 @@ CABECERAS_SEGURIDAD = {
     "Cross-Origin-Resource-Policy": "same-origin",
 }
 CSP_API = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+# Documento HTML de la SPA (solo cuando la API sirve frontend/dist).
+CABECERAS_SPA = {
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(self), geolocation=(), payment=()",
+}
 # Login y registro devuelven tokens o datos de cuenta: nunca se cachean,
 # tampoco sus respuestas de error (401, 422, 429...).
 RUTAS_SIN_CACHE = ("/api/auth",)
@@ -38,11 +43,27 @@ CONFLICTO_DATOS = "La operación entra en conflicto con datos existentes."
 CUERPO_EXCESIVO = "La solicitud es demasiado grande."
 
 
-class SecurityHeadersMiddleware:
-    """ASGI puro: añade cabeceras a toda respuesta, incluidas las de error."""
+def es_ruta_api(ruta: str) -> bool:
+    """Rutas que responde FastAPI; el resto es la SPA cuando está activa."""
+    return (
+        ruta in ("/api", "/health")
+        or ruta.startswith(("/api/", "/health/"))
+        or ruta.startswith(RUTAS_DOCS)
+    )
 
-    def __init__(self, app):
+
+class SecurityHeadersMiddleware:
+    """ASGI puro: añade cabeceras a toda respuesta, incluidas las de error.
+
+    Con `spa` (build de React servido en el mismo origen) las rutas que no
+    son de la API reciben las cabeceras del documento HTML: CSP con los
+    hashes de sus scripts en línea, micrófono solo para el propio origen
+    (funciones de voz) y `strict-origin-when-cross-origin`.
+    """
+
+    def __init__(self, app, spa=None):
         self.app = app
+        self.spa = spa
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
@@ -51,13 +72,17 @@ class SecurityHeadersMiddleware:
         es_docs = ruta.startswith(RUTAS_DOCS)
         es_https = scope.get("scheme") == "https"
         sin_cache = ruta.startswith(RUTAS_SIN_CACHE)
+        es_spa = self.spa is not None and not es_ruta_api(ruta)
 
         async def enviar(mensaje):
             if mensaje["type"] == "http.response.start":
                 headers = list(mensaje.get("headers", []))
                 presentes = {k.lower() for k, _ in headers}
                 extra = dict(CABECERAS_SEGURIDAD)
-                if not es_docs:
+                if es_spa:
+                    extra.update(CABECERAS_SPA)
+                    extra["Content-Security-Policy"] = self.spa.csp_https if es_https else self.spa.csp_http
+                elif not es_docs:
                     extra["Content-Security-Policy"] = CSP_API
                 if es_https:
                     # Solo con TLS: los navegadores ignoran HSTS sobre HTTP.

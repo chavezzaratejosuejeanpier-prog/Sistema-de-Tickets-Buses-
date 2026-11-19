@@ -1,12 +1,16 @@
 {
+  "id": "/",
   "name": "LUX - Líneas Únicas Xpress",
   "short_name": "LUX",
   "description": "Compra pasajes de bus en línea. Busca rutas, elige tu asiento y reserva.",
+  "lang": "es-PE",
+  "dir": "ltr",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0F172A",
   "theme_color": "#0F172A",
   "icons": [
-    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]
 }

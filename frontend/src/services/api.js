@@ -1,8 +1,14 @@
 import axios from 'axios'
 import { urlLogin } from '../utils/destino.js'
 import { borrarSesion, obtenerToken } from '../utils/sesion.js'
+import { normalizarBaseApi } from '../utils/apiBase.js'
 
-const BASE_URL = import.meta.env?.VITE_API_URL || '/api'
+// VITE_API_URL es un valor público: toda variable VITE_* puede quedar en el
+// bundle, por eso vite.config.js rechaza nombres que parezcan secretos.
+// En un build de producción (cualquier `--mode`) nunca se usa loopback.
+const BASE_URL = normalizarBaseApi(import.meta.env?.VITE_API_URL, {
+  produccion: Boolean(import.meta.env?.PROD),
+})
 
 const api = axios.create({
   baseURL: BASE_URL,

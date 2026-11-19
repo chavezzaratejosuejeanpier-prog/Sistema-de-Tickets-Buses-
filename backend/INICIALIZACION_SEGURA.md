@@ -18,28 +18,65 @@ predeterminadas. Ningún paso imprime ni guarda contraseñas en el repositorio.
    las sesiones abiertas.
 3. `ALGORITHM` admite solo `HS256`, `HS384` o `HS512`.
    `ACCESS_TOKEN_EXPIRE_MINUTES` debe estar entre 1 y 1440.
-4. En producción, `DOCS_ENABLED=false` para no publicar Swagger/ReDoc/OpenAPI.
+4. `ENTORNO=produccion` activa controles que impiden arrancar con una
+   configuración insegura: `DATABASE_URL` explícita; PostgreSQL remoto con
+   `sslmode=require|verify-ca|verify-full`; SQLite solo con
+   `PERMITIR_SQLITE_PRODUCCION=true` y ruta absoluta; documentación
+   desactivada (`DOCS_ENABLED` vacío o `false`); `HOSTS_PERMITIDOS` sin `*`;
+   `CORS_ORIGENES` solo https. Los errores nombran el campo y el motivo,
+   nunca el valor (la URL puede contener la contraseña).
+5. Todas las variables están documentadas en `backend/.env.example`; la guía
+   de despliegue está en `DESPLIEGUE_RENDER_NEON.md` (raíz del repositorio).
 
-## 2. Esquema de la base
+## 2. Esquema de la base (migración explícita y versionada)
 
-La API crea las tablas que faltan y aplica migraciones **aditivas** al
-arrancar (`app/migraciones.py`): columnas nuevas de `reservas` y el índice
-único parcial de asientos `uq_ticket_ruta_asiento`, que se crea si falta o se
-actualiza si tiene el predicado antiguo. Cada cambio de índice va en una
-transacción explícita (en SQLite `BEGIN IMMEDIATE`): si falla, se revierte y
-el índice anterior queda intacto. Si el índice no puede crearse (asientos
-ocupados duplicados en datos heredados) la API **no arranca** hasta que se
-corrijan esos datos.
+La API **no ejecuta DDL** al importarse ni al arrancar. El esquema se crea y
+actualiza solo con Alembic, mediante un comando explícito:
 
-Nada borra ni reconstruye tablas automáticamente. Si una base antigua conserva
-`UNIQUE(codigo_reserva)` o un `UNIQUE(route_id, numero_asiento)` sin
-predicado, la API y el seed lo avisan; la corrección (copia de seguridad,
-recrear `tickets` y copiar filas) es manual.
+```bash
+cd backend
+python migrar.py --estado   # revisión actual y requerida (código 3 si hay pendientes)
+python migrar.py            # aplica las revisiones pendientes
+```
+
+- Al arrancar, la API comprueba que la base esté en la revisión requerida.
+  Si no lo está, registra el motivo y **no arranca**. `GET /health/ready`
+  devuelve 503 con `"schema": "pending"` en ese caso.
+- `migrar.py` aplica todas las revisiones en **una transacción**. En
+  PostgreSQL el DDL es transaccional y se serializa con un bloqueo consultivo
+  (`lock_timeout` de 15 s). En SQLite usa un motor dedicado con
+  `BEGIN IMMEDIATE`: ante cualquier error se revierte todo, incluidos los
+  `ALTER TABLE` y la tabla `alembic_version`.
+- Nunca imprime la URL de la base ni mensajes de excepción con SQL o datos.
+- Revisión base `0001_esquema_base` (`alembic_migraciones/versions/`):
+  - base vacía: crea las cinco tablas con DDL explícito, sin depender de los
+    modelos actuales;
+  - base anterior sin versión (creada con `create_all`): crea solo lo que
+    falta y aplica los pasos aditivos de `app/migraciones.py` (columnas
+    `ruc`, `user_id`, `metodo_pago` de `reservas` y el índice único parcial
+    `uq_ticket_ruta_asiento`, creado o actualizado si tiene el predicado
+    antiguo). Si hay asientos ocupados duplicados, la migración completa se
+    revierte y la API sigue sin arrancar hasta corregir esos datos.
+- La revisión base no se revierte (`downgrade`): eliminaría las ventas. Ante
+  un problema, se restaura una copia verificada.
+- Nuevas revisiones: `alembic revision -m "descripcion"` desde `backend/`
+  (usa `alembic.ini`); escribirlas compatibles con la versión anterior del
+  código durante la ventana de rollback.
+
+Una restricción histórica incompatible puede detener y revertir la migración.
+Por ejemplo, `UNIQUE(codigo_reserva)` en `tickets` impide vender varios
+asientos en una misma reserva. Revisa la restricción y los datos en una
+copia verificada antes de decidir la corrección. Continúa con la
+inicialización solo cuando `python migrar.py` termine correctamente.
+
+**Antes de migrar una base con datos:** copia consistente y verificada
+(SQLite: API de backup con la API detenida; PostgreSQL/Neon: rama o
+`pg_dump`), ensayo sobre la copia y conteos por tabla antes y después.
 
 ## 3. Primer administrador (`bootstrap_admin.py`)
 
 Solo crea la cuenta: no carga datos de ejemplo ni crea o repara tablas
-(arranca la API una vez antes para crear el esquema).
+(ejecuta antes `python migrar.py`).
 
 Opción interactiva (recomendada; la contraseña se escribe sin eco):
 
@@ -74,28 +111,58 @@ el servidor.
 
 ```bash
 cd backend
-DATABASE_URL=sqlite:////ruta/absoluta/dev.db python seed.py --desarrollo
+export DATABASE_URL=sqlite:////ruta/absoluta/dev.db
+python migrar.py && python seed.py --desarrollo
 ```
 
 - Exige `--desarrollo` y una `DATABASE_URL` **explícita** (entorno o `.env`)
   de tipo SQLite en archivo. Sin ellas no hace nada (código 2): no hay ruta de
   respaldo ni se usa PostgreSQL.
-- Crea los buses del catálogo (si no hay ninguno) y las salidas que faltan.
+- El seed comprueba la revisión del esquema. Si hay migraciones pendientes,
+  termina con código 3 sin cargar datos. Con el esquema al día, crea los
+  buses del catálogo (si no hay ninguno) y las salidas que faltan.
 - No crea, modifica ni desactiva usuarios, y no reconstruye tablas.
 
 ## 5. Arranque
 
 ```bash
-uvicorn app.main:app --host 127.0.0.1 --port 8000 --no-server-header --no-access-log
+python migrar.py      # solo si hay revisiones pendientes
+python servidor.py    # HOST/PORT/WEB_CONCURRENCY/LOG_* desde la configuración
 ```
 
-- Detrás de un proxy (Caddy, Render…), añade `--proxy-headers
-  --forwarded-allow-ips=<IP del proxy>` para que el limitador de intentos vea la
-  IP real del cliente. No uses `*` salvo que el puerto solo sea accesible
-  desde el proxy.
-- El registro de acceso predeterminado de Uvicorn incluye la URL. El comando anterior lo desactiva para evitar registrar localizadores. El proxy también debe omitirlos.
-- No uses `--reload` fuera de desarrollo.
-- `GET /health` devuelve 503 si la base de datos no responde.
+`servidor.py` ejecuta Uvicorn sin `--reload`, sin cabecera `Server`, sin el
+log de acceso de Uvicorn (incluye la URL con localizadores) y con
+`log_config=None` para usar el registro JSON propio.
+
+- **Host y puerto:** `HOST` (por defecto `127.0.0.1`) y `PORT` (por defecto
+  8000). En Render, `HOST=0.0.0.0` y el `PORT` que inyecta la plataforma.
+- **Proxy confiable.** Deja `PROXY_IPS_CONFIABLES` vacío hasta verificar con
+  el proveedor qué direcciones IP o redes CIDR acotadas corresponden al proxy
+  de entrada. Configura solo esas direcciones. Producción rechaza `*`.
+  Ajusta `PROXY_SALTOS` al número de proxies confiables que escriben en
+  `X-Forwarded-For`.
+  La IP del cliente es la entrada número `PROXY_SALTOS` desde la derecha, no
+  la de la izquierda, que el cliente puede falsificar. Con la lista vacía se
+  ignoran las cabeceras `X-Forwarded-*`. El soporte de Uvicorn
+  (`--proxy-headers`) queda desactivado en `servidor.py`; si lanzas `uvicorn`
+  a mano usa `--no-proxy-headers`.
+- **Hosts:** `HOSTS_PERMITIDOS` (400 para otros `Host`; `/health*` queda
+  exento para las sondas de la plataforma).
+- **CORS:** `CORS_ORIGENES` con orígenes exactos; vacío = solo mismo origen.
+  El servidor de Vite en loopback solo se admite fuera de `produccion`.
+- **Frontend en el mismo origen:** `SERVIR_FRONTEND=true` sirve
+  `frontend/dist` (o `FRONTEND_DIST`): `/assets/*` con caché inmutable,
+  `index.html`/`sw.js`/`manifest.json` con `no-cache`, fallback de la SPA para
+  rutas de navegación, 404 para estáticos inexistentes y para `/api/*`, y la
+  CSP del documento con los hashes de sus scripts en línea calculados al
+  arrancar. Si falta el build, la API no arranca.
+- **Registro:** JSON en stderr (`LOG_FORMAT=json`) con `request_id`, método,
+  plantilla de ruta, estado y duración; nunca la ruta real, la query, cuerpos
+  ni mensajes de excepción. Cada respuesta lleva `X-Request-ID`.
+- **Salud:** `GET /health/live` (proceso), `GET /health` (base de datos) y
+  `GET /health/ready` (base y esquema al día). 503 si fallan.
+- Un solo proceso (`WEB_CONCURRENCY=1`) mientras el limitador de intentos sea
+  en memoria.
 
 ## 6. Controles activos
 
@@ -122,4 +189,30 @@ Las pruebas usan una base SQLite temporal y una clave ficticia; no tocan
 ```bash
 cd backend && python -m unittest discover -s tests -t .
 cd frontend && npm test
+```
+
+### PostgreSQL real aislado
+
+`tests/test_postgres_real.py` ejecuta migración, ciclo completo con checkout
+de demostración y concurrencia contra un servidor PostgreSQL real. Sin
+servidor configurado se omite. Nunca usa `DATABASE_URL` ni `backend/.env`.
+
+Opción A, contenedor desechable (el nombre de la base debe contener `test`
+o `prueba`; cada clase crea y elimina su propio esquema):
+
+```bash
+docker run --rm -d --name buss-pg-prueba -e POSTGRES_PASSWORD=clave-sintetica \
+  -e POSTGRES_DB=buss_prueba -p 127.0.0.1:55432:5432 postgres:17-alpine
+cd backend
+BUSS_TEST_POSTGRES_URL=postgresql://postgres:clave-sintetica@127.0.0.1:55432/buss_prueba \
+  python -m unittest tests.test_postgres_real -v
+docker stop buss-pg-prueba
+```
+
+Opción B, clúster efímero local (requiere `initdb` y `pg_ctl`, en PATH o en
+`PG_BIN`; escucha solo en un socket Unix temporal y se borra al terminar):
+
+```bash
+cd backend
+BUSS_TEST_POSTGRES_EFIMERO=1 python -m unittest tests.test_postgres_real -v
 ```

@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
-from tests.apoyo import SessionLocal, app, directorio_temporal, llamar, reiniciar_bd, token_de
+from tests.apoyo import SessionLocal, app, directorio_temporal, engine, llamar, reiniciar_bd, token_de
 
 from jose import jwt
 from pydantic import ValidationError
@@ -30,6 +30,7 @@ from app.core.config import Settings, settings
 from app.core.security import hashear_password, verificar_password
 from app.core.tiempo import hoy_lima
 from app.database import get_db
+from app.esquema import migrar
 from app.migraciones import aplicar_migraciones
 from app.models.bus import Bus, BusTipo
 from app.models.reserva import Reserva
@@ -170,6 +171,8 @@ class SeedSeguroTest(BaseEndurecimiento):
             db.commit()
         finally:
             db.close()
+        # La migración es un paso explícito y separado del seed.
+        migrar(engine)
         antes = self._usuarios()
         codigo, salida = self._ejecutar_seed()
         self.assertEqual(codigo, 0, salida)

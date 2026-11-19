@@ -1,6 +1,10 @@
 // Incrementar la versión al cambiar la lista de recursos para invalidar cachés anteriores.
+// El servidor entrega este archivo con Cache-Control: no-cache y el registro
+// usa updateViaCache: 'none', así cada publicación se detecta al navegar.
 const CACHE_PREFIX = 'lux-v'
-const CACHE_NAME = `${CACHE_PREFIX}2`
+const CACHE_NAME = `${CACHE_PREFIX}3`
+// Nunca se interceptan ni se guardan: API (datos personales y boletos) y sondas.
+const RUTAS_EXCLUIDAS = ['/api', '/health']
 // Solo recursos estáticos que existen en /public. No se precachea HTML.
 const ASSETS = [
   '/manifest.json',
@@ -49,7 +53,7 @@ self.addEventListener('fetch', (e) => {
 
   const url = new URL(request.url)
   if (url.origin !== self.location.origin) return
-  if (url.pathname === '/api' || url.pathname.startsWith('/api/')) return
+  if (RUTAS_EXCLUIDAS.some((r) => url.pathname === r || url.pathname.startsWith(`${r}/`))) return
 
   // Navegación: siempre red primero; sin red, página offline explícita.
   if (request.mode === 'navigate') {

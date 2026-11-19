@@ -2,13 +2,17 @@
 
 Requisitos (si falta alguno, no hace nada y termina con código 2):
 - opt-in explícito: `python seed.py --desarrollo`;
+- `ENTORNO` distinto de `produccion` (en producción nunca se ejecuta);
 - `DATABASE_URL` definida explícitamente (entorno o backend/.env) y de
   tipo SQLite en archivo. No hay valor por defecto ni ruta de respaldo: el
   seed nunca escribe en una base que no se haya indicado.
 
+No ejecuta DDL: la migración es un paso separado y explícito
+(`python migrar.py` con la misma DATABASE_URL). Si el esquema no está en la
+revisión requerida, termina con código 3 sin escribir nada.
+
 Nunca crea, modifica ni desactiva usuarios (el primer administrador se
-crea con `bootstrap_admin.py`) y nunca reconstruye ni borra tablas: solo
-crea las que faltan y aplica las migraciones aditivas de la API.
+crea con `bootstrap_admin.py`) y nunca reconstruye ni borra tablas.
 """
 import argparse
 import sys
@@ -17,12 +21,15 @@ from sqlalchemy.engine import make_url
 
 from app.core.catalogo import BUSES
 from app.core.config import settings
-from app.database import Base, SessionLocal, engine
-from app.migraciones import MigracionFallida, aplicar_migraciones, restricciones_heredadas
+from app.core.http import resumen_traza
+from app.database import SessionLocal, engine
+from app.esquema import EsquemaDesactualizado, verificar_esquema
+from app.migraciones import restricciones_heredadas
 from app.models.bus import Bus, BusTipo
 from app.services import programa
 
 CODIGO_RECHAZADO = 2
+CODIGO_ESQUEMA_PENDIENTE = 3
 
 
 class SeedRechazado(RuntimeError):
@@ -31,6 +38,8 @@ class SeedRechazado(RuntimeError):
 
 def verificar_destino() -> str:
     """Devuelve la ruta del archivo SQLite de DATABASE_URL o lanza SeedRechazado."""
+    if getattr(settings, "ENTORNO", None) == "produccion":
+        raise SeedRechazado("los datos de demostración nunca se cargan con ENTORNO=produccion")
     if "DATABASE_URL" not in settings.model_fields_set:
         raise SeedRechazado(
             "DATABASE_URL no está definida. Indica una base SQLite de desarrollo, "
@@ -48,9 +57,8 @@ def verificar_destino() -> str:
 
 
 def cargar_demo() -> tuple[int, int]:
-    """Crea tablas faltantes, buses (si no hay) y salidas faltantes."""
-    Base.metadata.create_all(bind=engine)
-    aplicar_migraciones(engine)
+    """Exige el esquema al día (sin migrar), crea buses (si no hay) y salidas faltantes."""
+    verificar_esquema(engine)
     db = SessionLocal()
     try:
         buses = 0
@@ -67,7 +75,7 @@ def cargar_demo() -> tuple[int, int]:
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
-        description="Carga buses y salidas de demostración en una base SQLite de desarrollo."
+        description="Carga buses y salidas de demostración en una base SQLite de desarrollo ya migrada."
     )
     parser.add_argument(
         "--desarrollo", action="store_true",
@@ -86,8 +94,13 @@ def main(argv=None) -> int:
 
     try:
         buses, salidas = cargar_demo()
-    except MigracionFallida as exc:
-        print(f"Seed no ejecutado: {exc}")
+    except EsquemaDesactualizado:
+        print("Seed no ejecutado: el esquema no está al día. Ejecuta antes "
+              "`python migrar.py` con la misma DATABASE_URL.")
+        return CODIGO_ESQUEMA_PENDIENTE
+    except Exception as exc:
+        # Sin mensaje: puede incluir SQL o datos.
+        print(f"Seed no ejecutado: {resumen_traza(exc)}")
         return 1
 
     print(f" buses creados: {buses}")

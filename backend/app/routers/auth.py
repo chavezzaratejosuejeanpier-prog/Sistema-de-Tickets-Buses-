@@ -32,8 +32,8 @@ REGISTRO_RECIBIDO = (
 
 
 def _ip(request: Request) -> str:
-    # Detrás de un proxy, Uvicorn debe ejecutarse con --proxy-headers y
-    # --forwarded-allow-ips limitado al proxy para que esta IP sea real.
+    # Detrás de un proxy, ProxyConfiableMiddleware (PROXY_IPS_CONFIABLES y
+    # PROXY_SALTOS) sustituye la IP del proxy por la del cliente.
     return request.client.host if request.client else "desconocido"
 
 
